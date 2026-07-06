@@ -101,7 +101,7 @@ const OUTCOMES: { icon: LucideIcon; title: string; body: string }[] = [
   {
     icon: MousePointerClick,
     title: 'Better usability',
-    body: 'Measurable improvement on the highest-traffic clinical and admin flows.',
+    body: 'Clinical and admin flows that behave consistently, so staff learn the product once.',
   },
   {
     icon: PersonStanding,
@@ -111,7 +111,7 @@ const OUTCOMES: { icon: LucideIcon; title: string; body: string }[] = [
   {
     icon: Sprout,
     title: 'Longevity',
-    body: 'A governance model so the system stays healthy after handoff.',
+    body: 'A governance model so the system stays healthy as the product grows.',
   },
 ]
 
@@ -126,11 +126,11 @@ export function Overview() {
         </h1>
         <div className="mt-5 max-w-2xl space-y-4 text-[15px] leading-relaxed text-forest-500">
           <p>
-            Rednoxx has grown into a broad healthcare platform spanning enrolments, payments,
-            insurance, clinical consultation, prescriptions, lab and surgical orders, and
-            reporting. As with most fast-growing products, features shipped faster than a shared
-            design language could keep up — leaving inconsistent components, uneven spacing,
-            unclear navigation, and gaps in feedback and accessibility.
+            Rednoxx is a healthcare platform spanning enrolments, payments, insurance, clinical
+            consultation, prescriptions, lab and surgical orders, and reporting. This is the
+            design system it&apos;s built from — foundations, thirty-six documented components,
+            and twenty-two auth and healthcare blocks, each with live examples and WCAG 2.2 AA
+            notes, proven in a thirteen-screen product demo assembled entirely from those parts.
           </p>
         </div>
         <div className="mt-6 flex flex-wrap items-center gap-3">
