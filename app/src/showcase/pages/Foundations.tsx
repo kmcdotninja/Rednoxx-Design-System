@@ -357,32 +357,25 @@ export function Foundations() {
           </Card>
         </div>
 
-        <Card className="mt-4 overflow-x-auto p-0" pad={false}>
-          <div className="min-w-[680px]">
-            <div className="grid grid-cols-[7.5rem_3rem_3rem_3.5rem_4.5rem_1fr] gap-x-4 border-b border-hair bg-panel/60 px-5 py-2 text-[11px] font-medium uppercase tracking-[0.08em] text-forest-300">
-              <span>Style</span>
-              <span>Size</span>
-              <span>Line</span>
-              <span>Weight</span>
-              <span>Tracking</span>
-              <span>Usage</span>
+        <Card className="mt-4 divide-y divide-hair/70 p-0" pad={false}>
+          {TYPE_SCALE.map((t) => (
+            <div
+              key={t.name}
+              className="flex flex-col gap-2 px-5 py-4 sm:flex-row sm:items-baseline sm:justify-between sm:gap-8 sm:px-6"
+            >
+              <p className={cn(t.cls, 'min-w-0 truncate text-forest')}>{t.sample}</p>
+              <div className="shrink-0 sm:w-72 sm:text-right">
+                <p className="text-[12px] font-medium text-forest">
+                  {t.name}
+                  <span className="tnum ml-2 font-mono text-[11px] font-normal text-forest-400">
+                    {t.px}/{t.lh} · {t.weight}
+                    {t.tracking !== '0' && ` · ${t.tracking}`}
+                  </span>
+                </p>
+                <p className="mt-0.5 text-[11px] leading-relaxed text-forest-300">{t.usage}</p>
+              </div>
             </div>
-            <div className="divide-y divide-hair/70">
-              {TYPE_SCALE.map((t) => (
-                <div key={t.name} className="px-5 py-3.5">
-                  <div className="tnum grid grid-cols-[7.5rem_3rem_3rem_3.5rem_4.5rem_1fr] gap-x-4 text-[12px] text-forest-400">
-                    <span className="font-medium text-forest">{t.name}</span>
-                    <span>{t.px}px</span>
-                    <span>{t.lh}</span>
-                    <span>{t.weight}</span>
-                    <span>{t.tracking}</span>
-                    <span className="text-forest-400">{t.usage}</span>
-                  </div>
-                  <p className={cn(t.cls, 'mt-1.5 truncate text-forest')}>{t.sample}</p>
-                </div>
-              ))}
-            </div>
-          </div>
+          ))}
         </Card>
       </Section>
 
