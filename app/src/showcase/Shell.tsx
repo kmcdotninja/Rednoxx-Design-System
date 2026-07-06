@@ -43,25 +43,13 @@ function navClass(isActive: boolean) {
   )
 }
 
-function SidebarContent({ onNavigate, onSearch }: { onNavigate?: () => void; onSearch: () => void }) {
+function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   return (
     <>
       <div className="flex items-center justify-between px-5 pb-3 pt-5">
         <NavLink to="/" onClick={onNavigate} className="rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-azure/50">
           <Logo className="h-6" />
         </NavLink>
-      </div>
-
-      <div className="px-3 pb-2">
-        <button
-          type="button"
-          onClick={onSearch}
-          className="flex h-9 w-full items-center gap-2 rounded-2xl border border-hair bg-canvas px-2.5 text-[13px] text-forest-300 transition-colors hover:border-navy-200 hover:text-forest-400"
-        >
-          <Search size={14} />
-          <span className="flex-1 text-left">Search…</span>
-          <Kbd>⌘K</Kbd>
-        </button>
       </div>
 
       <nav aria-label="Documentation" className="no-scrollbar flex-1 overflow-y-auto px-3 pb-4">
@@ -190,8 +178,21 @@ export function Shell() {
       />
 
       <aside className="fixed inset-y-0 left-0 z-40 hidden w-60 flex-col border-r border-hair bg-white lg:flex">
-        <SidebarContent onSearch={() => setSearchOpen(true)} />
+        <SidebarContent />
       </aside>
+
+      {/* Desktop search — fixed top-right, shadcn-style */}
+      <div className="fixed right-6 top-5 z-30 hidden lg:block">
+        <button
+          type="button"
+          onClick={() => setSearchOpen(true)}
+          className="flex h-9 w-60 items-center gap-2 rounded-2xl border border-hair bg-white/90 px-3 text-[13px] text-forest-300 shadow-chip backdrop-blur transition-colors hover:border-navy-200 hover:text-forest-400"
+        >
+          <Search size={14} />
+          <span className="flex-1 text-left">Search documentation…</span>
+          <Kbd>⌘K</Kbd>
+        </button>
+      </div>
 
       {/* Mobile top bar */}
       <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-hair bg-white/90 px-4 backdrop-blur lg:hidden">
@@ -232,13 +233,7 @@ export function Shell() {
             >
               <X size={18} />
             </button>
-            <SidebarContent
-              onNavigate={() => setMenuOpen(false)}
-              onSearch={() => {
-                setMenuOpen(false)
-                setSearchOpen(true)
-              }}
-            />
+            <SidebarContent onNavigate={() => setMenuOpen(false)} />
           </div>
         </div>
       )}
