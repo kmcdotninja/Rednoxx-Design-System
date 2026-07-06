@@ -6,12 +6,6 @@ reporting**. As with most fast-growing products, features shipped faster than a
 shared design language could keep up — leaving inconsistent components, uneven
 spacing, unclear navigation, and gaps in feedback and accessibility.
 
-This engagement addresses that at the root. Rather than a cosmetic reskin, we audit
-what exists, learn how clinical and administrative staff actually work, and build a
-**reusable design system** that every future screen can be assembled from — faster
-to build, easier to use, and consistent by default. We don't redesign without a
-clear reason: every change is tied to a measured problem.
-
 ## Repository layout
 
 | Path | What it is |
