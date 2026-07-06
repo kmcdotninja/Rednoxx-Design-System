@@ -72,10 +72,6 @@ export type EmptyVariant =
   | 'chart'
   | 'notifications'
   | 'no-access'
-  // legacy aliases kept for older call sites
-  | 'gem'
-  | 'inbox'
-  | 'users'
 
 /** Hand-drawn ink illustrations in /public/empty — one per situation. */
 const EMPTY_ART: Record<EmptyVariant, string> = {
@@ -87,9 +83,6 @@ const EMPTY_ART: Record<EmptyVariant, string> = {
   chart: '/empty/chart.svg',
   notifications: '/empty/notifications.svg',
   'no-access': '/empty/no-access.svg',
-  gem: '/empty/document.svg',
-  inbox: '/empty/document.svg',
-  users: '/empty/folder.svg',
 }
 
 export function EmptyState({
@@ -128,20 +121,3 @@ export function EmptyState({
   )
 }
 
-/** Section heading inside a card/form. */
-export function SectionLabel({
-  children,
-  hint,
-}: {
-  children: ReactNode
-  hint?: ReactNode
-}) {
-  return (
-    <div className="mb-4">
-      <h4 className="text-sm font-medium uppercase tracking-[0.06em] text-forest-400">
-        {children}
-      </h4>
-      {hint && <p className="mt-1 text-[13px] text-forest-400 normal-case">{hint}</p>}
-    </div>
-  )
-}

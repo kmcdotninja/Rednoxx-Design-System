@@ -4,7 +4,7 @@ import type {
   SelectHTMLAttributes,
   TextareaHTMLAttributes,
 } from 'react'
-import { ChevronDown, Upload } from 'lucide-react'
+import { ChevronDown } from 'lucide-react'
 import { cn } from '@/lib/cn'
 
 const baseField =
@@ -111,31 +111,6 @@ export function Select({ className, children, invalid, ...props }: SelectProps) 
         className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-forest-300"
         size={18}
       />
-    </div>
-  )
-}
-
-export function FileField({
-  label,
-  caption = 'PDF, JPG or PNG · up to 10MB',
-  multiple,
-}: {
-  label?: string
-  caption?: string
-  multiple?: boolean
-}) {
-  return (
-    <div className="group flex cursor-pointer items-center gap-3 rounded-2xl border border-dashed border-hair bg-panel/50 px-4 py-3.5 transition-colors hover:border-forest-300 hover:bg-lime-50/60">
-      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-forest-400 shadow-card transition-colors group-hover:text-forest">
-        <Upload size={18} />
-      </span>
-      <div className="min-w-0">
-        <p className="text-sm font-medium text-forest">
-          {label ?? 'Upload file'}
-          {multiple && <span className="font-normal text-forest-400"> (one or more)</span>}
-        </p>
-        <p className="truncate text-xs text-forest-400">{caption}</p>
-      </div>
     </div>
   )
 }

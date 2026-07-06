@@ -54,30 +54,3 @@ export function StatCard({
     </div>
   )
 }
-
-/** Compact tally used in the listing/trade status summary bars. */
-export function Tally({
-  label,
-  count,
-  value,
-  accent,
-}: {
-  label: string
-  count: number
-  value: string
-  accent?: string
-}) {
-  return (
-    <div className="relative rounded-3xl border border-hair bg-white p-4">
-      <span
-        className="absolute left-4 top-4 h-2 w-2 rounded-full"
-        style={{ background: accent ?? '#cfd6d2' }}
-      />
-      <p className="pl-4 text-[13px] font-medium text-forest-400">{label}</p>
-      <p className="tnum mt-2 text-2xl font-medium tracking-[-0.02em] text-forest">
-        {count}
-      </p>
-      <p className="tnum mt-0.5 text-[13px] font-medium text-forest-400">{value}</p>
-    </div>
-  )
-}
