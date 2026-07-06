@@ -1,0 +1,385 @@
+@import 'tailwindcss';
+
+@theme {
+  /* Typography — Geist (Vercel) */
+  --font-sans: 'Geist', ui-sans-serif, system-ui, -apple-system, 'Segoe UI',
+    Roboto, sans-serif;
+  --font-mono: 'Geist Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+
+  /* ================= Rednoxx design system — neutral ink + violet accent ======
+     Near-black ink for text and primary structure, white surfaces with hairline
+     borders, quiet gray panels, and the brand violet (#5833FB, sampled from the
+     Rednoxx logotype) reserved for accents, focus and data. The component set
+     predates the reskin, so the LEGACY token names (forest/lime/teal/orange) are
+     kept as ALIASES — every existing UI primitive keeps working untouched.
+     "navy" is retained as the token name for the ink scale to avoid churn.
+     The 300/400/500 tones are tuned as high-contrast text tones. */
+
+  /* ---- Primary · Ink ---- */
+  --color-navy-50: #f4f4f6;
+  --color-navy-100: #e9e9ee;
+  --color-navy-200: #d4d4dd;
+  --color-navy-300: #70707f; /* muted text / icons  (~4.7:1 on white) */
+  --color-navy-400: #515160; /* secondary text      (~7:1 on white) */
+  --color-navy-500: #3e3e4c; /* strong secondary    (~9:1 on white) */
+  --color-navy-600: #2a2a38; /* dark-surface hover */
+  --color-navy: #171723;
+  --color-navy-800: #12121c;
+  --color-navy-900: #0a0a11;
+
+  /* ---- Accent · Brand violet (sampled from the Rednoxx logotype, #5833FB) ---- */
+  --color-azure-50: #f3f1ff;
+  --color-azure-100: #e9e4ff;
+  --color-azure-200: #d4cbfe;
+  --color-azure-300: #ab97fd;
+  --color-azure: #5833fb;   /* 6.4:1 on white — AA even as text */
+  --color-azure-500: #4a28e0;
+  --color-azure-600: #3c1ec2;
+
+  /* ---- Support · Mint (success) ---- */
+  --color-mint: #15803d; /* AA text on white */
+  --color-mint-soft: #dcfce7;
+
+  /* ---- Warn · Gold ---- */
+  --color-gold-soft: #fbecc9;
+  --color-gold: #e0a526;
+  --color-gold-600: #9a6b0f; /* darkened for AA text contrast */
+
+  /* ---- Error · Rose ---- */
+  --color-rose-soft: #fee2e2;
+  --color-rose-ink: #b91c1c;
+
+  /* ---- Neutrals — white surfaces, quiet gray panels, hairline borders ---- */
+  --color-canvas: #fcfcfc;
+  --color-panel: #f4f4f5;
+  --color-hair: #e4e4e7;
+
+  /* ================= Legacy aliases (map old names → new values) ================= */
+  --color-forest-50: var(--color-navy-50);
+  --color-forest-100: var(--color-navy-100);
+  --color-forest-200: var(--color-navy-200);
+  --color-forest-300: var(--color-navy-300);
+  --color-forest-400: var(--color-navy-400);
+  --color-forest-500: var(--color-navy-500);
+  --color-forest-600: var(--color-navy-600);
+  --color-forest: var(--color-navy);
+  --color-forest-800: var(--color-navy-800);
+  --color-forest-900: var(--color-navy-900);
+
+  --color-lime-50: var(--color-azure-50);
+  --color-lime-100: var(--color-azure-100);
+  --color-lime-200: var(--color-azure-200);
+  --color-lime-300: var(--color-azure-300);
+  --color-lime: var(--color-azure);
+  --color-lime-500: var(--color-azure-500);
+  --color-lime-600: var(--color-azure-600);
+
+  --color-teal: var(--color-mint);
+  --color-teal-soft: var(--color-mint-soft);
+
+  --color-orange-soft: var(--color-gold-soft);
+  --color-orange: var(--color-gold);
+  --color-orange-600: var(--color-gold-600);
+
+  /* Shadows — neutral & layered (a 1px ring + soft lift, like Uniswap).
+     Pure-black with low alpha so they read clean on any surface instead of
+     picking up a green tint. */
+  --shadow-card: 0 0 0 1px rgb(0 0 0 / 0.04), 0 1px 2px -1px rgb(0 0 0 / 0.05),
+    0 2px 6px -2px rgb(0 0 0 / 0.04);
+  --shadow-card-hover: 0 0 0 1px rgb(0 0 0 / 0.06), 0 2px 6px -2px rgb(0 0 0 / 0.07),
+    0 10px 24px -6px rgb(0 0 0 / 0.08);
+  --shadow-soft: 0 1px 2px rgb(0 0 0 / 0.04), 0 4px 16px -4px rgb(0 0 0 / 0.07);
+  --shadow-pop: 0 0 0 1px rgb(0 0 0 / 0.04), 0 8px 28px -8px rgb(0 0 0 / 0.16);
+  --shadow-chip: 0 0 0 1px rgb(0 0 0 / 0.05), 0 1px 2px rgb(0 0 0 / 0.04);
+
+  /* Radii — Carbon-inspired square corners. Structural surfaces (buttons,
+     inputs, cards, popovers, overlays) sit at 0; only rounded-full survives,
+     for pills, avatars, dots and toggles — the same exception Carbon makes
+     for its tags. Overriding the scale here restyles every component that
+     uses rounded-sm…rounded-5xl without touching them. */
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px; /* chips, small icon buttons */
+  --radius-2xl: 0px; /* buttons, inputs, list rows */
+  --radius-3xl: 0px; /* inner tiles, popovers */
+  --radius-4xl: 0px; /* cards, modals, drawers */
+  --radius-5xl: 0px;
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    background-color: var(--color-canvas);
+    color: var(--color-forest);
+    font-family: var(--font-sans);
+    font-feature-settings: 'cv11', 'ss01';
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection {
+    background: var(--color-azure-100);
+    color: var(--color-navy);
+  }
+
+  /* Tighter, more intentional line breaks */
+  h1, h2, h3, h4 {
+    text-wrap: balance;
+  }
+  p {
+    text-wrap: pretty;
+  }
+
+  /* Tabular figures for money/data tables */
+  .tnum {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: 'tnum';
+  }
+
+  /* Quiet, slim scrollbars */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 transparent;
+  }
+  *::-webkit-scrollbar {
+    width: 9px;
+    height: 9px;
+  }
+  *::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 9999px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+  }
+  *::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+    background-clip: content-box;
+  }
+
+  /* Scrollable but with no visible scrollbar (e.g. the sidebar) */
+  .no-scrollbar {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@layer utilities {
+  /* Subtle entrance used across cards/rows */
+  @keyframes gx-rise {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  /* `backwards` (not `both`): holding the final keyframe would leave a
+     persistent transform, making every risen container a stacking context
+     that traps popovers (e.g. a Combobox list) beneath later siblings. */
+  .animate-rise {
+    animation: gx-rise 0.4s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+  }
+
+  @keyframes gx-pop {
+    from {
+      opacity: 0;
+      transform: scale(0.97) translateY(4px);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+  }
+  .animate-pop {
+    animation: gx-pop 0.16s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  /* Empty-state illustration motion */
+  @keyframes gx-float {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-7px);
+    }
+  }
+  @keyframes gx-float-soft {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-4px);
+    }
+  }
+  @keyframes gx-twinkle {
+    0%,
+    100% {
+      opacity: 0.25;
+      transform: scale(0.85);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+  @keyframes gx-shadow {
+    0%,
+    100% {
+      transform: scaleX(1);
+      opacity: 0.5;
+    }
+    50% {
+      transform: scaleX(0.82);
+      opacity: 0.3;
+    }
+  }
+  .gx-float {
+    animation: gx-float 4s ease-in-out infinite;
+  }
+  .gx-float-soft {
+    animation: gx-float-soft 4.5s ease-in-out infinite;
+  }
+  .gx-twinkle {
+    animation: gx-twinkle 2.4s ease-in-out infinite;
+  }
+  .gx-shadow {
+    animation: gx-shadow 4s ease-in-out infinite;
+    transform-origin: center;
+  }
+
+  /* Floating side drawer */
+  @keyframes gx-drawer-in {
+    from {
+      transform: translateX(105%);
+    }
+    to {
+      transform: translateX(0);
+    }
+  }
+  @keyframes gx-drawer-out {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(105%);
+    }
+  }
+  .animate-drawer-in {
+    animation: gx-drawer-in 0.36s cubic-bezier(0.32, 0.72, 0, 1) both;
+  }
+  .animate-drawer-out {
+    animation: gx-drawer-out 0.26s cubic-bezier(0.36, 0, 0.66, -0.06) both;
+  }
+  @keyframes gx-fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  @keyframes gx-fade-out {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+    }
+  }
+  .animate-fade-in {
+    animation: gx-fade-in 0.32s ease both;
+  }
+  .animate-fade-out {
+    animation: gx-fade-out 0.26s ease both;
+  }
+  @keyframes gx-ping {
+    0% {
+      transform: scale(1);
+      opacity: 0.6;
+    }
+    80%,
+    100% {
+      transform: scale(2.2);
+      opacity: 0;
+    }
+  }
+  .gx-ping {
+    animation: gx-ping 1.6s cubic-bezier(0, 0, 0.2, 1) infinite;
+  }
+
+  /* Notification bell — a brief shake, then rest, looping to draw the eye */
+  @keyframes gx-bell {
+    0%, 65%, 100% {
+      transform: rotate(0);
+    }
+    70% {
+      transform: rotate(-13deg);
+    }
+    76% {
+      transform: rotate(11deg);
+    }
+    82% {
+      transform: rotate(-8deg);
+    }
+    88% {
+      transform: rotate(5deg);
+    }
+    94% {
+      transform: rotate(-2deg);
+    }
+  }
+  .gx-bell {
+    animation: gx-bell 2.8s ease-in-out infinite;
+    transform-origin: top center;
+  }
+
+  /* Icon pop — bouncy tap feedback when a nav item is clicked */
+  @keyframes gx-icon-pop {
+    0% {
+      transform: scale(1) rotate(0);
+    }
+    35% {
+      transform: scale(1.35) rotate(-7deg);
+    }
+    60% {
+      transform: scale(0.92) rotate(4deg);
+    }
+    100% {
+      transform: scale(1) rotate(0);
+    }
+  }
+  .gx-icon-pop {
+    animation: gx-icon-pop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .gx-float,
+    .gx-float-soft,
+    .gx-twinkle,
+    .gx-shadow,
+    .gx-ping,
+    .gx-bell,
+    .gx-icon-pop,
+    .animate-rise,
+    .animate-pop,
+    .animate-drawer-in,
+    .animate-drawer-out,
+    .animate-fade-in,
+    .animate-fade-out {
+      animation: none !important;
+    }
+  }
+}
