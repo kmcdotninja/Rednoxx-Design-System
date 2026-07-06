@@ -1,5 +1,7 @@
 # Rednoxx — Healthcare Platform Design System
 
+![Rednoxx Design System](Preview.png)
+
 Rednoxx has grown into a broad healthcare platform spanning **enrolments, payments,
 insurance, clinical consultation, prescriptions, lab and surgical orders, and
 reporting**. As with most fast-growing products, features shipped faster than a
