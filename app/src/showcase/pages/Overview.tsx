@@ -2,6 +2,7 @@ import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import {
   ArrowRight,
+  Check,
   MousePointerClick,
   PersonStanding,
   Sprout,
@@ -36,15 +37,24 @@ const LAYER_PREVIEWS: Record<string, ReactNode> = {
     </div>
   ),
   Components: (
-    <div className="flex w-full max-w-[168px] flex-col gap-2">
-      <span className="flex h-9 items-center justify-center bg-azure text-[13px] font-medium text-white">
-        Primary
-      </span>
-      <span className="flex h-9 items-center justify-center bg-forest text-[13px] font-medium text-white">
-        Ink
-      </span>
-      <span className="flex h-9 items-center justify-center border border-hair text-[13px] font-medium text-forest-500">
-        Secondary
+    <div className="flex w-full max-w-[168px] flex-col gap-2.5">
+      <div className="flex h-8 items-center border border-hair bg-white px-2.5 text-[11px] text-forest-300">
+        Patient name
+        <span className="ml-0.5 h-3.5 w-px bg-azure" />
+      </div>
+      <div className="flex items-center justify-between">
+        <span className="relative h-5 w-9 rounded-full bg-forest">
+          <span className="absolute right-0.5 top-0.5 h-4 w-4 rounded-full bg-white" />
+        </span>
+        <span className="rounded-full bg-mint-soft px-2 py-0.5 text-[10px] font-medium text-mint">
+          Active
+        </span>
+        <span className="flex h-4 w-4 items-center justify-center bg-azure">
+          <Check size={11} className="text-white" strokeWidth={3} />
+        </span>
+      </div>
+      <span className="flex h-8 items-center justify-center bg-azure text-[12px] font-medium text-white">
+        Save changes
       </span>
     </div>
   ),

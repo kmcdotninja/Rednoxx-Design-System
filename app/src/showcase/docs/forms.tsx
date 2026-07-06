@@ -11,6 +11,7 @@ import {
   Field,
   FileUpload,
   Input,
+  PasswordInput,
   RadioGroup,
   SearchInput,
   Select,
@@ -269,7 +270,7 @@ export const FORM_DOCS: ComponentDoc[] = [
     slug: 'input',
     name: 'Input',
     group: 'Forms',
-    summary: 'Single-line text entry with label, hint, required and disabled states.',
+    summary: 'Single-line text entry with label, hint, required, disabled and password states.',
     props: [
       { name: 'label', type: 'ReactNode', description: 'Field — the visible label above the control.' },
       { name: 'hint', type: 'ReactNode', description: 'Field — helper text under the control.' },
@@ -315,6 +316,21 @@ export const FORM_DOCS: ComponentDoc[] = [
         ),
       },
       {
+        title: 'Password',
+        note: 'PasswordInput hides the value behind type="password" and adds an eye toggle to reveal it. The invalid and disabled states carry over from Input.',
+        wide: true,
+        body: (
+          <div className="grid max-w-2xl gap-4 sm:grid-cols-2">
+            <Field label="Password" required hint="Click the eye to reveal what you typed.">
+              <PasswordInput defaultValue="Garki@2026" />
+            </Field>
+            <Field label="Confirm password" required error="Passwords don’t match yet.">
+              <PasswordInput invalid defaultValue="Garki@202" />
+            </Field>
+          </div>
+        ),
+      },
+      {
         title: 'Disabled and multiline',
         wide: true,
         body: (
@@ -344,6 +360,7 @@ export const FORM_DOCS: ComponentDoc[] = [
       'Required is marked visually and should be enforced in validation copy, not colour alone.',
       'Placeholder text meets 4.5:1 contrast but never substitutes for a label.',
       'Disabled inputs keep their value readable at AA contrast on the gray panel.',
+      'The password eye is a real button — labelled “Show password”, keyboard reachable, with aria-pressed reflecting the state.',
     ],
   },
   {

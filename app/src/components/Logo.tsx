@@ -15,7 +15,7 @@ export function Logo({ className }: { className?: string }) {
       src="/logo.svg"
       alt="Rednoxx"
       draggable={false}
-      className={cn('block h-7 w-auto select-none', className)}
+      className={cn('block h-7 w-auto max-w-fit select-none', className)}
     />
   )
 }

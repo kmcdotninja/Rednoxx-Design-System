@@ -8,6 +8,7 @@ import {
   CodeInput,
   Field,
   Input,
+  PasswordInput,
   Tag,
   Toggle,
   useToast,
@@ -174,8 +175,7 @@ export function SignInPage() {
                   <Input type="email" defaultValue="amina@rednoxx.health" />
                 </Field>
                 <Field label="Password">
-                  <Input
-                    type="password"
+                  <PasswordInput
                     placeholder="••••••••"
                     autoFocus
                     value={password}

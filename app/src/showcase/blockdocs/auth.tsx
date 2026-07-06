@@ -26,6 +26,7 @@ import {
   Field,
   Input,
   Modal,
+  PasswordInput,
   Tag,
   Toggle,
   useToast,
@@ -138,8 +139,7 @@ function LoginExample() {
           <Input type="email" defaultValue="amina@rednoxx.health" />
         </Field>
         <Field label="Password">
-          <Input
-            type="password"
+          <PasswordInput
             placeholder="••••••••"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
@@ -208,7 +208,7 @@ function RegistrationExample() {
           <Input type="email" placeholder="name@facility.rednoxx.health" />
         </Field>
         <Field label="Password" required>
-          <Input type="password" placeholder="8+ characters" />
+          <PasswordInput placeholder="8+ characters" />
         </Field>
         <label className="flex cursor-pointer items-start gap-2.5">
           <input
@@ -439,8 +439,7 @@ function PasswordExample() {
     <AuthCard title="Create a new password" subtitle="Your reset link was verified.">
       <div className="space-y-4">
         <Field label="New password">
-          <Input
-            type="password"
+          <PasswordInput
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Type to watch the meter"
@@ -471,7 +470,7 @@ function PasswordExample() {
           })}
         </ul>
         <Field label="Confirm password" hint={mismatch ? undefined : ' '}>
-          <Input type="password" value={confirm} onChange={(e) => setConfirm(e.target.value)} />
+          <PasswordInput value={confirm} onChange={(e) => setConfirm(e.target.value)} />
         </Field>
         {mismatch && (
           <p className="-mt-2 text-[13px] font-medium text-rose-ink" role="alert">
@@ -719,11 +718,10 @@ export const AUTH_BLOCK_DOCS: Omit<ComponentDoc, 'name' | 'group' | 'summary'>[]
     slug: 'password',
     description:
       'Create, reset and change flows share one card: a four-segment strength meter driven by explicit requirements, each requirement visible and ticking as it passes. The submit gates on all requirements plus a matching confirmation.',
-    code: `<PasswordField
-  value={password}
-  onChange={setPassword}
-  requirements={REQUIREMENTS}
-/>`,
+    code: `<Field label="New password">
+  <PasswordInput value={password} onChange={…} />
+</Field>
+<StrengthMeter value={password} requirements={REQUIREMENTS} />`,
     examples: [
       {
         title: 'Live — type to drive the meter',
@@ -735,6 +733,7 @@ export const AUTH_BLOCK_DOCS: Omit<ComponentDoc, 'name' | 'group' | 'summary'>[]
       'Strength is announced as text (role="status"), never colour-alone bars.',
       'Requirements are a visible checklist, so “weak” is actionable.',
       'The mismatch message is role="alert" and sits directly under the confirm field.',
+      'Both fields carry the show/hide eye — a labelled button with aria-pressed, so users can verify long passwords before submitting.',
     ],
   },
   {

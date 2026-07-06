@@ -1,10 +1,11 @@
+import { useState } from 'react'
 import type {
   InputHTMLAttributes,
   ReactNode,
   SelectHTMLAttributes,
   TextareaHTMLAttributes,
 } from 'react'
-import { ChevronDown } from 'lucide-react'
+import { ChevronDown, Eye, EyeOff } from 'lucide-react'
 import { cn } from '@/lib/cn'
 
 const baseField =
@@ -70,6 +71,38 @@ export function Input({ className, invalid, ...props }: InputProps) {
       className={cn(baseField, 'h-10 px-3', invalid && invalidField, className)}
       {...props}
     />
+  )
+}
+
+/** Input for secrets: type="password" with a show/hide eye toggle. */
+export function PasswordInput({
+  className,
+  invalid,
+  disabled,
+  ...props
+}: Omit<InputProps, 'type'>) {
+  const [visible, setVisible] = useState(false)
+  const Icon = visible ? EyeOff : Eye
+  return (
+    <div className="relative">
+      <input
+        type={visible ? 'text' : 'password'}
+        aria-invalid={invalid || undefined}
+        disabled={disabled}
+        className={cn(baseField, 'h-10 pl-3 pr-10', invalid && invalidField, className)}
+        {...props}
+      />
+      <button
+        type="button"
+        aria-label={visible ? 'Hide password' : 'Show password'}
+        aria-pressed={visible}
+        disabled={disabled}
+        onClick={() => setVisible((v) => !v)}
+        className="absolute right-1 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-xl text-forest-300 transition-colors duration-150 hover:text-forest-500 focus:outline-none focus-visible:text-forest-500 focus-visible:ring-4 focus-visible:ring-azure-50 disabled:hidden"
+      >
+        <Icon size={16} aria-hidden />
+      </button>
+    </div>
   )
 }
 

@@ -64,7 +64,7 @@ export const BLOCKS_META: BlockMeta[] = [
     slug: 'password',
     name: 'Password',
     group: 'Auth',
-    summary: 'Reset and create-password forms with a live strength meter and requirements list.',
+    summary: 'Reset and create-password forms with show/hide toggles, a live strength meter and requirements list.',
   },
   {
     slug: 'org-access',
