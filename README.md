@@ -17,7 +17,6 @@ clear reason: every change is tied to a measured problem.
 | Path | What it is |
 |---|---|
 | [`app/`](app/) | The design-system showcase (React + TypeScript + Vite + Tailwind v4) — foundations, the component library, and a live product demo. See [`app/README.md`](app/README.md) |
-| [`docs/archive/`](docs/archive/) | Material from the previous projects this repo was adapted from |
 
 ## Quick start
 
