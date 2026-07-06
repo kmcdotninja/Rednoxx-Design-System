@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import {
   ArrowRight,
@@ -11,6 +12,7 @@ import {
 import { ButtonLink, Card, Tag } from '@/components/ui'
 import { GROUP_ORDER, docsInGroup } from '../registry'
 import { BLOCK_GROUP_ORDER, blocksInGroup } from '../blocks-meta'
+import { BLOCK_PREVIEWS, COMPONENT_PREVIEWS, PreviewFallback } from './previews'
 
 const LAYERS: { name: string; blurb: string; to: string }[] = [
   { name: 'Foundations', blurb: 'Colour, type, spacing, elevation, motion, icons.', to: '/foundations' },
@@ -19,6 +21,71 @@ const LAYERS: { name: string; blurb: string; to: string }[] = [
   { name: 'Templates', blurb: 'Five page layouts: dashboard, list, record, settings, auth.', to: '/templates' },
   { name: 'Pages', blurb: 'The final screens — the live Rednoxx product demo.', to: '/demo' },
 ]
+
+/** A small, purpose-built visual for each layer card — clean previews, not live demos. */
+const LAYER_PREVIEWS: Record<string, ReactNode> = {
+  Foundations: (
+    <div className="flex flex-col items-center gap-3.5">
+      <span className="text-[52px] font-medium leading-none tracking-[-0.03em] text-forest">Aa</span>
+      <div className="flex gap-1.5">
+        <span className="h-4 w-4 rounded-full bg-azure" />
+        <span className="h-4 w-4 rounded-full bg-forest" />
+        <span className="h-4 w-4 rounded-full bg-mint" />
+        <span className="h-4 w-4 rounded-full bg-gold" />
+      </div>
+    </div>
+  ),
+  Components: (
+    <div className="flex w-full max-w-[168px] flex-col gap-2">
+      <span className="flex h-9 items-center justify-center bg-azure text-[13px] font-medium text-white">
+        Primary
+      </span>
+      <span className="flex h-9 items-center justify-center bg-forest text-[13px] font-medium text-white">
+        Ink
+      </span>
+      <span className="flex h-9 items-center justify-center border border-hair text-[13px] font-medium text-forest-500">
+        Secondary
+      </span>
+    </div>
+  ),
+  Blocks: (
+    <div className="w-full max-w-[188px] border border-hair bg-white p-3.5 shadow-card">
+      <p className="text-[10px] font-medium uppercase tracking-[0.08em] text-forest-300">Revenue</p>
+      <p className="tnum mt-1 text-[22px] font-medium leading-none text-forest">$48.2k</p>
+      <div className="mt-3 flex h-10 items-end gap-1">
+        {[9, 15, 11, 20, 14, 22, 17].map((h, i) => (
+          <span key={i} className="flex-1 bg-azure-100" style={{ height: h }} />
+        ))}
+      </div>
+    </div>
+  ),
+  Templates: (
+    <div className="flex w-full max-w-[188px] gap-2">
+      <div className="h-[92px] w-9 shrink-0 bg-panel" />
+      <div className="flex-1 space-y-2">
+        <div className="h-3.5 w-2/3 bg-panel" />
+        <div className="grid grid-cols-2 gap-2">
+          <div className="h-9 bg-panel" />
+          <div className="h-9 bg-panel" />
+        </div>
+        <div className="h-8 bg-panel" />
+      </div>
+    </div>
+  ),
+  Pages: (
+    <div className="w-full max-w-[188px] border border-hair bg-white p-3.5">
+      <div className="flex items-center justify-between">
+        <div className="h-2.5 w-16 rounded-full bg-panel" />
+        <div className="h-2.5 w-8 rounded-full bg-panel" />
+      </div>
+      <div className="mt-3 flex h-16 items-end gap-1.5">
+        {[40, 62, 48, 80, 56, 72].map((h, i) => (
+          <span key={i} className="flex-1 bg-azure" style={{ height: `${h}%` }} />
+        ))}
+      </div>
+    </div>
+  ),
+}
 
 const OUTCOMES: { icon: LucideIcon; title: string; body: string }[] = [
   {
@@ -64,13 +131,6 @@ export function Overview() {
             reporting. As with most fast-growing products, features shipped faster than a shared
             design language could keep up — leaving inconsistent components, uneven spacing,
             unclear navigation, and gaps in feedback and accessibility.
-          </p>
-          <p>
-            This engagement addresses that at the root. Rather than a cosmetic reskin, we audit
-            what exists, learn how clinical and administrative staff actually work, and build a
-            reusable design system that every future screen can be assembled from — faster to
-            build, easier to use, and consistent by default. We don’t redesign without a clear
-            reason: every change is tied to a measured problem.
           </p>
         </div>
         <div className="mt-6 flex flex-wrap items-center gap-3">
@@ -123,22 +183,24 @@ export function Overview() {
           Components stay generic; blocks capture recurring healthcare patterns; templates and
           pages assemble them. Change flows downhill — a token edit reaches every screen.
         </p>
-        <ol className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-          {LAYERS.map((layer, i) => (
+        <ol className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {LAYERS.map((layer) => (
             <li key={layer.name}>
               <Link
                 to={layer.to}
-                className="group flex h-full flex-col rounded-3xl border border-hair bg-white p-4 transition-[border-color,box-shadow] duration-150 hover:border-navy-200 hover:shadow-card-hover"
+                className="group flex h-full flex-col rounded-4xl border border-hair bg-white p-5 transition-[border-color,box-shadow] duration-150 hover:border-navy-200 hover:shadow-card-hover"
               >
-                <span className="tnum text-[11px] font-medium text-azure-600">{String(i + 1).padStart(2, '0')}</span>
-                <span className="mt-1.5 flex items-center justify-between text-sm font-medium text-forest">
+                <span className="flex items-center justify-between text-[15px] font-medium tracking-[-0.01em] text-forest">
                   {layer.name}
                   <ArrowRight
-                    size={14}
+                    size={15}
                     className="text-forest-200 transition-[transform,color] duration-150 group-hover:translate-x-0.5 group-hover:text-forest-400"
                   />
                 </span>
-                <span className="mt-1 text-[12px] leading-relaxed text-forest-400">{layer.blurb}</span>
+                <div className="flex min-h-[132px] flex-1 items-center justify-center py-6">
+                  {LAYER_PREVIEWS[layer.name]}
+                </div>
+                <span className="text-[12px] leading-relaxed text-forest-400">{layer.blurb}</span>
               </Link>
             </li>
           ))}
@@ -159,7 +221,7 @@ export function Overview() {
                   <Link
                     key={doc.slug}
                     to={`/components/${doc.slug}`}
-                    className="group rounded-3xl border border-hair bg-white p-4 transition-[border-color,box-shadow] duration-150 hover:border-navy-200 hover:shadow-card-hover"
+                    className="group flex flex-col rounded-4xl border border-hair bg-white p-4 transition-[border-color,box-shadow] duration-150 hover:border-navy-200 hover:shadow-card-hover"
                   >
                     <p className="flex items-center justify-between text-sm font-medium text-forest">
                       {doc.name}
@@ -168,7 +230,10 @@ export function Overview() {
                         className="text-forest-200 transition-[transform,color] duration-150 group-hover:translate-x-0.5 group-hover:text-forest-400"
                       />
                     </p>
-                    <p className="mt-1 text-[13px] leading-relaxed text-forest-400">{doc.summary}</p>
+                    <div className="flex min-h-[116px] flex-1 items-center justify-center overflow-hidden py-4">
+                      {COMPONENT_PREVIEWS[doc.slug] ?? <PreviewFallback label={doc.name} />}
+                    </div>
+                    <p className="text-[12px] leading-relaxed text-forest-400">{doc.summary}</p>
                   </Link>
                 ))}
               </div>
@@ -195,7 +260,7 @@ export function Overview() {
                   <Link
                     key={block.slug}
                     to={`/blocks/${block.slug}`}
-                    className="group rounded-3xl border border-hair bg-white p-4 transition-[border-color,box-shadow] duration-150 hover:border-navy-200 hover:shadow-card-hover"
+                    className="group flex flex-col rounded-4xl border border-hair bg-white p-4 transition-[border-color,box-shadow] duration-150 hover:border-navy-200 hover:shadow-card-hover"
                   >
                     <p className="flex items-center justify-between text-sm font-medium text-forest">
                       {block.name}
@@ -204,7 +269,10 @@ export function Overview() {
                         className="text-forest-200 transition-[transform,color] duration-150 group-hover:translate-x-0.5 group-hover:text-forest-400"
                       />
                     </p>
-                    <p className="mt-1 text-[13px] leading-relaxed text-forest-400">{block.summary}</p>
+                    <div className="flex min-h-[116px] flex-1 items-center justify-center overflow-hidden py-4">
+                      {BLOCK_PREVIEWS[block.slug] ?? <PreviewFallback label={block.name} />}
+                    </div>
+                    <p className="text-[12px] leading-relaxed text-forest-400">{block.summary}</p>
                   </Link>
                 ))}
               </div>
