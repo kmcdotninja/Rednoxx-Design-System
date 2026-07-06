@@ -1,11 +1,38 @@
-import { useEffect, useState } from 'react'
-import { NavLink, Outlet, useLocation } from 'react-router-dom'
-import { BookOpen, LayoutTemplate, Menu, MonitorPlay, SwatchBook, X } from 'lucide-react'
+import { useEffect, useMemo, useState } from 'react'
+import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
+import {
+  Blocks,
+  BookOpen,
+  Component,
+  LayoutTemplate,
+  Menu,
+  MonitorPlay,
+  Search,
+  SwatchBook,
+  X,
+} from 'lucide-react'
 import { cn } from '@/lib/cn'
 import { Logo } from '@/components/Logo'
-import { Tag } from '@/components/ui'
-import { GROUP_ORDER, docsInGroup } from './registry'
-import { BLOCK_GROUP_ORDER, blocksInGroup } from './blocks-meta'
+import { CommandMenu, Kbd, Tag, useCommandMenu, type Command } from '@/components/ui'
+import { GROUP_ORDER, REGISTRY, docsInGroup } from './registry'
+import { BLOCK_GROUP_ORDER, BLOCKS_META, blocksInGroup } from './blocks-meta'
+
+/** Demo screens, listed as literals — importing DEMO_NAV would pull the lazy demo chunk into the shell. */
+const DEMO_SCREENS: { slug: string; label: string }[] = [
+  { slug: 'overview', label: 'Overview' },
+  { slug: 'analytics', label: 'Analytics' },
+  { slug: 'reports', label: 'Reports' },
+  { slug: 'patients', label: 'Patients' },
+  { slug: 'appointments', label: 'Appointments' },
+  { slug: 'consultations', label: 'Consultations' },
+  { slug: 'prescriptions', label: 'Prescriptions' },
+  { slug: 'lab-orders', label: 'Lab orders' },
+  { slug: 'surgical-orders', label: 'Surgical orders' },
+  { slug: 'payments', label: 'Payments' },
+  { slug: 'insurance-claims', label: 'Insurance claims' },
+  { slug: 'staff', label: 'Staff' },
+  { slug: 'settings', label: 'Settings' },
+]
 
 function navClass(isActive: boolean) {
   return cn(
@@ -16,13 +43,25 @@ function navClass(isActive: boolean) {
   )
 }
 
-function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
+function SidebarContent({ onNavigate, onSearch }: { onNavigate?: () => void; onSearch: () => void }) {
   return (
     <>
       <div className="flex items-center justify-between px-5 pb-3 pt-5">
         <NavLink to="/" onClick={onNavigate} className="rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-azure/50">
           <Logo className="h-6" />
         </NavLink>
+      </div>
+
+      <div className="px-3 pb-2">
+        <button
+          type="button"
+          onClick={onSearch}
+          className="flex h-9 w-full items-center gap-2 rounded-2xl border border-hair bg-canvas px-2.5 text-[13px] text-forest-300 transition-colors hover:border-navy-200 hover:text-forest-400"
+        >
+          <Search size={14} />
+          <span className="flex-1 text-left">Search…</span>
+          <Kbd>⌘K</Kbd>
+        </button>
       </div>
 
       <nav aria-label="Documentation" className="no-scrollbar flex-1 overflow-y-auto px-3 pb-4">
@@ -97,16 +136,61 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
 /** The documentation shell — fixed sidebar on desktop, overlay menu on mobile. */
 export function Shell() {
   const [menuOpen, setMenuOpen] = useState(false)
+  const [searchOpen, setSearchOpen] = useCommandMenu()
   const { pathname } = useLocation()
+  const navigate = useNavigate()
 
   useEffect(() => {
     setMenuOpen(false)
   }, [pathname])
 
+  const commands: Command[] = useMemo(
+    () => [
+      { id: 'page-overview', label: 'Overview', group: 'Pages', icon: BookOpen, keywords: 'home start engagement layers index', onSelect: () => navigate('/') },
+      { id: 'page-foundations', label: 'Foundations', group: 'Pages', icon: SwatchBook, keywords: 'tokens colour color type typography spacing radius elevation shadow motion icons brand', onSelect: () => navigate('/foundations') },
+      { id: 'page-templates', label: 'Templates', group: 'Pages', icon: LayoutTemplate, keywords: 'layouts dashboard list record settings auth pages', onSelect: () => navigate('/templates') },
+      { id: 'page-demo', label: 'Product demo', group: 'Pages', icon: MonitorPlay, keywords: 'live app screens', onSelect: () => navigate('/demo') },
+      ...REGISTRY.map((doc) => ({
+        id: `component-${doc.slug}`,
+        label: doc.name,
+        group: 'Components',
+        icon: Component,
+        hint: doc.group,
+        keywords: `${doc.slug} ${doc.summary}`,
+        onSelect: () => navigate(`/components/${doc.slug}`),
+      })),
+      ...BLOCKS_META.map((block) => ({
+        id: `block-${block.slug}`,
+        label: block.name,
+        group: 'Blocks',
+        icon: Blocks,
+        hint: block.group,
+        keywords: `${block.slug} ${block.summary}`,
+        onSelect: () => navigate(`/blocks/${block.slug}`),
+      })),
+      ...DEMO_SCREENS.map((screen) => ({
+        id: `demo-${screen.slug}`,
+        label: screen.label,
+        group: 'Product demo',
+        icon: MonitorPlay,
+        keywords: screen.slug,
+        onSelect: () => navigate(`/demo/${screen.slug}`),
+      })),
+    ],
+    [navigate],
+  )
+
   return (
     <div className="min-h-screen bg-canvas">
+      <CommandMenu
+        open={searchOpen}
+        onClose={() => setSearchOpen(false)}
+        commands={commands}
+        placeholder="Search components, blocks, pages…"
+      />
+
       <aside className="fixed inset-y-0 left-0 z-40 hidden w-60 flex-col border-r border-hair bg-white lg:flex">
-        <SidebarContent />
+        <SidebarContent onSearch={() => setSearchOpen(true)} />
       </aside>
 
       {/* Mobile top bar */}
@@ -114,15 +198,25 @@ export function Shell() {
         <NavLink to="/">
           <Logo className="h-5" />
         </NavLink>
-        <button
-          type="button"
-          onClick={() => setMenuOpen(true)}
-          aria-label="Open navigation"
-          aria-expanded={menuOpen}
-          className="flex h-10 w-10 items-center justify-center rounded-xl text-forest-500 transition-colors hover:bg-panel"
-        >
-          <Menu size={18} />
-        </button>
+        <div className="flex items-center gap-1">
+          <button
+            type="button"
+            onClick={() => setSearchOpen(true)}
+            aria-label="Search"
+            className="flex h-10 w-10 items-center justify-center rounded-xl text-forest-500 transition-colors hover:bg-panel"
+          >
+            <Search size={17} />
+          </button>
+          <button
+            type="button"
+            onClick={() => setMenuOpen(true)}
+            aria-label="Open navigation"
+            aria-expanded={menuOpen}
+            className="flex h-10 w-10 items-center justify-center rounded-xl text-forest-500 transition-colors hover:bg-panel"
+          >
+            <Menu size={18} />
+          </button>
+        </div>
       </header>
 
       {/* Mobile overlay menu */}
@@ -138,7 +232,13 @@ export function Shell() {
             >
               <X size={18} />
             </button>
-            <SidebarContent onNavigate={() => setMenuOpen(false)} />
+            <SidebarContent
+              onNavigate={() => setMenuOpen(false)}
+              onSearch={() => {
+                setMenuOpen(false)
+                setSearchOpen(true)
+              }}
+            />
           </div>
         </div>
       )}
