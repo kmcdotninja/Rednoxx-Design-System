@@ -115,7 +115,7 @@ default in long histories.
 | Medication row | drug · dose · route · frequency · duration · start date · prescriber shown together as one unit — never split across screens; allergy/interaction warnings inline ON THE ROW (danger pair), not only elsewhere; dispense chip pending/dispensed/partial |
 | Ward/bed card | bed/ward id, patient or "Vacant"/"Cleaning" status (colour + text + icon), admitting clinician, length of stay |
 | Result trend | sparkline + table toggle; reference range shaded; critical flagged + acknowledged |
-| Claim status chip | submitted→accent, pending→warning, paid→success, rejected→danger |
+| Claim status chip | draft→neutral, submitted→accent, pending review→warning, approved/paid→success, rejected→danger with the payer reason visible on expand — distinct colour+icon+label per state, mirroring `Claim.status` |
 | KPI card / dashboard lists | `.tnum`; delta vs prior period in words + arrow |
 | Filter bar / page header | one pattern product-wide; filters are chips with clear-all |
 | Timeline | encounter/audit history: actor, role, action, timestamp |

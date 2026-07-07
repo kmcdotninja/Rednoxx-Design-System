@@ -92,7 +92,8 @@ usability thresholds are in definition-of-done.md.
 ## 10. Reporting & dashboards
 - Role dashboards from KPI cards + chart blocks; every chart has an
   accessible table toggle; facility/program/period filters as chips.
-- Export (CSV/PDF) with provenance footer: facility, period, generated-by,
+- Export (CSV/PDF) controls clearly labelled with the data scope being
+  exported, plus a provenance footer: facility, period, generated-by,
   timestamp. Indicators aligned to NDHI national reporting.
 
 ## 11. Administration
