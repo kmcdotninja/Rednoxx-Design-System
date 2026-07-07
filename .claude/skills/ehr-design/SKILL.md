@@ -5,59 +5,49 @@ description: Rednoxx EHR/EMR design-system and clinical-safety rules. Use when b
 
 # Building Rednoxx EHR UI
 
-The full normative spec is [docs/EHR-DESIGN-GUIDE.md](../../../docs/EHR-DESIGN-GUIDE.md).
-Read the section you need before building; this file is the operational digest.
+UI/UX here is a patient-safety control, not styling. This file is the router;
+the detail lives in `references/` — read the file that matches the work
+before building:
 
-## Before building a screen
+| Read | When you are… |
+|---|---|
+| [references/design-tokens.md](references/design-tokens.md) | choosing any colour, type style, spacing, shadow, radius, motion, or icon size |
+| [references/components.md](references/components.md) | building/altering components, blocks, or forms |
+| [references/workflows.md](references/workflows.md) | building a module screen (registration, triage, orders, billing, …) |
+| [references/fhir-mapping.md](references/fhir-mapping.md) | wiring fields to data / API contracts |
+| [references/clinical-safety.md](references/clinical-safety.md) | anything touching orders, meds, merge, sign-off, deletion, alerts |
+| [references/accessibility.md](references/accessibility.md) | focus/keyboard/ARIA work, and before calling any screen done |
+| [references/definition-of-done.md](references/definition-of-done.md) | finishing a feature — checklists, test thresholds, budgets |
 
-1. Read the module's requirements in guide **§14** (screens, safety controls,
-   FHIR mappings) and the forms rules in **§12** if the screen has inputs.
-2. Check the showcase (`app/src/components/ui`, `app/src/components/blocks`)
-   for an existing primitive or block — **never rebuild or fork one**. Compose.
-3. Clinical screen? It MUST start from the patient banner block (§11.1).
+The narrative version for humans is [docs/EHR-DESIGN-GUIDE.md](../../../docs/EHR-DESIGN-GUIDE.md).
+
+## Workflow
+
+1. **Before a screen:** read the module's section in workflows.md (+
+   fhir-mapping.md if it persists data). Clinical screens start from the
+   patient banner block.
+2. **Compose, never fork.** Check `app/src/components/ui` and
+   `components/blocks` first; extend primitives via props, build screens from
+   blocks.
+3. **Before merge:** run the DoD checklists and the WCAG gates; verify the
+   flow in a running browser (`verify` skill) — a passing build is not
+   verification.
 
 ## Hard rules (violations are defects)
 
-- **Tokens only.** No raw hex in components — Tailwind utilities backed by the
-  `@theme` block in `app/src/index.css`. Ink = `navy`/`forest` family, accent =
-  `azure`, status pairs = `mint(-soft)`, `gold(-soft)/gold-600`,
-  `rose-ink/rose-soft`. `gold` is never text; `azure-300` and lighter are
-  never text.
-- **Type scale is closed** — the 10 styles in §5 only. Negative tracking ≥15px;
-  uppercase overlines ≤12px. Updating numbers wear `.tnum`.
-- **4px grid** for all spacing. Touch targets ≥40px (`h-10`).
-- **Square corners** everywhere; `rounded-full` only for pills/dots/toggles/avatars.
-- **Every input sits in `Field`** (label, hint, error). Passwords use
-  `PasswordInput`. `invalid` + `Field error` for validation; errors say what's
-  wrong and how to fix it. Long forms get a top error summary with anchors.
-- **Status never colour-alone** — soft fill + AA text + word (StatusPill).
-- **Focus recipe:** inputs `focus:border-azure focus:ring-4 focus:ring-azure-50`;
-  buttons `focus-visible:ring-2 focus-visible:ring-azure/50`. Never suppressed.
-- **Motion:** `animate-rise` for entrances, `animate-pop` for overlays; exits
-  faster than entrances; everything off under `prefers-reduced-motion`.
-- **Icons:** lucide only, sized 13–18px per §8, `aria-label` or visible text.
-
-## Clinical safety (guide §13 — non-negotiable)
-
-- Search before create; duplicate-patient warning is a blocking review.
-- High-risk actions (merge, void, delete, sign-off, high-alert meds) get a
-  Modal restating patient context + explicit affirmative verb — never a
-  default-focused OK.
-- Interruptive alerts only for severity ≥ high; everything else inline.
-- Critical results require acknowledgement; audit events for create/update/
-  merge/void/sign/dispense/bill/export.
-- Optimistic UI never for orders, prescriptions, billing, or sign-off.
-- Autosave clinical text with a visible saved/sync indicator.
-
-## Data
-
-Every persisted field maps to FHIR R4 per Nigeria Core IG — mappings per
-module in guide §14 (Patient, Encounter, Observation, ServiceRequest,
-MedicationRequest, Claim, …). Units rendered by the UI, never typed.
-
-## Before merging
-
-Run the Definition of Done (guide §19) and the WCAG 2.2 AA gates (§16):
-axe-clean, manual keyboard pass, focus never obscured, 320px/400% zoom holds,
-all loading/empty/error/sync states present. Verify the flow in a real
-browser (see the `verify` skill) — build passing is not verification.
+- **Tokens only** — no raw hex in components; `@theme` in `app/src/index.css`
+  is the source. `gold` is never text; `azure-300`-and-lighter never text.
+- **Type scale is closed** — 10 styles only; updating numbers wear `.tnum`.
+- **4px grid**; touch targets ≥40px; square corners (`rounded-full` only for
+  pills/dots/toggles/avatars).
+- **Every input sits in `Field`**; passwords use `PasswordInput`; long forms
+  get a top error summary with anchor links.
+- **Status is never colour-alone** — soft fill + AA text + word.
+- **Focus recipe:** inputs `focus:border-azure focus:ring-4
+  focus:ring-azure-50`; buttons `focus-visible:ring-2
+  focus-visible:ring-azure/50`. Never suppressed.
+- **Safety:** search-before-create; high-risk actions get the confirmation
+  modal (explicit verb, patient context, audited); no optimistic UI for
+  orders/prescriptions/billing/sign-off; interruptive alerts only for
+  severity ≥ high.
+- **Motion** off under `prefers-reduced-motion`; exits faster than entrances.
