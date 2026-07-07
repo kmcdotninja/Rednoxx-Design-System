@@ -52,6 +52,7 @@ export function DataTable<Row>({
               {columns.map((col) => (
                 <th
                   key={col.key}
+                  scope="col"
                   className={cn(
                     'px-3 py-3 text-[13px] font-normal text-forest-400',
                     alignClass[col.align ?? 'left'],

@@ -226,6 +226,12 @@ export function DemoLayout() {
 
   return (
     <div className="flex h-screen overflow-hidden bg-canvas">
+      <a
+        href="#demo-main"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-2xl focus:bg-white focus:px-4 focus:py-2.5 focus:text-sm focus:font-medium focus:text-forest focus:shadow-pop focus:outline-none focus:ring-2 focus:ring-azure/50"
+      >
+        Skip to content
+      </a>
       <DemoSidebar
         className="hidden lg:flex"
         active={page.slug}
@@ -235,7 +241,7 @@ export function DemoLayout() {
       <div className="flex min-w-0 flex-1 flex-col">
         <DemoNavbar crumbs={crumbs} />
         {/* Keyed by page so navigation resets the scroll position. */}
-        <main key={page.slug} className="flex-1 overflow-y-auto">
+        <main key={page.slug} id="demo-main" tabIndex={-1} className="flex-1 overflow-y-auto focus:outline-none">
           <div className="mx-auto w-full max-w-[1180px] space-y-5 px-4 py-6 sm:px-6 lg:px-8">
             <Outlet />
           </div>

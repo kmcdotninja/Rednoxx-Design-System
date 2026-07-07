@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { TriangleAlert } from 'lucide-react'
 import { Avatar, Card, StatusPill, Tag } from '@/components/ui'
 import type { Patient, PatientBio } from '@/showcase/health'
 
@@ -30,9 +31,20 @@ export function PatientBanner({
                 {patient.name}
               </h1>
               <StatusPill status={patient.status} />
+              {/* Allergy flags stay visible at all times — never behind a click. */}
+              {bio.allergies.map((allergy) => (
+                <span
+                  key={allergy}
+                  className="inline-flex items-center gap-1 rounded-full bg-rose-soft px-2 py-0.5 text-[11px] font-medium text-rose-ink"
+                >
+                  <TriangleAlert size={11} aria-hidden />
+                  Allergy: {allergy}
+                </span>
+              ))}
             </div>
             <p className="tnum mt-1 text-[13px] text-forest-400">
-              MRN {patient.mrn} · {bio.sex} · {ageFrom(bio.dob)} yrs · b. {bio.dob}
+              {ageFrom(bio.dob)}y · {bio.dob} · {bio.sex} ·{' '}
+              <span className="font-mono">MRN {patient.mrn}</span>
             </p>
             <div className="mt-2 flex flex-wrap items-center gap-1.5">
               <Tag>{patient.plan}</Tag>

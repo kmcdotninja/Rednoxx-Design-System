@@ -1,5 +1,6 @@
 import type { ButtonHTMLAttributes, ReactNode } from 'react'
 import { Link, type LinkProps } from 'react-router-dom'
+import { Loader2 } from 'lucide-react'
 import { cn } from '@/lib/cn'
 
 /** `lime` is the legacy name for the solid-ink button; kept for old call sites. */
@@ -47,7 +48,11 @@ interface CommonProps {
 
 interface ButtonProps
   extends CommonProps,
-    ButtonHTMLAttributes<HTMLButtonElement> {}
+    ButtonHTMLAttributes<HTMLButtonElement> {
+  /** Disables the button and swaps the left icon for a spinner. Change the
+      label alongside ("Saving…") — the live region announces it. */
+  loading?: boolean
+}
 
 export function Button({
   variant = 'primary',
@@ -55,14 +60,21 @@ export function Button({
   block,
   leftIcon,
   rightIcon,
+  loading,
+  disabled,
   className,
   children,
   ...props
 }: ButtonProps) {
   return (
-    <button className={buttonClass(variant, size, block, className)} {...props}>
-      {leftIcon}
-      {children}
+    <button
+      className={buttonClass(variant, size, block, className)}
+      disabled={disabled || loading}
+      aria-busy={loading || undefined}
+      {...props}
+    >
+      {loading ? <Loader2 size={15} className="animate-spin" aria-hidden /> : leftIcon}
+      <span aria-live="polite">{children}</span>
       {rightIcon}
     </button>
   )

@@ -9,6 +9,7 @@ import {
   Combobox,
   DatePicker,
   Field,
+  ErrorSummary,
   FileUpload,
   Input,
   PasswordInput,
@@ -208,13 +209,14 @@ export const FORM_DOCS: ComponentDoc[] = [
       },
       {
         title: 'States',
-        note: 'Disabled drops to 40% opacity and ignores pointer events; press scales to 0.96.',
+        note: 'Disabled drops to 40% opacity and ignores pointer events; press scales to 0.96. loading disables the button, swaps the icon for a spinner, and announces the label change.',
         body: (
           <>
             <Button disabled>Disabled</Button>
             <Button variant="secondary" disabled>
               Disabled
             </Button>
+            <Button loading>Saving…</Button>
           </>
         ),
       },
@@ -312,6 +314,29 @@ export const FORM_DOCS: ComponentDoc[] = [
             <Field label="Work email" required error="Use your facility-issued address.">
               <Input invalid type="email" defaultValue="amina@gmail.com" />
             </Field>
+          </div>
+        ),
+      },
+      {
+        title: 'Error summary — long forms',
+        note: 'Forms longer than a few fields summarise failures at the top on submit: role="alert", focused when it appears, each item an anchor that moves focus to its field.',
+        wide: true,
+        body: (
+          <div className="max-w-xl space-y-4">
+            <ErrorSummary
+              errors={[
+                { fieldId: 'demo-nid', message: 'National ID must be exactly 11 digits' },
+                { fieldId: 'demo-email', message: 'Use your facility-issued email address' },
+              ]}
+            />
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Field label="National ID" required error="Must be exactly 11 digits — this has 9.">
+                <Input id="demo-nid" invalid defaultValue="351122047" />
+              </Field>
+              <Field label="Work email" required error="Use your facility-issued address.">
+                <Input id="demo-email" invalid type="email" defaultValue="amina@gmail.com" />
+              </Field>
+            </div>
           </div>
         ),
       },

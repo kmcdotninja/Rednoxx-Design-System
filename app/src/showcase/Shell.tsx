@@ -170,6 +170,12 @@ export function Shell() {
 
   return (
     <div className="min-h-screen bg-canvas">
+      <a
+        href="#main"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-2xl focus:bg-white focus:px-4 focus:py-2.5 focus:text-sm focus:font-medium focus:text-forest focus:shadow-pop focus:outline-none focus:ring-2 focus:ring-azure/50"
+      >
+        Skip to content
+      </a>
       <CommandMenu
         open={searchOpen}
         onClose={() => setSearchOpen(false)}
@@ -238,7 +244,7 @@ export function Shell() {
         </div>
       )}
 
-      <main className="lg:pl-60">
+      <main id="main" tabIndex={-1} className="focus:outline-none lg:pl-60">
         <div className="mx-auto w-full max-w-4xl px-5 py-8 sm:px-8 lg:py-12">
           <Outlet />
         </div>

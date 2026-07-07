@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { createContext, useContext, useId, useState } from 'react'
 import type {
   InputHTMLAttributes,
   ReactNode,
@@ -7,6 +7,14 @@ import type {
 } from 'react'
 import { ChevronDown, Eye, EyeOff } from 'lucide-react'
 import { cn } from '@/lib/cn'
+
+/** Field → control channel: the id of the hint/error text, so controls can
+    point aria-describedby at it without wiring ids by hand. */
+const FieldDescription = createContext<string | undefined>(undefined)
+
+function useFieldDescription() {
+  return useContext(FieldDescription)
+}
 
 const baseField =
   'w-full rounded-2xl border border-hair bg-white text-sm text-forest placeholder:text-forest-300 ' +
@@ -34,6 +42,8 @@ export function Field({
   children: ReactNode
   className?: string
 }) {
+  const descriptionId = useId()
+  const hasDescription = Boolean(error || hint)
   return (
     <label className={cn('block', className)}>
       {label && (
@@ -47,13 +57,19 @@ export function Field({
           )}
         </div>
       )}
-      {children}
+      <FieldDescription value={hasDescription ? descriptionId : undefined}>
+        {children}
+      </FieldDescription>
       {error ? (
-        <p role="alert" className="mt-1.5 text-xs font-medium leading-relaxed text-rose-ink">
+        <p id={descriptionId} role="alert" className="mt-1.5 text-xs font-medium leading-relaxed text-rose-ink">
           {error}
         </p>
       ) : (
-        hint && <p className="mt-1.5 text-xs leading-relaxed text-forest-400">{hint}</p>
+        hint && (
+          <p id={descriptionId} className="mt-1.5 text-xs leading-relaxed text-forest-400">
+            {hint}
+          </p>
+        )
       )}
     </label>
   )
@@ -65,9 +81,11 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
 }
 
 export function Input({ className, invalid, ...props }: InputProps) {
+  const describedBy = useFieldDescription()
   return (
     <input
       aria-invalid={invalid || undefined}
+      aria-describedby={describedBy}
       className={cn(baseField, 'h-10 px-3', invalid && invalidField, className)}
       {...props}
     />
@@ -82,12 +100,14 @@ export function PasswordInput({
   ...props
 }: Omit<InputProps, 'type'>) {
   const [visible, setVisible] = useState(false)
+  const describedBy = useFieldDescription()
   const Icon = visible ? EyeOff : Eye
   return (
     <div className="relative">
       <input
         type={visible ? 'text' : 'password'}
         aria-invalid={invalid || undefined}
+        aria-describedby={describedBy}
         disabled={disabled}
         className={cn(baseField, 'h-10 pl-3 pr-10', invalid && invalidField, className)}
         {...props}
@@ -111,10 +131,12 @@ interface TextareaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
 }
 
 export function Textarea({ className, rows = 4, invalid, ...props }: TextareaProps) {
+  const describedBy = useFieldDescription()
   return (
     <textarea
       rows={rows}
       aria-invalid={invalid || undefined}
+      aria-describedby={describedBy}
       className={cn(baseField, 'resize-none px-4 py-3 leading-relaxed', invalid && invalidField, className)}
       {...props}
     />
@@ -126,10 +148,12 @@ interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
 }
 
 export function Select({ className, children, invalid, ...props }: SelectProps) {
+  const describedBy = useFieldDescription()
   return (
     <div className="relative">
       <select
         aria-invalid={invalid || undefined}
+        aria-describedby={describedBy}
         className={cn(
           baseField,
           'h-10 cursor-pointer appearance-none pl-3 pr-9 font-medium',
