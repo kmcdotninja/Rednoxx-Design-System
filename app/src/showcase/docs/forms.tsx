@@ -161,6 +161,11 @@ function DigitInputExample() {
 export const FORM_DOCS: ComponentDoc[] = [
   {
     slug: 'button',
+    whenToUse: [
+      'To trigger an action — save, submit, order, dispense. If it navigates to another page, use ButtonLink (a real link users can open in a tab).',
+      'One primary button per view; everything else is secondary or ghost so the main action is unmistakable (HIMSS simplicity).',
+      'danger is reserved for destructive/high-risk actions and always pairs with a confirmation step — never for emphasis.',
+    ],
     name: 'Button',
     group: 'Forms',
     summary: 'Actions and commands — six variants, three sizes, optional icon slots.',
@@ -270,6 +275,11 @@ export const FORM_DOCS: ComponentDoc[] = [
   },
   {
     slug: 'input',
+    whenToUse: [
+      'Free-form, single-line text the system cannot enumerate — names, identifiers, phone numbers.',
+      'If the answers are a known set, don\'t make users type: Radio (≤5 options), Select (5–15) or Combobox (searchable/long) are faster and error-proof.',
+      'Multi-line prose → Textarea. Calendar dates → DatePicker. Secrets → PasswordInput.',
+    ],
     name: 'Input',
     group: 'Forms',
     summary: 'Single-line text entry with label, hint, required, disabled and password states.',
@@ -390,6 +400,11 @@ export const FORM_DOCS: ComponentDoc[] = [
   },
   {
     slug: 'select',
+    whenToUse: [
+      'A single choice from 5–15 known options where the default is usually right (facility, ward, title).',
+      'Fewer than ~5 options → RadioGroup instead: all options visible in one glance, one less click (NHS practice).',
+      'More than ~15, or users know the value\'s name → Combobox, so they can type instead of scroll.',
+    ],
     name: 'Select',
     group: 'Forms',
     summary: 'Native single-choice dropdown styled to the field baseline.',
@@ -473,6 +488,11 @@ export const FORM_DOCS: ComponentDoc[] = [
   },
   {
     slug: 'combobox',
+    whenToUse: [
+      'Long or searchable lists — diagnoses, drugs, facilities — where typing beats scrolling.',
+      'Prefer it over Select whenever the list exceeds ~15 entries or is backed by a terminology (ICD-10, drug list).',
+      'If free text is genuinely valid, use Input with validation — a Combobox implies the value must come from the list.',
+    ],
     name: 'Combobox',
     group: 'Forms',
     summary: 'Searchable select for long lists — type to filter, full keyboard support.',
@@ -517,6 +537,11 @@ export const FORM_DOCS: ComponentDoc[] = [
   },
   {
     slug: 'datepicker',
+    whenToUse: [
+      'Calendar dates and times — appointments, DOB, order dates. Typed entry stays available; never calendar-only.',
+      'Not for durations or ages — capture those as validated numbers (Input) and compute dates.',
+      'For DOB, show the computed age beside the field — clinicians reason in ages.',
+    ],
     name: 'DatePicker',
     group: 'Forms',
     summary: 'Calendar picker with a year grid for far-back dates; emits ISO strings.',
@@ -549,6 +574,10 @@ export const FORM_DOCS: ComponentDoc[] = [
   },
   {
     slug: 'search',
+    whenToUse: [
+      'Finding things: patients, records, docs. It filters or navigates — it does not capture data.',
+      'If the typed value is stored (an answer on a form), use Input; SearchInput signals \'look something up\' to users.',
+    ],
     name: 'Search',
     group: 'Forms',
     summary: 'Query input with a leading icon, used across every list screen.',
@@ -595,6 +624,11 @@ export const FORM_DOCS: ComponentDoc[] = [
   },
   {
     slug: 'checkbox',
+    whenToUse: [
+      'Independent yes/no answers and multi-select lists — consents, symptoms, batch selection (with indeterminate select-all).',
+      'For an instant-effect setting that applies immediately, use Switch/Toggle; a checkbox implies \'takes effect on submit\' (Material guidance).',
+      'For mutually exclusive choices use RadioGroup — checkboxes must never be exclusive.',
+    ],
     name: 'Checkbox',
     group: 'Forms',
     summary: 'Binary choices and consent lists, with label and supporting description.',
@@ -622,6 +656,11 @@ export const FORM_DOCS: ComponentDoc[] = [
   },
   {
     slug: 'radio',
+    whenToUse: [
+      'One choice from 2–5 options that should all be visible for comparison — triage priority, sex, payment method.',
+      'More options or tight space → Select/Combobox. Switching between views (not answers) → Segmented.',
+      'Always rendered as a real radiogroup; one is pre-selected only when a safe default truly exists.',
+    ],
     name: 'Radio',
     group: 'Forms',
     summary: 'Single choice among a few always-visible options.',
@@ -656,6 +695,10 @@ export const FORM_DOCS: ComponentDoc[] = [
   },
   {
     slug: 'slider',
+    whenToUse: [
+      'Coarse bounded values where relative position matters — pain score 0–10, dosage within a fixed range.',
+      'When the exact number matters (mg, ml), pair it with — or replace it by — a numeric Input; sliders alone are imprecise.',
+    ],
     name: 'Slider',
     group: 'Forms',
     summary: 'Range input with a filled track and live readout — pain scores, doses.',
@@ -697,6 +740,10 @@ export const FORM_DOCS: ComponentDoc[] = [
   },
   {
     slug: 'switch',
+    whenToUse: [
+      'Instant on/off settings that apply the moment they\'re flipped — notifications, availability.',
+      'Inside a form that submits, use Checkbox instead: a switch that doesn\'t take effect immediately breaks its own promise.',
+    ],
     name: 'Switch',
     group: 'Forms',
     summary: 'On/off settings that apply immediately.',
@@ -745,6 +792,10 @@ export const FORM_DOCS: ComponentDoc[] = [
   },
   {
     slug: 'color-picker',
+    whenToUse: [
+      'Choosing from a constrained, brand-safe palette — calendar categories, tags, ward colours.',
+      'Never a free colour wheel: clinical status colours are fixed tokens and not user-selectable.',
+    ],
     name: 'Color picker',
     group: 'Forms',
     summary: 'A fixed, accessible swatch palette — calendar categories, ward coding.',
@@ -766,6 +817,10 @@ export const FORM_DOCS: ComponentDoc[] = [
   },
   {
     slug: 'digit-input',
+    whenToUse: [
+      'Fixed-length numeric codes typed digit-by-digit — OTPs, verification PINs. Paste distributes automatically.',
+      'Not for general numbers (quantities, doses) — that\'s a plain Input with validation and a visible unit.',
+    ],
     name: 'Digit input',
     group: 'Forms',
     summary: 'Segmented one-time-code entry — auto-advance, backspace, paste.',

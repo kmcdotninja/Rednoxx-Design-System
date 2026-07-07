@@ -55,6 +55,10 @@ const tableColumns: Column<Facility>[] = [
 export const DISPLAY_DOCS: ComponentDoc[] = [
   {
     slug: 'avatar',
+    whenToUse: [
+      'Identity of a person — patients and staff — with an initials fallback; AvatarGroup for care teams.',
+      'For categories or metadata use Tag/Badge; an avatar always means \'a human\'.',
+    ],
     name: 'Avatar',
     group: 'Data display',
     summary: 'Identity mark with an image and a deterministic-colour initials fallback.',
@@ -112,6 +116,10 @@ export const DISPLAY_DOCS: ComponentDoc[] = [
   },
   {
     slug: 'badge',
+    whenToUse: [
+      'Compact metadata: counts, categories (Tag) and lifecycle status (StatusPill — colour + word, never colour alone).',
+      'Status that drives clinical action (critical result, allergy) belongs in an Alert or banner flag, not just a pill.',
+    ],
     name: 'Badge',
     group: 'Data display',
     summary: 'Status and metadata pills with semantic tones.',
@@ -179,6 +187,10 @@ export const DISPLAY_DOCS: ComponentDoc[] = [
   },
   {
     slug: 'card',
+    whenToUse: [
+      'Grouping everything about one subject — a patient, an order, a KPI — on the canvas background.',
+      'Don\'t nest cards or wrap every paragraph; if the whole page is one subject, sections and dividers are quieter (Carbon guidance).',
+    ],
     name: 'Card',
     group: 'Data display',
     summary: 'The base surface — raised white, recessed panel, and dark variants.',
@@ -247,6 +259,11 @@ export const DISPLAY_DOCS: ComponentDoc[] = [
   },
   {
     slug: 'table',
+    whenToUse: [
+      'Comparing many records across the same attributes — orders, results, claims. Numbers right-aligned in .tnum.',
+      'A single record\'s details → KeyValue pairs in a Card; heterogeneous items → card lists, not a forced table.',
+      'Row click opens the record; row actions stay ≥24px targets.',
+    ],
     name: 'Table',
     group: 'Data display',
     summary: 'Data table with pagination, empty state and clickable rows.',
@@ -292,6 +309,10 @@ export const DISPLAY_DOCS: ComponentDoc[] = [
   },
   {
     slug: 'progress',
+    whenToUse: [
+      'Determinate progress on a known quantity — uploads, batch jobs, completeness scores.',
+      'Unknown wait while content loads → Skeleton (shape-matched), not a progress bar; sub-second waits → InlineLoader.',
+    ],
     name: 'Progress',
     group: 'Data display',
     summary: 'Linear and circular progress — completeness, utilisation, capacity.',
@@ -339,6 +360,9 @@ export const DISPLAY_DOCS: ComponentDoc[] = [
   },
   {
     slug: 'rating',
+    whenToUse: [
+      'Subjective scores — satisfaction, service feedback. Not for clinical measurements: those are numbers with units.',
+    ],
     name: 'Rating',
     group: 'Data display',
     summary: 'Star rating — interactive for feedback, read-only for scores.',
@@ -372,6 +396,10 @@ export const DISPLAY_DOCS: ComponentDoc[] = [
   },
   {
     slug: 'divider',
+    whenToUse: [
+      'Rhythm inside a surface when whitespace alone can\'t separate — menu groups, card sections.',
+      'If you need a heading anyway, use the heading; a divider under every heading is noise.',
+    ],
     name: 'Divider',
     group: 'Data display',
     summary: 'Hairline separators — plain, labelled, or vertical.',
@@ -410,6 +438,9 @@ export const DISPLAY_DOCS: ComponentDoc[] = [
   },
   {
     slug: 'kbd',
+    whenToUse: [
+      'Displaying keyboard shortcuts (⌘K, esc) in menus, tooltips and the command palette — always alongside the action\'s name.',
+    ],
     name: 'Kbd',
     group: 'Data display',
     summary: 'Keyboard-key chips for shortcut hints.',

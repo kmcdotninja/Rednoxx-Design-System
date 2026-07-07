@@ -169,6 +169,10 @@ function CommandMenuExample() {
 export const OVERLAY_DOCS: ComponentDoc[] = [
   {
     slug: 'dropdown',
+    whenToUse: [
+      'A short menu of actions on a specific control — row actions, \'more\' menus. Items are verbs.',
+      'Choosing a stored value → Select/Combobox. Arbitrary content (a form, a calendar) → Popover.',
+    ],
     name: 'Dropdown',
     group: 'Overlays',
     summary: 'Action menu behind a trigger — row actions, account menus, “more”.',
@@ -201,6 +205,10 @@ export const OVERLAY_DOCS: ComponentDoc[] = [
   },
   {
     slug: 'popover',
+    whenToUse: [
+      'Small contextual panels of arbitrary content anchored to a trigger — filters, a mini form, help.',
+      'A plain list of actions → Dropdown. Anything blocking or high-risk → Modal, which traps focus properly.',
+    ],
     name: 'Popover',
     group: 'Overlays',
     summary: 'Anchored panel for rich content — notification trays, previews, mini-forms.',
@@ -234,6 +242,10 @@ export const OVERLAY_DOCS: ComponentDoc[] = [
   },
   {
     slug: 'command-menu',
+    whenToUse: [
+      'Global jump-and-act for power users (⌘K) — navigate, find patients, run commands from anywhere.',
+      'It complements navigation, never replaces it — every command target stays reachable by mouse through the normal UI.',
+    ],
     name: 'Command menu',
     group: 'Overlays',
     summary: 'The ⌘K palette — jump to pages, records and actions from anywhere.',

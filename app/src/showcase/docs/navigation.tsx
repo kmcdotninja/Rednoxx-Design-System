@@ -187,6 +187,11 @@ function SidebarExample() {
 export const NAVIGATION_DOCS: ComponentDoc[] = [
   {
     slug: 'tabs',
+    whenToUse: [
+      'Peer views of the same subject — a patient\'s Overview / Results / Notes. State preserved between switches.',
+      '2–4 short exclusive views or filters inline → Segmented. Stacked long content where several sections may be open → Accordion.',
+      'Steps with a required order → Stepper, never tabs.',
+    ],
     name: 'Tabs',
     group: 'Navigation',
     summary: 'Underline tabs with counts for switching sibling views.',
@@ -231,6 +236,10 @@ export const NAVIGATION_DOCS: ComponentDoc[] = [
   },
   {
     slug: 'segmented',
+    whenToUse: [
+      'Compact toggles between 2–4 equivalent views — list/grid, week/month. Instant effect, one always active.',
+      'If the choice is submitted as data, use RadioGroup; if views have their own content areas and titles, use Tabs.',
+    ],
     name: 'Segmented control',
     group: 'Navigation',
     summary: 'Pill switcher for 2–4 equivalent views of the same data.',
@@ -265,6 +274,10 @@ export const NAVIGATION_DOCS: ComponentDoc[] = [
   },
   {
     slug: 'accordion',
+    whenToUse: [
+      'Progressive disclosure of long, independent sections — medication history, previous visits, FAQs.',
+      'Content users must compare side-by-side should not be hidden in separate panels — use Tabs or lay it out flat.',
+    ],
     name: 'Accordion',
     group: 'Navigation',
     summary: 'Collapsible sections — FAQs, policies, optional detail.',
@@ -333,6 +346,10 @@ export const NAVIGATION_DOCS: ComponentDoc[] = [
   },
   {
     slug: 'stepper',
+    whenToUse: [
+      'Multi-stage flows with a meaningful order — registration wizard, surgical checklist. Shows \'Step 2 of 4\'; back never loses data.',
+      'Unordered sections → Tabs. Long same-kind lists → Pagination. Each step validates itself before advancing.',
+    ],
     name: 'Stepper',
     group: 'Navigation',
     summary: 'Wizard progress in three densities — horizontal, vertical, dots.',
@@ -360,6 +377,10 @@ export const NAVIGATION_DOCS: ComponentDoc[] = [
   },
   {
     slug: 'pagination',
+    whenToUse: [
+      'Long lists of the same kind of record where position matters — results, audit logs. Always shows the current position.',
+      'Small data (≤1 page) needs no pager; DataTable brings its own — don\'t stack a second one.',
+    ],
     name: 'Pagination',
     group: 'Navigation',
     summary: 'Page controls with a windowed number strip (1 … 4 5 6 … 12).',
@@ -388,6 +409,10 @@ export const NAVIGATION_DOCS: ComponentDoc[] = [
   },
   {
     slug: 'breadcrumb',
+    whenToUse: [
+      'Orientation in hierarchies ≥2 levels deep — Patients → Amina Bello → Encounter. The current page is text, not a link.',
+      'Top-level pages reached from the sidebar don\'t need one — the nav already shows where you are.',
+    ],
     name: 'Breadcrumb',
     group: 'Navigation',
     summary: 'Hierarchical location trail; the last item is the current page.',
@@ -437,6 +462,10 @@ export const NAVIGATION_DOCS: ComponentDoc[] = [
   },
   {
     slug: 'sidebar',
+    whenToUse: [
+      'Primary navigation for the whole product — role-scoped modules, constant across pages (240px).',
+      'Never reorder items by context or usage; predictable placement is an accessibility feature (WCAG consistent navigation).',
+    ],
     name: 'Sidebar',
     group: 'Navigation',
     summary: 'Primary navigation rail with grouped sections and an account footer.',
@@ -466,6 +495,9 @@ export const NAVIGATION_DOCS: ComponentDoc[] = [
   },
   {
     slug: 'navbar',
+    whenToUse: [
+      'The page-level top bar — breadcrumbs, global search, notifications, account. Complements the sidebar, never duplicates it.',
+    ],
     name: 'Navbar',
     group: 'Navigation',
     summary: 'Top bar with the location trail, support and account actions.',

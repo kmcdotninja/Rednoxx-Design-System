@@ -41,6 +41,22 @@ export function DocArticle({
         <p className="mt-3 max-w-2xl text-sm leading-relaxed text-forest-500">{doc.description}</p>
       )}
 
+      {doc.whenToUse && doc.whenToUse.length > 0 && (
+        <div className="mt-5 max-w-2xl rounded-3xl border border-hair bg-white p-5">
+          <p className="text-[11px] font-medium uppercase tracking-[0.08em] text-forest-300">
+            When to use
+          </p>
+          <ul className="mt-2.5 space-y-1.5">
+            {doc.whenToUse.map((line) => (
+              <li key={line} className="flex gap-2.5 text-[13px] leading-relaxed text-forest-500">
+                <span className="mt-[7px] h-1 w-1 shrink-0 rounded-full bg-azure" aria-hidden />
+                <span>{line}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
       {doc.code && (
         <div className="mt-6 overflow-x-auto rounded-3xl bg-navy p-5">
           <pre className="font-mono text-[13px] leading-relaxed text-navy-100">

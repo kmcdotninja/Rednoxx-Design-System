@@ -205,6 +205,11 @@ function DrawerExample() {
 export const FEEDBACK_DOCS: ComponentDoc[] = [
   {
     slug: 'alert',
+    whenToUse: [
+      'Persistent contextual state the user must know while working — validation failures, allergy warnings, degraded service.',
+      'Transient success → Toast. Blocking decision → Modal. System-wide state (offline, sync failed) → page-level banner with a next step.',
+      'Errors requiring action are never toasts — they must persist until resolved (NHS error pattern).',
+    ],
     name: 'Alert',
     group: 'Feedback',
     summary: 'Inline contextual messages for a page or section.',
@@ -273,6 +278,10 @@ export const FEEDBACK_DOCS: ComponentDoc[] = [
   },
   {
     slug: 'toast',
+    whenToUse: [
+      'Non-blocking confirmation that an action succeeded — \'Vitals saved\'. Auto-dismisses; aria-live polite.',
+      'Never for errors or anything requiring a response — those are inline Alerts that stay until resolved.',
+    ],
     name: 'Toast',
     group: 'Feedback',
     summary: 'Transient confirmations layered over the UI, bottom-right.',
@@ -301,6 +310,11 @@ success('Prescription issued', 'Sent to the patient’s preferred pharmacy.')`,
   },
   {
     slug: 'dialog',
+    whenToUse: [
+      'Blocking decisions and high-risk confirmations — sign-off, void, merge — where nothing else may proceed.',
+      'Reviewing or editing detail while keeping the page visible → Drawer. Content people should browse or link to → its own page.',
+      'In destructive confirms, Escape and Enter map to the safe option; the confirm names the verb (\'Void order\').',
+    ],
     name: 'Dialog',
     group: 'Feedback',
     summary: 'Modal surface for confirmation and short focused tasks.',
@@ -338,6 +352,10 @@ success('Prescription issued', 'Sent to the patient’s preferred pharmacy.')`,
   },
   {
     slug: 'drawer',
+    whenToUse: [
+      'Supplementary detail or a short edit beside the page — order detail, filters, patient summary expand.',
+      'If the user must decide before continuing, that\'s a Modal; if the content deserves a URL, it\'s a page.',
+    ],
     name: 'Drawer',
     group: 'Feedback',
     summary: 'Detached side panel for detail views and multi-field editing.',
@@ -375,6 +393,10 @@ success('Prescription issued', 'Sent to the patient’s preferred pharmacy.')`,
   },
   {
     slug: 'tooltip',
+    whenToUse: [
+      'Small supplementary hints on hover/focus — icon names, shortcut hints.',
+      'Never the only carrier of required information — clinical data, errors and labels are always visible text (WCAG 1.4.13).',
+    ],
     name: 'Tooltip',
     group: 'Feedback',
     summary: 'Hover/focus hint bubble — clarification, never essential content.',
