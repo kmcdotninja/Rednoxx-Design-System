@@ -1,6 +1,6 @@
 # Rednoxx — Healthcare Platform Design System
 
-![Rednoxx Design System](Preview.png)
+![Rednoxx Design System](docs/assets/preview.png)
 
 Rednoxx has grown into a broad healthcare platform spanning **enrolments, payments,
 insurance, clinical consultation, prescriptions, lab and surgical orders, and
@@ -13,7 +13,8 @@ spacing, unclear navigation, and gaps in feedback and accessibility.
 | Path | What it is |
 |---|---|
 | [`app/`](app/) | The design-system showcase (React + TypeScript + Vite + Tailwind v4) — foundations, the component library, and a live product demo. See [`app/README.md`](app/README.md) |
-| [`docs/EHR-DESIGN-GUIDE.md`](docs/EHR-DESIGN-GUIDE.md) | The normative UI/UX & front-end implementation guide for the Rednoxx EHR — tokens, type scale, WCAG 2.2 AA gates, clinical safety patterns, FHIR mappings, testing protocol |
+| [`docs/`](docs/) | Documentation — see the [docs index](docs/README.md). The centrepiece is [`EHR-DESIGN-GUIDE.md`](docs/EHR-DESIGN-GUIDE.md), the normative UI/UX & front-end implementation guide for the Rednoxx EHR |
+| [`.claude/skills/`](.claude/skills/) | Agent skills: [`ehr-design`](.claude/skills/ehr-design/SKILL.md) (enforces the guide on all UI work) and [`verify`](.claude/skills/verify/SKILL.md) (how to run & browser-verify this app) |
 
 ## Quick start
 
