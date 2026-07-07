@@ -1,13 +1,17 @@
 ---
 name: ehr-design
-description: Rednoxx EHR/EMR design-system and clinical-safety rules. Use when building or modifying ANY user interface in this repo or the Rednoxx EHR product — screens, components, blocks, forms, dashboards — or when reviewing UI code. Enforces tokens, type scale, WCAG 2.2 AA, FHIR field mapping, and clinical safety patterns.
+description: Authoritative UI/UX and front-end standard for the Rednoxx EMR/EHR/HIM platform (React 19 + TypeScript + Tailwind v4). Use whenever code is written, reviewed, or refactored for ANY Rednoxx UI — screens, components, blocks, forms, dashboards — across registration, appointments/queue, triage/vitals, consultation, orders/lab, pharmacy, billing/claims, records, referrals, reporting, admin. Trigger on mentions of Rednoxx, EMR/EHR/HIM UI, clinical forms, patient banners, design tokens, WCAG/accessibility for health screens, or clinical safety controls — even without the words "design system". Enforces tokens, type scale, WCAG 2.2 AA, FHIR mapping, and clinical-safety patterns.
 ---
 
 # Building Rednoxx EHR UI
 
-UI/UX here is a patient-safety control, not styling. This file is the router;
-the detail lives in `references/` — read the file that matches the work
-before building:
+UI/UX here is a patient-safety control, not styling. **Golden rule:** if a
+screen or component isn't covered by an explicit rule, default to the
+strictest applicable pattern — more confirmation, more context, more
+accessibility — never the fastest to build.
+
+This file is the router; the detail lives in `references/` — read the file
+that matches the work before building:
 
 | Read | When you are… |
 |---|---|

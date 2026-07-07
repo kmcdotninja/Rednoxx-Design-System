@@ -3,9 +3,11 @@
 Tokens are CSS custom properties in the `@theme` block of `app/src/index.css`
 (Tailwind v4, CSS-first — there is no `tailwind.config.js`). Components MUST
 reference tokens through Tailwind utilities; raw hex in component code is a
-defect. Legacy aliases (`forest`→`navy`, `lime`→`azure`, `teal`→`mint`,
-`orange`→`gold`) exist so older primitives keep working — new code may use
-either name; values are identical.
+defect. **If a value is missing from the scale, add it to the theme file
+first (and document it here), then use it — never invent it inline.** Legacy
+aliases (`forest`→`navy`, `lime`→`azure`, `teal`→`mint`, `orange`→`gold`)
+exist so older primitives keep working — new code may use either name; values
+are identical.
 
 ## 1. Ink ramp (`navy`, alias `forest`) — 10 steps
 
@@ -131,7 +133,27 @@ If a layout needs 14px, the layout is wrong.
 | Content max-width | 896px (`max-w-4xl`) reading; data tables may go full-width |
 | Page padding | `px-5` mobile → `sm:px-8` |
 | Section rhythm | `space-y-12` (48px) |
-| Touch target | ≥40px (`h-10`); `sm` only inside clickable rows |
+
+## 9a. Touch targets
+
+- **24×24 CSS px** is the absolute floor (WCAG 2.2 SC 2.5.8) for any
+  interactive target that isn't inline text.
+- **40px (`h-10`)** is the standard control height; `size="sm"` only inside
+  rows that are themselves clickable.
+- **44×44px** on tablet-facing clinical screens (triage, bedside, pharmacy
+  counter) — facility devices are used standing up, often gloved.
+- Small icon buttons in dense rows reach the minimum with invisible padding —
+  pad the hit area, don't inflate the glyph.
+
+## 9b. Density modes
+
+Clinical tables (vitals, medication rows, order baskets, results) support a
+`data-density` attribute on the table wrapper:
+
+- `comfortable` (default): row height ≥44px, `py-3`.
+- `compact` (opt-in for power users scanning long lists): row height ≥36px,
+  `py-2` — but no interactive control inside the row may drop below the
+  24×24px floor.
 
 ## 10. Motion tokens
 
@@ -153,3 +175,15 @@ Lucide only, 2px stroke. Sizes: 13px inline meta/dense rows · 14px meta rows,
 small buttons · 15px navigation, standard buttons · 17px page-level actions ·
 18px feature tiles, empty states. Icons never carry meaning alone — visible
 label or `aria-label` on the control, `aria-hidden` on the icon.
+
+## 12. Do not
+
+- Do not introduce a second violet/green/red/amber for a "one-off" status —
+  extend the theme with a named token and document it here.
+- Do not use pure `#000`, or white-on-black outside the navy scale.
+- Do not lighten status colours "aesthetically" — the pairs are calibrated
+  for AA; soft tones are fills only, never text.
+- Do not put any animation longer than ~200ms in front of a blocking clinical
+  task (an error message never waits behind a slide-in).
+- Do not add new arbitrary values (`text-[Npx]`, `bg-[#hex]`) outside the
+  documented scales in this file.

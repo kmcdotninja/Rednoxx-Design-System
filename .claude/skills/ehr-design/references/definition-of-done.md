@@ -1,5 +1,9 @@
 # Definition of Done, testing protocol & budgets
 
+Run these before marking any component, screen, or PR complete. **A skipped
+item must be explicitly justified as low-risk/not-applicable — never skipped
+silently.**
+
 ## 1. Screen-review checklist (every screen, every sprint)
 
 - [ ] Current patient clearly visible on all clinical screens (banner)
@@ -16,6 +20,7 @@
 ## 2. Front-end component/feature DoD
 
 - [ ] Uses approved tokens and primitives — no raw hex, no forked components
+- [ ] TypeScript types explicit for all props touching clinical/patient data — no `any`
 - [ ] Responsive: desktop, tablet, common facility screen sizes; 320px holds
 - [ ] Unit tests cover validation logic and critical UI state transitions
 - [ ] axe-core passes; manual keyboard pass completed
@@ -25,6 +30,19 @@
 - [ ] Audit events emitted per clinical-safety.md §6
 - [ ] **Verified end-to-end in a running browser before merge** (use the
       project `verify` skill — a passing build is not verification)
+
+## 2a. Reviewing a PR (yours or someone else's) — ask in order
+
+1. Would this screen be safe and fast for a busy, possibly-first-time user
+   under real facility conditions (poor connectivity, tablet, high volume)?
+2. Could it contribute to a wrong-patient, wrong-medication, wrong-order,
+   duplicate-record, or wrong-billing error? If yes, has clinical-safety.md
+   been applied?
+3. Could a keyboard-only or screen-reader user complete this task? If
+   unsure, test — don't assume.
+4. Does every colour-conveyed state also have a text label?
+5. Is every new/changed field's FHIR mapping and validation rule documented
+   somewhere findable?
 
 ## 3. Usability testing protocol (AHRQ 2009; NIST 2015)
 

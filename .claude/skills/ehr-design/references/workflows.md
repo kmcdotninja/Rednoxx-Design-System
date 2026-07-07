@@ -15,25 +15,28 @@ usability thresholds are in definition-of-done.md.
   results table (`.tnum` identifiers); **"Create new patient" appears only
   after a search has run.**
 - Registration wizard (Stepper): Identity → Contact → Next of kin →
-  Insurance/payment → Consent. Inline validation; NIN/phone format checks;
-  optional photo capture; consent + privacy notice recorded with timestamp.
+  Insurance/payment → Consent. Inline validation with format hints shown
+  BEFORE the error occurs; NIN/phone format checks; optional photo capture;
+  consent + privacy notice recorded with timestamp before finalising.
 - Duplicate detection is a blocking review step (see clinical-safety.md §1).
 - Generated patient ID/MRN shown prominently on success + printable slip.
 
 ## 2. Appointments & queue
 - **Users:** records officers, nurses.
-- Day/clinic calendar; booking modal ≤6 fields; reschedule = drag or edit
-  with reason. Walk-in fast path (book + check-in in one step).
+- Booking starts as a simple date/time/provider picker — the full calendar
+  grid is progressive disclosure, not the first load. Booking modal ≤6
+  fields; reschedule = drag or edit with reason. Walk-in fast path (book +
+  check-in in one step).
 - Queue board: waiting → triaged → in-consult → done. Status chips are
   colour + text; role-filtered views (records see registration queue, nurses
   see triage queue, clinicians see their room).
 
 ## 3. Triage & vitals
 - **Users:** nurses.
-- Keyboard-first vitals grid: BP (sys/dia), pulse, temp, RR, SpO₂, weight,
-  height, BMI (auto), pain score. Tab order matches physical workflow; units
-  rendered by the UI; range validation with abnormal flag = status pair +
-  word; re-take affordance.
+- Keyboard-first vitals grid; tab order matches the physical recording order:
+  temp → pulse → BP (sys/dia) → RR → SpO₂ → weight/height (BMI auto) → pain
+  score. Numeric-keypad-friendly inputs; units rendered by the UI; range
+  validation with abnormal flag = status pair + word; re-take affordance.
 - Per-vital trend view (result-trend block) one click away.
 
 ## 4. Consultation documentation
@@ -96,12 +99,21 @@ usability thresholds are in definition-of-done.md.
 - User & role management (RBAC), facility/ward/clinic setup, service & price
   lists, terminology mapping tables, audit log viewer (Timeline block with
   filters + export).
+- Bulk/admin actions affecting multiple records (permission changes,
+  facility config, user deactivation) follow the high-risk confirmation
+  pattern and are fully audited; menu changes are verified against every
+  role's expected navigation before shipping.
 
 ## Cross-cutting screen requirements
 - Patient banner on every clinical screen (components.md §3).
 - Every list/detail screen defines loading (skeleton), empty, and error
   states, plus sync status where the screen mutates data.
-- Role-based menus and dashboards; the design system itself never varies by
-  role.
+- Role-based experiences are real information architecture: each role
+  (doctor, nurse, lab, pharmacist, records, cashier, HIM/admin, manager)
+  gets a menu, dashboard, and default landing screen scoped to its frequent
+  tasks — not one generic menu with permission-hidden items. The design
+  system itself never varies by role.
+- Reporting filters always show their active state as a visible summary —
+  never hidden in a collapsed panel with no indication filters are applied.
 - Language: Nigerian facility vocabulary, standards-compatible; never
   "case"/"file"/"record" without defined meaning.

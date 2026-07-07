@@ -3,7 +3,13 @@
 Every persisted field maps to a FHIR R4 resource, profiled against the
 **Nigeria Core Implementation Guide** (https://build.fhir.org/ig/digitalhealth-gov-ng/Nigeria-Core/branches/main/).
 UI forms and displays MUST mirror these structures so the API contract and
-the screen never drift.
+the screen never drift. This file is how to *think about* each field — the
+actual IG profiles are consulted for exact required elements, value sets and
+extensions before an API contract is finalised.
+
+**Before shipping any new field, ask:** does it already exist in Nigeria
+Core or standard FHIR R4? If yes, use its name, shape and value set — even
+for internal-only forms — rather than inventing a Rednoxx-only equivalent.
 
 ## Field metadata (required for every persisted field)
 
@@ -26,7 +32,7 @@ and surfaced inline at the field.
 
 | Module | Resources | Key UI-mapped elements |
 |---|---|---|
-| Registration | `Patient`, `RelatedPerson`, `Coverage`, `Consent` | name, birthDate (+computed age), gender, identifiers, address, contact; next-of-kin → RelatedPerson; insurance → Coverage; consent record → Consent |
+| Registration | `Patient`, `RelatedPerson`, `Coverage`, `Consent` | name, birthDate (+computed age), gender, identifiers, address, telecom; registering facility → `Patient.managingOrganization`; next-of-kin → RelatedPerson/`Patient.contact`; insurance → Coverage; consent record → Consent |
 | Appointments/queue | `Appointment`, `Slot`, `Schedule`, `Encounter` | status transitions map to Appointment.status; check-in creates Encounter |
 | Triage/vitals | `Observation` | one Observation per vital, LOINC-coded, valueQuantity with UCUM units, Encounter-linked; abnormal flag → interpretation |
 | Consultation | `Encounter`, `Condition`, `ClinicalImpression`, `DocumentReference` | diagnosis typeahead writes Condition (ICD-10); note sections → ClinicalImpression / DocumentReference; sign-off → Encounter status + audit |
@@ -40,7 +46,14 @@ and surfaced inline at the field.
 ## UI rules that follow from FHIR
 
 - Status chips on screen enumerate the FHIR status value set for that
-  resource — no invented statuses.
+  resource — no parallel UI-only status vocabulary (claim chips mirror
+  `Claim.status`/adjudication; queue states mirror `Encounter.status`).
+- Abnormal/critical flags in results UI read `Observation.interpretation`
+  (and `referenceRange`) from the backend — informed by, not solely
+  reimplemented as, front-end business logic.
+- Merge never destroys: the losing record is superseded via `Patient.link`
+  (`replaced-by`/`replaces`), which is why the UI merge flow is reversible
+  and fully audited.
 - Dates/times captured with timezone; displayed local, stored ISO 8601.
 - Coded fields are typeaheads over the terminology source — free text only
   in explicitly free-text elements (with that made visible).
