@@ -230,11 +230,11 @@ function MotionTile({ label, animation }: { label: string; animation: string }) 
 /* ------------------------------------------------------------ iconography */
 
 const ICON_SIZES: { px: number; usage: string }[] = [
-  { px: 13, usage: 'Inline meta, dense rows' },
+  { px: 13, usage: 'Inline with Secondary text, dense rows' },
   { px: 14, usage: 'Meta rows, small buttons' },
-  { px: 15, usage: 'Nav, standard buttons' },
-  { px: 17, usage: 'Page-level actions' },
-  { px: 18, usage: 'Tiles, empty states' },
+  { px: 15, usage: 'Navigation, standard buttons' },
+  { px: 17, usage: 'Page-level actions, outcome cards' },
+  { px: 18, usage: 'Feature tiles, empty states' },
 ]
 
 /* -------------------------------------------------------------- the page */
@@ -547,31 +547,29 @@ export function Foundations() {
           </>
         }
       >
-        <Card pad={false} className="mt-4">
-          <div className="grid grid-cols-2 gap-y-5 py-5 sm:grid-cols-5 sm:gap-y-0 sm:divide-x sm:divide-hair/70">
+        <div className="mt-4 grid gap-4 lg:grid-cols-[1fr_auto]">
+          <Card pad={false} className="divide-y divide-hair/70">
             {ICON_SIZES.map((s) => (
-              <div key={s.px} className="flex flex-col items-center gap-1.5 px-3 text-center">
-                <span className="flex h-9 items-center justify-center text-forest-500">
+              <div key={s.px} className="grid grid-cols-[3.5rem_3rem_1fr] items-center gap-x-4 px-5 py-2">
+                <span className="flex items-center gap-2 text-forest-500">
                   <Stethoscope size={s.px} aria-hidden />
                 </span>
-                <span className="tnum text-[12px] font-medium text-forest">{s.px}px</span>
-                <span className="text-[11px] leading-relaxed text-forest-300">{s.usage}</span>
+                <span className="tnum text-[12px] text-forest-400">{s.px}px</span>
+                <span className="text-[12px] leading-relaxed text-forest-400">{s.usage}</span>
               </div>
             ))}
-          </div>
-          <div className="flex flex-wrap items-center justify-between gap-3 border-t border-hair/70 px-5 py-4">
-            <div className="flex flex-wrap items-center gap-2">
-              {[Stethoscope, Pill, FlaskConical, CalendarClock, Users, Banknote, ShieldCheck, HeartPulse].map(
-                (Icon, i) => (
-                  <span key={i} className="flex h-10 w-10 items-center justify-center rounded-2xl bg-panel text-forest-500">
-                    <Icon size={17} aria-hidden />
-                  </span>
-                ),
-              )}
-            </div>
-            <Tag>lucide-react</Tag>
-          </div>
-        </Card>
+          </Card>
+          <Card pad={false} className="flex flex-wrap items-center gap-3 p-6">
+            {[Stethoscope, Pill, FlaskConical, CalendarClock, Users, Banknote, ShieldCheck, HeartPulse].map(
+              (Icon, i) => (
+                <span key={i} className="flex h-11 w-11 items-center justify-center rounded-2xl bg-panel text-forest-500">
+                  <Icon size={18} aria-hidden />
+                </span>
+              ),
+            )}
+            <Tag className="ml-1">lucide-react</Tag>
+          </Card>
+        </div>
       </Section>
 
       {/* Focus & interaction */}
