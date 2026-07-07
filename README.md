@@ -13,6 +13,7 @@ spacing, unclear navigation, and gaps in feedback and accessibility.
 | Path | What it is |
 |---|---|
 | [`app/`](app/) | The design-system showcase (React + TypeScript + Vite + Tailwind v4) — foundations, the component library, and a live product demo. See [`app/README.md`](app/README.md) |
+| [`docs/EHR-DESIGN-GUIDE.md`](docs/EHR-DESIGN-GUIDE.md) | The normative UI/UX & front-end implementation guide for the Rednoxx EHR — tokens, type scale, WCAG 2.2 AA gates, clinical safety patterns, FHIR mappings, testing protocol |
 
 ## Quick start
 
