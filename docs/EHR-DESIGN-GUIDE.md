@@ -337,9 +337,26 @@ through props or compose them in blocks. Inventory and hard rules:
 |---|---|---|
 | Forms | Button (+Group), Input, **PasswordInput**, Textarea, Select, Combobox, DatePicker/TimePicker, SearchInput, Checkbox, Radio, Slider, Switch/Toggle, ColorPicker, CodeInput (digits) | Everything wraps in `Field` (label/hint/error); `invalid` prop + `Field error` for validation; placeholders are examples, never labels; PasswordInput's eye is a labelled `aria-pressed` button |
 | Data display | Avatar (+Group), Badge/Tag/StatusPill, Card, DataTable, ProgressBar/Circle, Rating, Divider, Kbd, KeyValue, StatCard | Tables: `.tnum` numerics, right-aligned; StatusPill = soft fill + AA text + label |
-| Feedback | Alert, Toast (sonner), Modal, Drawer, Tooltip, Skeleton/InlineLoader, EmptyState | Alerts have `tone` + title + body; errors are `role="alert"`; Modal traps focus; Toast confirms every mutation |
+| Feedback | Alert, Toast (sonner), Modal, Drawer, Tooltip, Skeleton/InlineLoader, EmptyState | Alerts have `tone` + title + body; errors are `role="alert"`; Modal traps focus; Toast confirms every mutation. **Drawer = forms, Modal = decisions** (see below) |
 | Navigation | Tabs (+vertical), Segmented, Accordion, Stepper (3 variants), Pagination, Breadcrumb, Sidebar, Navbar | Active state is fill + weight, not colour alone |
 | Overlays | Dropdown, Popover, CommandMenu (⌘K) | Portal to body; `layerStack`; arrow-key navigation |
+
+**Drawer vs Modal — the rule.** One surface per job, product-wide:
+
+- **`Drawer` = data entry.** Creating or editing a record — anything with
+  multiple fields: register, schedule, invite, new-anything, edit, upload,
+  filter, and detail panels. The list you're adding to stays visible behind it.
+  **Every "New …" / "Create …" action opens a drawer.**
+- **`Modal` = a decision.** The user must decide before anything continues:
+  destructive/high-risk confirmations (merge, void, mark deceased,
+  created-in-error, break-glass), identity verification (check-in, bind to
+  patient), and reason-gated governance actions. A modal may carry one
+  justification field — the job is still to decide, not to fill in a record.
+- Litmus test: *am I filling something in, or answering a question?* Filling in
+  → drawer; answering → modal. Content that deserves a URL is a page, not either.
+
+They share an API, so converting is a one-word change — there is no excuse for
+an inconsistent one.
 
 Component code style: typed props interfaces, `cn()` for class merging,
 variants as class maps, native elements underneath (real `<button>`, real
@@ -396,8 +413,10 @@ wrong-patient control (HIMSS context preservation).
 7. **Units & identifiers.** Units are rendered by the UI, never typed by the
    user; identifiers (MRN, NIN, phone) have format validation and `.tnum`
    mono display.
-8. **Dates.** DatePicker with typed fallback; age auto-computed from DOB and
-   displayed alongside; future-date and impossible-date rules per field.
+8. **Dates.** Always the `DatePicker` — calendar-only, never a typeable text
+   input (the picker's year-grid keeps far-back DOBs two taps away). Age
+   auto-computed from DOB and displayed alongside; future-date and
+   impossible-date rules per field.
 9. **Every persisted field** declares: data owner, validation rule,
    terminology source (ICD-10/LOINC/RxNorm/NHIA codes as applicable), FHIR
    path (§14), and privacy class.

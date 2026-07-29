@@ -31,7 +31,7 @@
 | `Textarea` | `resize-none`, rows prop |
 | `Select` | native `<select>` styled to field baseline, chevron overlay |
 | `Combobox` | filterable list, arrow-key nav (Up/Down, Enter selects, Escape closes), `aria-expanded`; announces result count via `aria-live="polite"`; explicit "no matches" state suggesting a broader search or a coded/free-text fallback where clinically appropriate |
-| `DatePicker` / `TimePicker` | typed input (`dd/mm/yyyy`, Nigerian convention) always accepted — never calendar-only; validates clinical ranges (no future DOB, no future "seen on") with inline errors, not silent blocks; age auto-computed next to DOB |
+| `DatePicker` / `TimePicker` | **Dates are ALWAYS the `DatePicker` — never a typeable text `Input`.** The picker is calendar-only (no free-typing) with a year-grid so far-back DOBs are two taps away; it emits ISO `yyyy-mm-dd` (format the value for display). Validate clinical ranges (no future DOB, no future "seen on"); age auto-computed next to DOB |
 | `SearchInput` | leading search icon, used in toolbars/filter bars |
 | `Checkbox`, `RadioGroup` | real radiogroup semantics, arrow keys, `aria-checked`; checkbox supports `indeterminate` for select-all; groups wrap in `<fieldset>` + `<legend>` |
 | `Slider`, `Switch`/`Toggle` | `role="switch"` + `aria-checked`; toggles are `rounded-full` |
@@ -50,14 +50,36 @@
 | `StatCard` | KPI number `.tnum`; delta in words + arrow |
 | `Rating`, `Divider`, `Kbd` | — |
 
+Table cell typography: single-line cell content inherits the table's default size (text-sm) — NEVER shrink one column with text-xs while siblings stay default; text-xs is allowed only as the secondary line of a stacked two-line cell; identifiers (MRN, visit no., namespaces) render font-mono text-[13px].
+
 ### Feedback
 | Component | Rules |
 |---|---|
 | `Alert` | `tone` info/success/warning/danger; title + body; danger errors `role="alert"`. Inline alerts persist until resolved and sit next to the affected content |
 | `Toast` (`useToast` over sonner) | transient, non-blocking, auto-dismisses; confirms every mutation; `aria-live="polite"`. NEVER used for errors that require action |
 | Banner (page-level Alert usage) | persistent, for system-wide states — offline, sync failed, read-only, maintenance — always with a next step ("Retry now" / "2 items will sync when connection returns"); `aria-live="assertive"` only when data loss is at risk |
-| `Modal` | focus trap; `role="dialog"` + `aria-modal` + `aria-labelledby`; background inert; Escape closes top layer only (`layerStack`) and in destructive confirms Escape maps to the SAFE option; focus returns to trigger on close |
-| `Drawer` | `animate-drawer-in/out`; same layer rules |
+| `Modal` | **DECISIONS ONLY** — see the rule below. focus trap; `role="dialog"` + `aria-modal` + `aria-labelledby`; background inert; Escape closes top layer only (`layerStack`) and in destructive confirms Escape maps to the SAFE option; focus returns to trigger on close |
+| `Drawer` | **FORMS** — see the rule below. `animate-drawer-in/out`; same layer rules; footer already right-aligns actions, so pass buttons directly (no wrapper div) |
+
+### Drawer vs Modal — the rule (not a preference)
+
+**Drawer = data entry. Modal = a decision.** One surface per job, product-wide:
+
+- **Use `Drawer`** for creating or editing a record — anything with multiple
+  fields: register/schedule/invite/new-anything, edit, upload, filter, and
+  detail panels. The list you're adding to stays visible behind it, and the
+  panel scales to the form (`md`→`2xl`). **Every "New …" / "Create …" action
+  opens a drawer.**
+- **Use `Modal`** when the user must *decide* before anything continues:
+  destructive and high-risk confirmations (merge, unmerge, void, mark deceased,
+  created-in-error, break-glass), identity verification (check-in, bind to
+  patient), and reason-gated governance actions. A modal may contain one
+  justification field — the user's job is still to decide, not to fill a record.
+- Litmus test: *"Am I filling something in, or answering a question?"* Filling
+  in → drawer. Answering → modal. Content that deserves a URL is a page, not
+  either.
+- They share an API, so converting is a one-word change — which means there is
+  no excuse for an inconsistent one.
 | `Tooltip`/`InfoTip` | never the only carrier of required info |
 | `Skeleton`/`SkeletonText`/`InlineLoader` | skeletons match final layout |
 | `EmptyState` | illustration + one-line explanation + primary action |
@@ -145,7 +167,8 @@ default in long histories.
    visible "Saved · 09:41" indicator and unsaved-changes warning on nav.
 8. **Units & identifiers:** units rendered by the UI, never typed; MRN/NIN/
    phone format-validated, displayed mono `.tnum`.
-9. **Dates:** DatePicker + typed fallback; future/impossible-date rules per
+9. **Dates:** always `DatePicker` (calendar-only, never a typeable Input);
+   future/impossible-date rules per
    field; age computed and shown beside DOB.
 10. **Every persisted field declares:** data owner, validation rule,
    terminology source, FHIR path (see fhir-mapping.md), privacy class.

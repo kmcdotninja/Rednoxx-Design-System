@@ -15,6 +15,8 @@ are hand-rolled in `app/src/components/ui/` (no shadcn/Radix).
 - **Any UI work must follow the `ehr-design` skill** (`.claude/skills/ehr-design/`),
   which digests the normative spec in `docs/EHR-DESIGN-GUIDE.md` — tokens,
   type scale, WCAG 2.2 AA gates, clinical safety patterns, FHIR mappings.
+- Numbered screen specs (CPA-S**) are implemented via the `spec-to-screen`
+  skill; `scripts/design-lint.sh` is the mechanical token gate on changed UI.
 - Compose from existing primitives/blocks; never fork a component per screen.
 - Charts import directly from `components/ui/AreaChart` etc. — never re-export
   recharts through the ui barrel (bundle split).

@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PROJECT_DIR:-.}/.claude/hooks/ehr-design-reminder.sh\" 2>/dev/null || true",
+            "statusMessage": "ehr-design check"
+          }
+        ]
+      }
+    ]
+  }
+}
