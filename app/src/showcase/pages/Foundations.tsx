@@ -124,16 +124,16 @@ const TYPE_SCALE: {
   cls: string
   sample: string
 }[] = [
-  { name: 'Display', px: 32, lh: '1.15', weight: '500', tracking: '−0.02em', usage: 'Hero statements — one per flow', cls: 'text-[32px] font-medium leading-[1.15] tracking-[-0.02em]', sample: 'One design language' },
-  { name: 'Page title', px: 26, lh: '1.2', weight: '500', tracking: '−0.02em', usage: 'The h1 — exactly one per page', cls: 'text-[26px] font-medium leading-[1.2] tracking-[-0.02em]', sample: 'Facility performance' },
-  { name: 'Title', px: 19, lh: '1.35', weight: '500', tracking: '−0.01em', usage: 'Card, dialog and auth headings', cls: 'text-[19px] font-medium leading-[1.35] tracking-[-0.01em]', sample: 'Advanced reporting' },
-  { name: 'Section', px: 17, lh: '1.4', weight: '500', tracking: '−0.01em', usage: 'Grouped content inside a page', cls: 'text-[17px] font-medium leading-[1.4] tracking-[-0.01em]', sample: 'Vitals this visit' },
-  { name: 'Heading', px: 15, lh: '1.45', weight: '500', tracking: '−0.01em', usage: 'List titles, panel headers, lede text', cls: 'text-[15px] font-medium leading-[1.45] tracking-[-0.01em]', sample: 'Today’s clinic' },
-  { name: 'Body', px: 14, lh: '1.6', weight: '400', tracking: '0', usage: 'Default reading size — forms, tables, copy', cls: 'text-sm leading-relaxed', sample: 'Results from the analyser are delayed by roughly 20 minutes.' },
-  { name: 'Secondary', px: 13, lh: '1.55', weight: '400', tracking: '0', usage: 'The dense-UI workhorse: summaries, rows, meta', cls: 'text-[13px] leading-relaxed text-forest-500', sample: 'Escalated to Dr. Okafor — awaiting counter-signature.' },
-  { name: 'Caption', px: 12, lh: '1.5', weight: '400', tracking: '0', usage: 'Supporting labels, chart annotations', cls: 'text-[12px] text-forest-400', sample: 'vs 3,554 last period' },
-  { name: 'Overline', px: 11, lh: '1.4', weight: '500', tracking: '+0.08em', usage: 'Eyebrows, group labels, table headers — uppercase', cls: 'text-[11px] font-medium uppercase tracking-[0.08em] text-forest-300', sample: 'Clinical' },
-  { name: 'Micro', px: 10, lh: '1.3', weight: '500', tracking: '+0.02em', usage: 'Chips, axis ticks — never for reading', cls: 'text-[10px] font-medium text-forest-400', sample: 'NDPR · encrypted' },
+  { name: 'Display', px: 32, lh: '1.15', weight: '500', tracking: '−0.02em', usage: 'Hero statements — one per flow', cls: 'text-display', sample: 'One design language' },
+  { name: 'Page title', px: 26, lh: '1.2', weight: '500', tracking: '−0.02em', usage: 'The h1 — exactly one per page', cls: 'text-page-title', sample: 'Facility performance' },
+  { name: 'Title', px: 19, lh: '1.35', weight: '500', tracking: '−0.01em', usage: 'Card, dialog and auth headings', cls: 'text-title', sample: 'Advanced reporting' },
+  { name: 'Section', px: 17, lh: '1.4', weight: '500', tracking: '−0.01em', usage: 'Grouped content inside a page', cls: 'text-section', sample: 'Vitals this visit' },
+  { name: 'Heading', px: 15, lh: '1.45', weight: '500', tracking: '−0.01em', usage: 'List titles, panel headers, lede text', cls: 'text-heading', sample: 'Today’s clinic' },
+  { name: 'Body', px: 14, lh: '1.6', weight: '400', tracking: '0', usage: 'Default reading size — forms, tables, copy', cls: 'text-body', sample: 'Results from the analyser are delayed by roughly 20 minutes.' },
+  { name: 'Secondary', px: 13, lh: '1.55', weight: '400', tracking: '0', usage: 'The dense-UI workhorse: summaries, rows, meta', cls: 'text-secondary text-forest-500', sample: 'Escalated to Dr. Okafor — awaiting counter-signature.' },
+  { name: 'Caption', px: 12, lh: '1.5', weight: '400', tracking: '0', usage: 'Supporting labels, chart annotations', cls: 'text-caption text-forest-400', sample: 'vs 3,554 last period' },
+  { name: 'Overline', px: 11, lh: '1.4', weight: '500', tracking: '+0.08em', usage: 'Eyebrows, group labels, table headers — uppercase', cls: 'text-overline uppercase text-forest-300', sample: 'Clinical' },
+  { name: 'Micro', px: 10, lh: '1.3', weight: '500', tracking: '+0.02em', usage: 'Chips, axis ticks — never for reading', cls: 'text-micro text-forest-400', sample: 'NDPR · encrypted' },
 ]
 
 /* --------------------------------------------------------------- spacing */

@@ -1,4 +1,11 @@
-import { ArrowRight, FolderSearch, MonitorPlay, SwatchBook, type LucideIcon } from 'lucide-react'
+import {
+  ArrowRight,
+  BookOpen,
+  FolderSearch,
+  MonitorPlay,
+  SwatchBook,
+  type LucideIcon,
+} from 'lucide-react'
 import { Link, type LinkProps } from '@tanstack/react-router'
 import { Logo } from '@/components/Logo'
 
@@ -26,6 +33,12 @@ const DESTINATIONS: {
     title: 'HIM module',
     blurb: 'Health Information Management — master patient index, registration, duplicates & merge, releases and audit.',
   },
+  {
+    to: '/case-study',
+    icon: BookOpen,
+    title: 'Case study',
+    blurb: 'The written argument — the problem clinical software poses, the four layers, and the decisions behind them.',
+  },
 ]
 
 /** Entry hall for the Rednoxx workspace — one card per destination. */
@@ -39,7 +52,9 @@ export function Landing() {
         </p>
       </div>
 
-      <ul className="grid w-full max-w-4xl gap-4 sm:grid-cols-3">
+      {/* Wider than the 896px reading measure: this is a card grid, and a
+          fourth destination at max-w-4xl squeezed each blurb to five lines. */}
+      <ul className="grid w-full max-w-6xl gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {DESTINATIONS.map(({ to, icon: Icon, title, blurb }) => (
           <li key={title}>
             <Link

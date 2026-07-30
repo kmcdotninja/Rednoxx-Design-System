@@ -29,13 +29,20 @@ export function readCssTokens(): Token[] {
       // Cross-origin sheet — not ours, and not readable. Skip it.
       continue
     }
-    for (const rule of Array.from(rules)) {
-      if (!(rule instanceof CSSStyleRule)) continue
-      if (!/:root|:host/.test(rule.selectorText)) continue
-      for (const prop of Array.from(rule.style)) {
-        if (prop.startsWith('--')) seen.set(prop, rule.style.getPropertyValue(prop).trim())
+    // Tailwind v4 nests the @theme output inside @layer blocks, so walk
+    // grouping rules (layers, media, supports) recursively.
+    const walk = (list: CSSRuleList) => {
+      for (const rule of Array.from(list)) {
+        if (rule instanceof CSSStyleRule && /:root|:host/.test(rule.selectorText)) {
+          for (const prop of Array.from(rule.style)) {
+            if (prop.startsWith('--')) seen.set(prop, rule.style.getPropertyValue(prop).trim())
+          }
+        }
+        const nested = (rule as CSSGroupingRule).cssRules
+        if (nested?.length) walk(nested)
       }
     }
+    walk(rules)
   }
 
   const computed = getComputedStyle(document.documentElement)
@@ -63,6 +70,7 @@ export const TOKEN_PREFIXES: Record<string, string[]> = {
   typography: ['--font-', '--text-', '--leading-', '--tracking-'],
   space: ['--spacing'],
   shape: ['--radius-'],
+  elevation: ['--shadow-'],
 }
 
 /** Whether a Foundations page has a Tokens view. */

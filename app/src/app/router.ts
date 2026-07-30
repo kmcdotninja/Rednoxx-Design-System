@@ -193,6 +193,17 @@ const startRoute = createRoute({
   component: Landing,
 })
 
+/* ============================== /case-study ==============================
+   The written case study for the design system — a standalone reading page
+   that carries its own frame (no showcase Shell, no product chrome), so it
+   can be linked on its own. Lazy like the rest of the showcase. */
+
+const caseStudyRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: 'case-study',
+  component: lazyRouteComponent(() => import('../showcase/pages/CaseStudy'), 'CaseStudy'),
+})
+
 // `/him` belongs to the him-intake feature (below); the design-system HIM
 // demo lives at /him-demo so both can be explored side by side.
 const himRoute = createRoute({
@@ -570,6 +581,7 @@ const notFoundRoute = createRoute({
 const routeTree = rootRoute.addChildren([
   indexRoute,
   startRoute,
+  caseStudyRoute,
   himRoute.addChildren(himChildRoutes),
   designRoute.addChildren(designChildRoutes),
   demoRoute.addChildren([

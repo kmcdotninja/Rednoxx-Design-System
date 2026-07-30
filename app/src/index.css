@@ -104,6 +104,48 @@
   --radius-3xl: 0px; /* inner tiles, popovers */
   --radius-4xl: 0px; /* cards, modals, drawers */
   --radius-5xl: 0px;
+
+  /* Type scale — the closed set of 10 styles (guide §5). Each token compiles
+     to a `text-<name>` utility carrying size, line-height, tracking and
+     weight, so components write `text-display` instead of raw values. */
+  --text-display: 32px;
+  --text-display--line-height: 1.15;
+  --text-display--letter-spacing: -0.02em;
+  --text-display--font-weight: 500;
+  --text-page-title: 26px;
+  --text-page-title--line-height: 1.2;
+  --text-page-title--letter-spacing: -0.02em;
+  --text-page-title--font-weight: 500;
+  --text-title: 19px;
+  --text-title--line-height: 1.35;
+  --text-title--letter-spacing: -0.01em;
+  --text-title--font-weight: 500;
+  --text-section: 17px;
+  --text-section--line-height: 1.4;
+  --text-section--letter-spacing: -0.01em;
+  --text-section--font-weight: 500;
+  --text-heading: 15px;
+  --text-heading--line-height: 1.45;
+  --text-heading--letter-spacing: -0.01em;
+  --text-heading--font-weight: 500;
+  --text-body: 14px;
+  --text-body--line-height: 1.6;
+  --text-secondary: 13px;
+  --text-secondary--line-height: 1.55;
+  --text-caption: 12px;
+  --text-caption--line-height: 1.5;
+  --text-overline: 11px;
+  --text-overline--line-height: 1.4;
+  --text-overline--letter-spacing: 0.08em;
+  --text-overline--font-weight: 500;
+  --text-micro: 10px;
+  --text-micro--line-height: 1.3;
+  --text-micro--letter-spacing: 0.02em;
+  --text-micro--font-weight: 500;
+
+  /* Spacing — the 4px base grid. Every Tailwind spacing utility (p-*, gap-*,
+     m-*) is a multiple of this token; if a layout needs 14px, it's wrong. */
+  --spacing: 4px;
 }
 
 @layer base {
