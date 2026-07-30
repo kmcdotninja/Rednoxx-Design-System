@@ -10,6 +10,21 @@
     />
     <meta name="theme-color" content="#171723" />
 
+    <!-- Theme, before first paint: an explicit localStorage choice wins, else
+         the OS preference. Mirrors src/lib/theme.ts — a dark session must
+         never flash light. -->
+    <script>
+      try {
+        var t = localStorage.getItem('theme')
+        if (
+          t === 'dark' ||
+          (t !== 'light' && matchMedia('(prefers-color-scheme: dark)').matches)
+        ) {
+          document.documentElement.classList.add('dark')
+        }
+      } catch (e) {}
+    </script>
+
     <!-- Open Graph / link preview (Slack, iMessage, LinkedIn, WhatsApp…) -->
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Rednoxx" />

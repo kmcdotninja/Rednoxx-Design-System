@@ -1,6 +1,7 @@
 import { ArrowRight, FolderSearch, MonitorPlay, SwatchBook, type LucideIcon } from 'lucide-react'
 import { Link, type LinkProps } from '@tanstack/react-router'
 import { Logo } from '@/components/Logo'
+import { ThemeToggle } from '@/components/ui/ThemeToggle'
 
 const DESTINATIONS: {
   to: LinkProps['to']
@@ -33,7 +34,8 @@ const DESTINATIONS: {
 /** Entry hall for the Rednoxx workspace — one card per destination. */
 export function Landing() {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center gap-10 bg-canvas px-6 py-16">
+    <div className="relative flex min-h-screen flex-col items-center justify-center gap-10 bg-canvas px-6 py-16">
+      <ThemeToggle className="absolute right-4 top-4" />
       <div className="flex flex-col items-center gap-4 text-center">
         <Logo className="h-7" />
         <p className="max-w-md text-sm text-forest-400">

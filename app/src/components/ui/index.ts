@@ -1,4 +1,5 @@
 export { Button, ButtonLink } from './Button'
+export { ThemeToggle } from './ThemeToggle'
 export { ButtonGroup } from './ButtonGroup'
 export { Card, CardHeader } from './Card'
 export { Badge, Tag, StatusPill } from './Badge'

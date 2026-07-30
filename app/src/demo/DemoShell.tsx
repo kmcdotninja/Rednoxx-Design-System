@@ -17,7 +17,7 @@ import {
 } from 'lucide-react'
 import { Link, Outlet, useLocation, useNavigate, type NavigateOptions } from '@tanstack/react-router'
 import { Logo, Mark } from '@/components/Logo'
-import { type Crumb } from '@/components/ui'
+import { ThemeToggle, type Crumb } from '@/components/ui'
 import {
   AccountSwitcher,
   AppNavbar,
@@ -165,7 +165,12 @@ export function DemoNavbar({
   return (
     <AppNavbar
       crumbs={crumbs}
-      actions={actions}
+      actions={
+        <>
+          <ThemeToggle className="h-9 w-9" />
+          {actions}
+        </>
+      }
       notifications={notifications}
       onNotificationSelect={(id) =>
         setNotifications((all) => all.map((n) => (n.id === id ? { ...n, read: true } : n)))

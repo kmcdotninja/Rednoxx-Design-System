@@ -224,6 +224,125 @@
   --radius-5xl: var(--radius);
 }
 
+/* ======================= Dark mode — the token flip =======================
+   Dark mode is a VALUE change, not a component change: `.dark` on <html>
+   (owned by lib/theme.ts, pre-paint script in index.html) re-points the same
+   custom properties, and every utility that reads them follows. The legacy
+   aliases (forest→navy, lime→azure…) are var() references, so they flip too.
+
+   These are theme-layer declarations — raw values are the point here, exactly
+   as in the @theme block above; components still never carry hex.
+
+   Ink ramp inversion: navy/navy-300/400/500 become light-on-dark text tones
+   (measured ≥4.5:1 on the dark canvas), navy-50/100/200 become quiet dark
+   fills and hairlines. navy-600/800/900 KEEP their dark-surface role — they
+   are backgrounds (solid buttons, code blocks, scrims) whose `text-white`
+   children must stay legible, so they are lifted, never lightened. */
+:root.dark {
+  color-scheme: dark;
+
+  /* ---- Ink ramp ---- */
+  --color-navy-50: #1a1a24; /* faint fills */
+  --color-navy-100: #20202b; /* skeleton bones, quiet fills */
+  --color-navy-200: #33333f; /* strong hairlines, disabled icons */
+  --color-navy-300: #8b8b9a; /* muted text — 5.6:1 on canvas */
+  --color-navy-400: #a8a8b8; /* secondary text — 8.0:1 on canvas */
+  --color-navy-500: #c6c6d2; /* strong secondary — 11.2:1 on canvas */
+  --color-navy-600: #343442; /* dark-surface hover — stays a surface */
+  --color-navy: #f2f2f7; /* primary text — 17.5:1 on canvas */
+  --color-navy-800: #101018; /* deep surface — stays dark */
+  --color-navy-900: #08080d; /* deepest surface & scrims — stays dark */
+
+  /* ---- Accent — solid azure fills keep the brand violet (white text on
+     #5833fb passes either way); only the quiet tints flip dark. Accent TEXT
+     is handled by the utility overrides below. ---- */
+  --color-azure-50: #221a4a; /* focus halo, selected fills */
+  --color-azure-100: #2c2260; /* ::selection flows from here */
+  --color-azure-200: #3b2d7e; /* chart fills */
+
+  /* ---- Status pairs — dark tints, lightened text partners ---- */
+  --color-mint: #4ade80; /* 8.6:1 on canvas, 6.9:1 on its soft */
+  --color-mint-soft: #0d2b1a;
+  --color-gold-600: #e0b25a; /* 8.2:1 on canvas, 6.3:1 on its soft */
+  --color-gold-soft: #322508;
+  --color-rose-ink: #f87171; /* 6.0:1 on canvas, 4.9:1 on its soft */
+  --color-rose-soft: #3a1214;
+
+  /* ---- Neutral surfaces ---- */
+  --color-canvas: #0b0b12;
+  --color-panel: #16161e;
+  --color-hair: #262630;
+
+  /* ---- Elevation — shadows sink into a dark canvas, so each level adds a
+     faint light ring and a heavier drop so lift still reads. ---- */
+  --shadow-card: 0 0 0 1px rgb(255 255 255 / 0.06),
+    0 6px 16px -8px rgb(0 0 0 / 0.5);
+  --shadow-card-hover: 0 0 0 1px rgb(255 255 255 / 0.09),
+    0 12px 28px -10px rgb(0 0 0 / 0.6);
+  --shadow-soft: 0 0 0 1px rgb(255 255 255 / 0.05),
+    0 4px 16px -4px rgb(0 0 0 / 0.5);
+  --shadow-pop: 0 0 0 1px rgb(255 255 255 / 0.1),
+    0 8px 28px -8px rgb(0 0 0 / 0.7);
+  --shadow-chip: 0 0 0 1px rgb(255 255 255 / 0.08), 0 1px 2px rgb(0 0 0 / 0.4);
+}
+
+/* Utility-level dark overrides — the small set the token flip cannot express.
+   They live in @layer utilities and use `html.dark :where(.x)` on purpose:
+   the specificity lands at (0,1,1) — above a bare utility's (0,1,0), below a
+   `hover:`/`focus:` variant's (0,2,0) — so state variants keep winning in
+   dark mode without a single !important. */
+@layer utilities {
+  /* White cards become dark surfaces. `--color-white` itself is untouched —
+     `text-white` children (solid buttons, dark panels) must stay white. */
+  html.dark :where(.bg-white) {
+    background-color: #14141c;
+  }
+  /* Translucent white chips on light panels become a faint light wash. The
+     lower alphas (/5–/30) already sit on dark surfaces and stay as they are. */
+  html.dark :where(.bg-white\/60, .bg-white\/70) {
+    background-color: rgb(255 255 255 / 0.08);
+  }
+  html.dark :where(.hover\:bg-white\/60):hover {
+    background-color: rgb(255 255 255 / 0.08);
+  }
+
+  /* Solid ink fills (primary buttons, the dark Card variant, code blocks,
+     pagination's current page…) carry `text-white` children — with the ramp
+     inverted they would go light, so they stay dark, slightly lifted off the
+     canvas. 12.9:1 against white text. */
+  html.dark :where(.bg-navy, .bg-forest) {
+    background-color: #262633;
+  }
+
+  /* Accent TEXT at #5833fb is <3:1 on the dark canvas — lighten it. Fills
+     and borders keep the brand value. azure-600 sits on azure tints, so it
+     goes lighter still. */
+  html.dark
+    :where(.text-azure, .text-lime, .text-azure-500, .text-lime-500) {
+    /* azure-300 — decorative-only in light, but 7.8:1 on the dark canvas */
+    color: var(--color-azure-300);
+  }
+  html.dark :where(.text-azure-600, .text-lime-600) {
+    color: #c9bcff; /* 11.6:1 on canvas, 6.0:1 on the dark azure-50 tint */
+  }
+  /* Light accent text on brand-dark panels — the panel stays dark, so the
+     text stays light instead of flipping to the dark azure-200 tint. */
+  html.dark :where(.text-azure-200, .text-lime-200) {
+    color: #d4cbfe;
+  }
+
+  /* Strong text read from the 600 step — a surface value in dark. */
+  html.dark :where(.text-navy-600, .text-forest-600) {
+    color: var(--color-navy-500);
+  }
+
+  /* Light-on-dark code text (CodeBlock, dark previews) — its surface stays
+     dark above, so the text must stay light. */
+  html.dark :where(.text-navy-100, .text-forest-100) {
+    color: #e9e9ee;
+  }
+}
+
 @layer base {
   html {
     -webkit-text-size-adjust: 100%;
@@ -281,6 +400,19 @@
   }
   *::-webkit-scrollbar-thumb:hover {
     background: #94a3b8;
+    background-clip: content-box;
+  }
+  /* Dark theme — the scrollbar values above are hardcoded, so they flip here.
+     (::selection already follows the azure-100/navy tokens.) */
+  .dark * {
+    scrollbar-color: #3a3a48 transparent;
+  }
+  .dark *::-webkit-scrollbar-thumb {
+    background: #3a3a48;
+    background-clip: content-box;
+  }
+  .dark *::-webkit-scrollbar-thumb:hover {
+    background: #4c4c5c;
     background-clip: content-box;
   }
 

@@ -21,7 +21,7 @@ import {
 } from 'lucide-react'
 import { cn } from '@/lib/cn'
 import { Logo } from '@/components/Logo'
-import { CommandMenu, Kbd, Tag, useCommandMenu, type Command } from '@/components/ui'
+import { CommandMenu, Kbd, Tag, ThemeToggle, useCommandMenu, type Command } from '@/components/ui'
 import { ShellSlotProvider, useSlotTarget } from './controls-slot'
 import { ALL_ITEMS, SECTIONS, itemForPath, neighbours, sectionForPath } from './nav'
 
@@ -94,6 +94,7 @@ function TopNav({ onOpenSearch, onOpenMenu }: { onOpenSearch: () => void; onOpen
         >
           <Search size={17} />
         </button>
+        <ThemeToggle />
         <Link
           to="/demo"
           className="hidden h-9 items-center gap-2 border border-hair px-3 text-[13px] text-forest-400 transition-colors hover:border-navy-200 hover:text-forest sm:flex"

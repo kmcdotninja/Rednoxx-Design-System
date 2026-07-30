@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { ALL_NAV_CONTRIBUTIONS } from './contributions'
 import { PermissionGate, usePermission } from './permissions'
 import { getSession, peekSession, signOut, subscribeSession } from './auth/session'
-import { Avatar, Button } from '@/components/ui'
+import { Avatar, Button, ThemeToggle } from '@/components/ui'
 import { cn } from '@/lib/cn'
 import { OfflineBanner } from './OfflineBanner'
 import type { StreamNamespace } from './stream-contract'
@@ -63,6 +63,7 @@ export function ProductChrome({ showAnnouncements: _showAnnouncements = false }:
         </nav>
 
         <div className="flex items-center gap-2">
+          <ThemeToggle className="h-9 w-9" />
           <div className="relative hidden sm:block">
             <select
               aria-label="Facility"
