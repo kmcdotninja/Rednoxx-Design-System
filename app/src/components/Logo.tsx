@@ -9,7 +9,10 @@ import { cn } from '@/lib/cn'
 export type LogoTone = 'brand' | 'ink' | 'white' | 'inherit'
 
 const TONE: Record<LogoTone, string> = {
-  brand: 'text-azure',
+  // `text-(--color-azure)` reads the token directly, so the dark theme's
+  // `.text-azure` readability override (→ azure-300) never recolours the
+  // brand lockup — it stays #5833FB in both themes, matching bg-azure.
+  brand: 'text-(--color-azure)',
   ink: 'text-forest',
   white: 'text-white',
   inherit: '',
