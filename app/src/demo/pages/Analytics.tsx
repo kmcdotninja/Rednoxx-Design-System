@@ -21,6 +21,7 @@ import {
 } from '@/components/ui'
 import { KpiCard } from '@/components/blocks/KpiCard'
 import { DemoPageHeader } from '../DemoShell'
+import { TableTabs, type Facet } from '../TableTabs'
 import { DAYS, DEPARTMENTS, FACILITIES, KPIS, type Facility, type Kpi } from '../health'
 
 const BRAND = '#5833fb'
@@ -42,6 +43,7 @@ export function AnalyticsPage() {
   const [facility, setFacility] = useState<Facility | null>(null)
   const [facilityOpen, setFacilityOpen] = useState(false)
   const [filterFacility, setFilterFacility] = useState<string | undefined>()
+  const [statusFilter, setStatusFilter] = useState<Facet<Facility['status']>>('all')
   const dateRange = `${DAYS[0]} – ${DAYS[DAYS.length - 1]}, ${new Date().getFullYear()}`
 
   const topFacilities = [...FACILITIES].sort((a, b) => b.consults - a.consults).slice(0, 4)
@@ -190,10 +192,18 @@ export function AnalyticsPage() {
           title="Facility performance"
           subtitle="Consultations, wait times and claim outcomes across the network"
         />
-        <div className="mt-3">
+        <TableTabs
+          className="mt-4"
+          rows={FACILITIES}
+          facetOf={(f) => f.status}
+          order={['active', 'pending']}
+          value={statusFilter}
+          onChange={setStatusFilter}
+        />
+        <div className="mt-2">
           <DataTable
             columns={columns}
-            rows={FACILITIES}
+            rows={FACILITIES.filter((f) => statusFilter === 'all' || f.status === statusFilter)}
             rowKey={(f) => f.id}
             pageSize={6}
             onRowClick={(f) => {

@@ -15,6 +15,7 @@ import {
   type Column,
 } from '@/components/ui'
 import { DemoPageHeader } from '../DemoShell'
+import { TableTabs, type Facet } from '../TableTabs'
 import { CLAIMS, DAYS, INSURERS, PAYMENTS, PAYMENT_TREND, type Claim, type Payment } from '../health'
 
 const BRAND = '#5833fb'
@@ -24,6 +25,7 @@ const ngn = (v: number) => `₦${v.toLocaleString()}`
 
 export function PaymentsPage() {
   const { success } = useToast()
+  const [filter, setFilter] = useState<Facet<Payment['status']>>('all')
   const outstanding = PAYMENTS.filter((p) => p.status === 'pending').reduce((s, p) => s + p.amount, 0)
   const failed = PAYMENTS.filter((p) => p.status === 'failed').length
 
@@ -88,8 +90,21 @@ export function PaymentsPage() {
 
       <Card className="animate-rise" style={{ animationDelay: '180ms' }}>
         <CardHeader title="Recent payments" subtitle="Newest first" />
-        <div className="mt-3">
-          <DataTable columns={columns} rows={PAYMENTS} rowKey={(p) => p.id} pageSize={6} />
+        <TableTabs
+          className="mt-4"
+          rows={PAYMENTS}
+          facetOf={(p) => p.status}
+          order={['completed', 'pending', 'failed']}
+          value={filter}
+          onChange={setFilter}
+        />
+        <div className="mt-2">
+          <DataTable
+            columns={columns}
+            rows={PAYMENTS.filter((p) => filter === 'all' || p.status === filter)}
+            rowKey={(p) => p.id}
+            pageSize={6}
+          />
         </div>
       </Card>
     </>
@@ -100,9 +115,10 @@ export function PaymentsPage() {
 
 export function ClaimsPage() {
   const [insurer, setInsurer] = useState<string | undefined>()
+  const [filter, setFilter] = useState<Facet<Claim['status']>>('all')
   const rows = useMemo(
-    () => CLAIMS.filter((c) => !insurer || c.insurer === insurer),
-    [insurer],
+    () => CLAIMS.filter((c) => (filter === 'all' || c.status === filter) && (!insurer || c.insurer === insurer)),
+    [insurer, filter],
   )
   const approved = CLAIMS.filter((c) => c.status === 'approved').length
   const pending = CLAIMS.filter((c) => c.status === 'pending').length
@@ -154,7 +170,16 @@ export function ClaimsPage() {
       </div>
 
       <Card className="animate-rise" style={{ animationDelay: '140ms' }}>
-        <DataTable columns={columns} rows={rows} rowKey={(c) => c.id} pageSize={8} />
+        <TableTabs
+          rows={CLAIMS}
+          facetOf={(c) => c.status}
+          order={['approved', 'pending', 'rejected']}
+          value={filter}
+          onChange={setFilter}
+        />
+        <div className="mt-2">
+          <DataTable columns={columns} rows={rows} rowKey={(c) => c.id} pageSize={8} />
+        </div>
       </Card>
     </>
   )
