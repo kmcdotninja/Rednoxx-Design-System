@@ -48,17 +48,34 @@ const KINDS: Record<
 export function ErrorPage({
   kind,
   title,
+  titleAs = 'h1',
   description,
+  detail,
   action,
+  footer,
   framed,
   className,
 }: {
   kind: ErrorKind
   /** Override the default copy where the context knows better. */
   title?: string
+  /**
+   * The error replaces the page's content, so its title is the page's `h1` —
+   * including inside a shell, where the route that failed never rendered one.
+   * Drop to `p` only for an embedded specimen on a page that owns its own `h1`.
+   */
+  titleAs?: 'p' | 'h1' | 'h2'
   description?: string
+  /** Evidence under the copy — typically the address or request that failed. */
+  detail?: ReactNode
   /** The way forward — a ButtonLink home, a retry, a sign-in. */
   action?: ReactNode
+  /**
+   * Supplementary block under the action — diagnostics (the address that
+   * failed) and secondary destinations. Stacked, not a button row, so a
+   * standalone error page can offer more than one way out.
+   */
+  footer?: ReactNode
   /** Standalone example (no min-height claim). */
   framed?: boolean
   className?: string
@@ -67,20 +84,23 @@ export function ErrorPage({
   return (
     <div
       className={cn(
-        'flex flex-col items-center justify-center bg-canvas px-6',
-        framed ? 'rounded-3xl border border-hair py-10' : 'min-h-screen py-16',
+        'flex flex-col items-center justify-center bg-canvas px-page sm:px-page-lg',
+        framed ? 'border border-hair py-10' : 'min-h-screen py-16',
         className,
       )}
     >
-      <p className="tnum font-mono text-[13px] font-medium uppercase tracking-[0.2em] text-azure">
+      <p className="tnum font-mono text-secondary font-medium uppercase tracking-[0.2em] text-azure">
         {spec.code}
       </p>
       <EmptyState
         variant={spec.art}
         title={title ?? spec.title}
+        titleAs={titleAs}
         description={description ?? spec.description}
+        detail={detail}
         action={action}
       />
+      {footer && <div className="w-full">{footer}</div>}
     </div>
   )
 }
