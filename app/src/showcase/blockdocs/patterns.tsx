@@ -312,22 +312,26 @@ export const PATTERN_BLOCK_DOCS: Omit<ComponentDoc, 'name' | 'group' | 'summary'
       {
         title: 'Not found (404)',
         wide: true,
-        body: <ErrorPage framed kind="not-found" action={<Button variant="secondary">Go to the workspace</Button>} />,
+        /* titleAs="p" on every specimen below: in production the error title is
+           the page's h1, but these are embedded in a documentation page that
+           already has one. */
+        body: <ErrorPage framed titleAs="p" kind="not-found" action={<Button variant="secondary">Go to the workspace</Button>} />,
       },
       {
         title: 'Access denied (403)',
         note: 'RBAC denials name the role model and note that attempts are logged.',
         wide: true,
-        body: <ErrorPage framed kind="no-access" action={<Button variant="secondary">Back to my landing page</Button>} />,
+        body: <ErrorPage framed titleAs="p" kind="no-access" action={<Button variant="secondary">Back to my landing page</Button>} />,
       },
       {
         title: 'Something went wrong (500)',
         wide: true,
-        body: <ErrorPage framed kind="server-error" action={<Button variant="secondary">Try again</Button>} />,
+        body: <ErrorPage framed titleAs="p" kind="server-error" action={<Button variant="secondary">Try again</Button>} />,
       },
     ],
     a11y: [
       'The status code is supplementary — the title carries the meaning in text.',
+      'The title is the page h1 by default: the error replaced the content, so the route that failed never rendered one. The specimens above pass titleAs="p" because this documentation page owns its own h1.',
       'Every variant offers a focusable action; keyboard users are never stranded on a dead page.',
       'Copy states what was preserved ("nothing you entered was lost") — anxiety reduction is an accessibility concern.',
     ],

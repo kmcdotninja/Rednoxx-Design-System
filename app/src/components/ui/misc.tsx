@@ -88,13 +88,23 @@ const EMPTY_ART: Record<EmptyVariant, string> = {
 export function EmptyState({
   variant = 'document',
   title,
+  titleAs: Title = 'p',
   description,
+  detail,
   action,
   compact,
 }: {
   variant?: EmptyVariant
   title: string
+  /**
+   * Element for the title. Stays a `p` inside a shell or panel whose page
+   * already owns the `h1`; a standalone full-page empty/error state passes
+   * `h1`, because its title IS the page.
+   */
+  titleAs?: 'p' | 'h1' | 'h2'
   description?: string
+  /** Supporting evidence under the copy — a path that failed, a filter in force. */
+  detail?: ReactNode
   action?: ReactNode
   compact?: boolean
 }) {
@@ -112,10 +122,11 @@ export function EmptyState({
         draggable={false}
         className={cn('select-none', compact ? 'h-28 w-28' : 'h-44 w-44')}
       />
-      <p className={cn('font-medium tracking-[-0.01em] text-forest', compact ? 'mt-2 text-[15px]' : 'mt-3 text-[17px]')}>{title}</p>
+      <Title className={cn('font-medium tracking-[-0.01em] text-forest', compact ? 'mt-2 text-[15px]' : 'mt-3 text-[17px]')}>{title}</Title>
       {description && (
         <p className="mt-1.5 max-w-sm text-sm leading-relaxed text-forest-400">{description}</p>
       )}
+      {detail && <div className="mt-4 max-w-full">{detail}</div>}
       {action && <div className="mt-5 flex items-center gap-4">{action}</div>}
     </div>
   )
