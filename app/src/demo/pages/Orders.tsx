@@ -10,30 +10,20 @@ import {
   KeyValue,
   SignaturePad,
   StatusPill,
-  Tabs,
   Tag,
   Toggle,
   useToast,
   type Column,
-  type TabItem,
 } from '@/components/ui'
 import { DemoPageHeader } from '../DemoShell'
+import { TableTabs, type Facet } from '../TableTabs'
 import { LAB_ORDERS, SURGICAL_ORDERS, type LabOrder, type SurgicalOrder } from '../health'
 
 /* ------------------------------ Lab orders ------------------------------ */
 
-type LabFilter = 'all' | LabOrder['status']
-
 export function LabOrdersPage() {
-  const [filter, setFilter] = useState<LabFilter>('all')
+  const [filter, setFilter] = useState<Facet<LabOrder['status']>>('all')
   const [delayVisible, setDelayVisible] = useState(true)
-
-  const statusTabs: TabItem<LabFilter>[] = [
-    { value: 'all', label: 'All', count: LAB_ORDERS.length },
-    { value: 'pending', label: 'Pending', count: LAB_ORDERS.filter((o) => o.status === 'pending').length },
-    { value: 'in_progress', label: 'In progress', count: LAB_ORDERS.filter((o) => o.status === 'in_progress').length },
-    { value: 'completed', label: 'Completed', count: LAB_ORDERS.filter((o) => o.status === 'completed').length },
-  ]
 
   const rows = useMemo(
     () => LAB_ORDERS.filter((o) => filter === 'all' || o.status === filter),
@@ -74,9 +64,13 @@ export function LabOrdersPage() {
       )}
 
       <Card className="animate-rise" style={{ animationDelay: '100ms' }}>
-        <div className="border-b border-hair">
-          <Tabs items={statusTabs} value={filter} onChange={setFilter} />
-        </div>
+        <TableTabs
+          rows={LAB_ORDERS}
+          facetOf={(o) => o.status}
+          order={['pending', 'in_progress', 'completed']}
+          value={filter}
+          onChange={setFilter}
+        />
         <div className="mt-2">
           <DataTable columns={columns} rows={rows} rowKey={(o) => o.id} pageSize={8} />
         </div>
@@ -94,6 +88,7 @@ export function SurgicalOrdersPage() {
   const [detailOpen, setDetailOpen] = useState(false)
   const [checklist, setChecklist] = useState<{ item: string; done: boolean }[]>([])
   const [signature, setSignature] = useState<string | null>(null)
+  const [filter, setFilter] = useState<Facet<SurgicalOrder['status']>>('all')
   const awaiting = SURGICAL_ORDERS.filter((o) => o.status === 'submitted').length
 
   const open = (order: SurgicalOrder) => {
@@ -152,7 +147,21 @@ export function SurgicalOrdersPage() {
       )}
 
       <Card className="animate-rise" style={{ animationDelay: '100ms' }}>
-        <DataTable columns={columns} rows={SURGICAL_ORDERS} rowKey={(o) => o.id} onRowClick={open} />
+        <TableTabs
+          rows={SURGICAL_ORDERS}
+          facetOf={(o) => o.status}
+          order={['submitted', 'approved', 'scheduled']}
+          value={filter}
+          onChange={setFilter}
+        />
+        <div className="mt-2">
+          <DataTable
+            columns={columns}
+            rows={SURGICAL_ORDERS.filter((o) => filter === 'all' || o.status === filter)}
+            rowKey={(o) => o.id}
+            onRowClick={open}
+          />
+        </div>
       </Card>
 
       <Drawer

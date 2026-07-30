@@ -18,16 +18,15 @@ import {
   SelectMenu,
   StatCard,
   StatusPill,
-  Tabs,
   Tag,
   Textarea,
   TimePicker,
   useToast,
   type Column,
-  type TabItem,
 } from '@/components/ui'
 import { FilterBar } from '@/components/blocks'
 import { DemoPageHeader } from '../DemoShell'
+import { TableTabs, type Facet } from '../TableTabs'
 import {
   APPOINTMENTS,
   CONSULTATIONS,
@@ -41,7 +40,7 @@ import {
 
 /* ------------------------------- Patients ------------------------------- */
 
-type PatientFilter = 'all' | 'active' | 'inactive'
+type PatientFilter = Facet<Patient['status']>
 
 export function PatientsPage() {
   const { success } = useToast()
@@ -58,12 +57,6 @@ export function PatientsPage() {
         (!q || p.name.toLowerCase().includes(q) || p.mrn.includes(q)),
     )
   }, [query, filter])
-
-  const statusTabs: TabItem<PatientFilter>[] = [
-    { value: 'all', label: 'All', count: PATIENTS.length },
-    { value: 'active', label: 'Active', count: PATIENTS.filter((p) => p.status === 'active').length },
-    { value: 'inactive', label: 'Inactive', count: PATIENTS.filter((p) => p.status === 'inactive').length },
-  ]
 
   const columns: Column<Patient>[] = [
     {
@@ -112,9 +105,13 @@ export function PatientsPage() {
       </div>
 
       <Card className="animate-rise" style={{ animationDelay: '120ms' }}>
-        <div className="border-b border-hair">
-          <Tabs items={statusTabs} value={filter} onChange={setFilter} />
-        </div>
+        <TableTabs
+          rows={PATIENTS}
+          facetOf={(p) => p.status}
+          order={['active', 'inactive']}
+          value={filter}
+          onChange={setFilter}
+        />
         <div className="mt-2">
           <DataTable
             columns={columns}
@@ -184,15 +181,9 @@ const bucketStatus: Record<Bucket, string> = {
 
 export function AppointmentsPage() {
   const { success } = useToast()
-  const [bucket, setBucket] = useState<Bucket>('upcoming')
+  const [bucket, setBucket] = useState<Facet<Bucket>>('all')
   const [scheduleOpen, setScheduleOpen] = useState(false)
   const [patient, setPatient] = useState<string | undefined>()
-
-  const tabs: TabItem<Bucket>[] = (['upcoming', 'past', 'cancelled'] as const).map((b) => ({
-    value: b,
-    label: b[0].toUpperCase() + b.slice(1),
-    count: APPOINTMENTS.filter((a) => a.bucket === b).length,
-  }))
 
   const columns: Column<Appointment>[] = [
     {
@@ -235,13 +226,17 @@ export function AppointmentsPage() {
       </div>
 
       <Card className="animate-rise" style={{ animationDelay: '80ms' }}>
-        <div className="border-b border-hair">
-          <Tabs items={tabs} value={bucket} onChange={setBucket} />
-        </div>
+        <TableTabs
+          rows={APPOINTMENTS}
+          facetOf={(a) => a.bucket}
+          order={['upcoming', 'past', 'cancelled']}
+          value={bucket}
+          onChange={setBucket}
+        />
         <div className="mt-2">
           <DataTable
             columns={columns}
-            rows={APPOINTMENTS.filter((a) => a.bucket === bucket)}
+            rows={APPOINTMENTS.filter((a) => bucket === 'all' || a.bucket === bucket)}
             rowKey={(a) => a.id}
             pageSize={8}
           />
@@ -306,6 +301,7 @@ export function ConsultationsPage() {
   // `selected` is kept through the close animation so the drawer never blanks mid-exit.
   const [selected, setSelected] = useState<Consultation | null>(null)
   const [detailOpen, setDetailOpen] = useState(false)
+  const [filter, setFilter] = useState<Facet<Consultation['status']>>('all')
   const inProgress = CONSULTATIONS.filter((c) => c.status === 'in_progress').length
 
   const columns: Column<Consultation>[] = [
@@ -339,16 +335,25 @@ export function ConsultationsPage() {
       </div>
 
       <Card className="animate-rise" style={{ animationDelay: '120ms' }}>
-        <DataTable
-          columns={columns}
+        <TableTabs
           rows={CONSULTATIONS}
-          rowKey={(c) => c.id}
-          pageSize={8}
-          onRowClick={(c) => {
-            setSelected(c)
-            setDetailOpen(true)
-          }}
+          facetOf={(c) => c.status}
+          order={['in_progress', 'completed']}
+          value={filter}
+          onChange={setFilter}
         />
+        <div className="mt-2">
+          <DataTable
+            columns={columns}
+            rows={CONSULTATIONS.filter((c) => filter === 'all' || c.status === filter)}
+            rowKey={(c) => c.id}
+            pageSize={8}
+            onRowClick={(c) => {
+              setSelected(c)
+              setDetailOpen(true)
+            }}
+          />
+        </div>
       </Card>
 
       <Drawer
@@ -387,17 +392,21 @@ export function ConsultationsPage() {
 export function PrescriptionsPage() {
   const { success } = useToast()
   const [query, setQuery] = useState('')
+  const [filter, setFilter] = useState<Facet<Prescription['status']>>('all')
   const [voiding, setVoiding] = useState<Prescription | null>(null)
   const [voided, setVoided] = useState<Set<string>>(new Set())
+
+  // Voiding a prescription moves it to `cancelled`, so tabs count the effective status.
+  const statusOf = (rx: Prescription) => (voided.has(rx.id) ? 'cancelled' : rx.status)
 
   const rows = useMemo(() => {
     const q = query.trim().toLowerCase()
     return PRESCRIPTIONS.filter(
-      (rx) => !q || rx.patient.toLowerCase().includes(q) || rx.drug.toLowerCase().includes(q),
+      (rx) =>
+        (filter === 'all' || (voided.has(rx.id) ? 'cancelled' : rx.status) === filter) &&
+        (!q || rx.patient.toLowerCase().includes(q) || rx.drug.toLowerCase().includes(q)),
     )
-  }, [query])
-
-  const statusOf = (rx: Prescription) => (voided.has(rx.id) ? 'cancelled' : rx.status)
+  }, [query, filter, voided])
 
   const columns: Column<Prescription>[] = [
     { key: 'id', header: 'RX', cell: (rx) => <span className="tnum font-mono text-[13px] text-forest-500">{rx.id}</span> },
@@ -462,7 +471,16 @@ export function PrescriptionsPage() {
       </div>
 
       <Card className="animate-rise" style={{ animationDelay: '120ms' }}>
-        <DataTable columns={columns} rows={rows} rowKey={(rx) => rx.id} pageSize={8} />
+        <TableTabs
+          rows={PRESCRIPTIONS}
+          facetOf={statusOf}
+          order={['active', 'dispensed', 'cancelled']}
+          value={filter}
+          onChange={setFilter}
+        />
+        <div className="mt-2">
+          <DataTable columns={columns} rows={rows} rowKey={(rx) => rx.id} pageSize={8} />
+        </div>
       </Card>
 
       <Modal

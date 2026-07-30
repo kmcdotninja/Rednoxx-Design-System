@@ -20,6 +20,7 @@ import {
 } from '@/components/ui'
 import { FilterBar, ProfileSettings, SelectionBar } from '@/components/blocks'
 import { DemoPageHeader, DEMO_USER } from '../DemoShell'
+import { TableTabs, type Facet } from '../TableTabs'
 import { STAFF, type StaffMember } from '../health'
 
 /* -------------------------------- Staff --------------------------------- */
@@ -120,13 +121,18 @@ export function StaffPage() {
   const { success } = useToast()
   const [members, setMembers] = useState<StaffMember[]>(STAFF)
   const [query, setQuery] = useState('')
+  const [filter, setFilter] = useState<Facet<StaffMember['status']>>('all')
   const [form, setForm] = useState<{ open: boolean; editing: StaffMember | null }>({ open: false, editing: null })
   const [deleting, setDeleting] = useState<StaffMember | null>(null)
   const [selected, setSelected] = useState<string[]>([])
   const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false)
 
   const q = query.trim().toLowerCase()
-  const shown = members.filter((m) => q === '' || [m.name, m.role, m.facility, m.email].some((f) => f.toLowerCase().includes(q)))
+  const shown = members.filter(
+    (m) =>
+      (filter === 'all' || m.status === filter) &&
+      (q === '' || [m.name, m.role, m.facility, m.email].some((f) => f.toLowerCase().includes(q))),
+  )
   const activeCount = members.filter((m) => m.status === 'active').length
   const nounFor = (n: number) => (n === 1 ? 'member' : 'members')
 
@@ -227,27 +233,44 @@ export function StaffPage() {
         }}
       />
 
-      {shown.length === 0 ? (
-        <Card pad={false} className="animate-rise">
+      <Card pad={false} className="animate-rise">
+        {/* Counts follow the live directory, so activate/deactivate/remove update the tabs. */}
+        <TableTabs
+          className="px-5 pt-4 sm:px-6"
+          rows={members}
+          facetOf={(m) => m.status}
+          order={['active', 'inactive']}
+          value={filter}
+          onChange={setFilter}
+        />
+        {shown.length === 0 ? (
           <EmptyState
             variant="search"
-            title={q ? `No staff match “${query.trim()}”` : 'No staff yet'}
-            description={q ? 'Try another name, role or facility.' : 'Add your first team member to the directory.'}
+            title={q ? `No staff match “${query.trim()}”` : filter === 'all' ? 'No staff yet' : `No ${filter} members`}
+            description={
+              q
+                ? 'Try another name, role or facility.'
+                : filter === 'all'
+                  ? 'Add your first team member to the directory.'
+                  : 'Switch tabs to see the rest of the directory.'
+            }
             action={
               q ? (
                 <Button variant="secondary" onClick={() => setQuery('')}>
                   Clear search
                 </Button>
-              ) : (
+              ) : filter === 'all' ? (
                 <Button leftIcon={<Plus size={14} />} onClick={() => setForm({ open: true, editing: null })}>
                   Add member
+                </Button>
+              ) : (
+                <Button variant="secondary" onClick={() => setFilter('all')}>
+                  Show all members
                 </Button>
               )
             }
           />
-        </Card>
-      ) : (
-        <Card pad={false} className="animate-rise">
+        ) : (
           <DataTable
             columns={columns}
             rows={shown}
@@ -256,8 +279,8 @@ export function StaffPage() {
             selectedKeys={selected}
             onSelectionChange={setSelected}
           />
-        </Card>
-      )}
+        )}
+      </Card>
 
       {/* Floating bulk-action bar — shown while rows are selected. */}
       <SelectionBar count={selected.length} onClear={() => setSelected([])} noun={`${nounFor(selected.length)} selected`}>
