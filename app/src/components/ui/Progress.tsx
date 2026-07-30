@@ -119,3 +119,38 @@ export function ProgressCircle({
     </span>
   )
 }
+
+/**
+ * Ring + percentage, laid out so a column of them lines up perfectly. The ring
+ * is fixed-size and the number sits in a fixed-width, right-aligned tabular
+ * slot, so neither the rings nor the digits drift as the values change — use
+ * this instead of hand-composing a ProgressCircle with a loose label.
+ */
+export function ProgressMeter({
+  value,
+  size = 22,
+  strokeWidth = 3,
+  tone = 'brand',
+  className,
+}: {
+  /** 0–100. */
+  value: number
+  size?: number
+  strokeWidth?: number
+  tone?: Tone
+  className?: string
+}) {
+  return (
+    <span className={cn('inline-flex items-center gap-2', className)}>
+      <ProgressCircle
+        value={value}
+        size={size}
+        strokeWidth={strokeWidth}
+        tone={tone}
+        showValue={false}
+        label={`${Math.round(value)}% complete`}
+      />
+      <span className="tnum w-9 shrink-0 text-right text-forest-400">{Math.round(value)}%</span>
+    </span>
+  )
+}

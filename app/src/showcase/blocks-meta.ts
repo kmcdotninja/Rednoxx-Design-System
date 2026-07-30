@@ -7,6 +7,7 @@ export type BlockGroup =
   | 'Auth'
   | 'Patient'
   | 'Dashboard'
+  | 'Navigation'
   | 'Toolbars'
   | 'Records'
   | 'States'
@@ -23,6 +24,7 @@ export const BLOCK_GROUP_ORDER: BlockGroup[] = [
   'Auth',
   'Patient',
   'Dashboard',
+  'Navigation',
   'Toolbars',
   'Records',
   'States',
@@ -109,6 +111,18 @@ export const BLOCKS_META: BlockMeta[] = [
     summary: 'Today’s schedule, activity feeds and quick actions for overview screens.',
   },
   {
+    slug: 'notifications',
+    name: 'Notifications',
+    group: 'Dashboard',
+    summary: 'Bell trigger and anchored tray — worded severity, unread state and mark-all-read.',
+  },
+  {
+    slug: 'sidebar',
+    name: 'Sidebar',
+    group: 'Dashboard',
+    summary: 'Grouped primary navigation that collapses to an icon-only rail — the product shell edge.',
+  },
+  {
     slug: 'filter-bar',
     name: 'Filter bar',
     group: 'Toolbars',
@@ -121,10 +135,22 @@ export const BLOCKS_META: BlockMeta[] = [
     summary: 'Title, context line and page-level actions, sitting under the navbar.',
   },
   {
+    slug: 'selection-bar',
+    name: 'Selection bar',
+    group: 'Toolbars',
+    summary: 'Floating bulk-action bar for a table selection — count, actions and a clear.',
+  },
+  {
     slug: 'timeline',
     name: 'Timeline',
     group: 'Records',
     summary: 'Vertical event history — medical timelines, admissions, audit trails.',
+  },
+  {
+    slug: 'error-pages',
+    name: 'Error pages',
+    group: 'States',
+    summary: '404, access denied, failure, offline and maintenance — plain language and a way forward.',
   },
   {
     slug: 'empty-states',
@@ -161,6 +187,30 @@ export const BLOCKS_META: BlockMeta[] = [
     name: 'Overlay patterns',
     group: 'Forms & overlays',
     summary: 'Confirmation dialogs and filter drawers with the footer and copy conventions.',
+  },
+  {
+    slug: 'navbar',
+    name: 'Navbar',
+    group: 'Navigation',
+    summary: 'Top bar with the location trail, support and account actions.',
+  },
+  {
+    slug: 'sidebar',
+    name: 'Sidebar',
+    group: 'Navigation',
+    summary: 'Primary navigation rail with grouped sections and an account footer.',
+  },
+  {
+    slug: 'module-switcher',
+    name: 'Module switcher',
+    group: 'Navigation',
+    summary: 'Dialog-based switch between top-level workspaces (Care, Admin, HIM).',
+  },
+  {
+    slug: 'user-menu',
+    name: 'User menu',
+    group: 'Navigation',
+    summary: 'Avatar account menu — Profile and Log out for the signed-in user.',
   },
 ]
 

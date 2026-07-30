@@ -135,6 +135,11 @@
     text-wrap: pretty;
   }
 
+  /* Lucide icons default to block; keep them inline beside labels in flex rows */
+  :is(a, button) svg {
+    flex-shrink: 0;
+  }
+
   /* Tabular figures for money/data tables */
   .tnum {
     font-variant-numeric: tabular-nums;
@@ -159,6 +164,15 @@
   *::-webkit-scrollbar-thumb:hover {
     background: #94a3b8;
     background-clip: content-box;
+  }
+
+  /* Figma-style design canvas — a dot grid that reads as "workspace", so a
+     preview never looks like an ordinary white page. Both tones are tokens. */
+  .canvas-grid {
+    background-color: var(--color-canvas);
+    background-image: radial-gradient(var(--color-navy-200) 1px, transparent 1px);
+    background-size: 16px 16px;
+    background-position: -1px -1px;
   }
 
   /* Scrollable but with no visible scrollbar (e.g. the sidebar) */
@@ -345,6 +359,36 @@
     transform-origin: top center;
   }
 
+  /* Module-switch card — the target module's badge breathes gently while the
+     workspace loads, so the hand-off reads as deliberate, not a hang. */
+  @keyframes gx-switch-mark {
+    0%,
+    100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.06);
+    }
+  }
+  .gx-switch-mark {
+    animation: gx-switch-mark 1.4s ease-in-out infinite;
+  }
+
+  /* Module-switch backdrop — a lit segment snakes along a grid route while the
+     workspace loads. The path is normalised to pathLength 100, so one full
+     cycle offsets the dash by exactly 100 and loops seamlessly. */
+  @keyframes gx-snake {
+    from {
+      stroke-dashoffset: 0;
+    }
+    to {
+      stroke-dashoffset: -100;
+    }
+  }
+  .gx-snake {
+    animation: gx-snake 3s linear infinite;
+  }
+
   /* Icon pop — bouncy tap feedback when a nav item is clicked */
   @keyframes gx-icon-pop {
     0% {
@@ -371,6 +415,8 @@
     .gx-shadow,
     .gx-ping,
     .gx-bell,
+    .gx-switch-mark,
+    .gx-snake,
     .gx-icon-pop,
     .animate-rise,
     .animate-pop,
@@ -381,4 +427,43 @@
       animation: none !important;
     }
   }
+}
+
+/* Print isolation — only the .print-area (slips, document previews) prints. */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  /* Keep colour graphics — the QR code and soft-fill Tags — in the printout;
+     browsers drop backgrounds/fills otherwise. */
+  .print-area,
+  .print-area * {
+    visibility: visible;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+  /* Cancel dialog entrance transforms. A modal/drawer panel keeps a persistent
+     transform (animate-* uses fill-mode: both), which makes it the containing
+     block for the fixed .print-area and clips it to the panel. Neutralising the
+     transform re-anchors the slip to the viewport so it prints in full. */
+  [class*='animate-'] {
+    animation: none !important;
+    transform: none !important;
+  }
+  .print-area {
+    position: fixed;
+    inset: 0 0 auto 0;
+    width: 100%;
+    margin: 0 auto;
+    box-shadow: none !important;
+    border: none !important;
+  }
+}
+
+/* Toasts (sonner) — icon aligns with the title line, not the block centre. */
+[data-sonner-toast] {
+  align-items: flex-start !important;
+}
+[data-sonner-toast] [data-icon] {
+  margin-top: 1px;
 }

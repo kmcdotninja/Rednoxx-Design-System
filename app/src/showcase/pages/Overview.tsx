@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, type LinkProps } from '@tanstack/react-router'
 import {
   ArrowRight,
   Check,
@@ -11,15 +11,12 @@ import {
   type LucideIcon,
 } from 'lucide-react'
 import { ButtonLink, Card, Tag } from '@/components/ui'
-import { GROUP_ORDER, docsInGroup } from '../registry'
-import { BLOCK_GROUP_ORDER, blocksInGroup } from '../blocks-meta'
-import { BLOCK_PREVIEWS, COMPONENT_PREVIEWS, PreviewFallback } from './previews'
 
 const LAYERS: { name: string; blurb: string; to: string }[] = [
-  { name: 'Foundations', blurb: 'Colour, type, spacing, elevation, motion, icons.', to: '/foundations' },
-  { name: 'Components', blurb: 'Thirty-six generic primitives — buttons to the ⌘K menu.', to: '/components/button' },
-  { name: 'Blocks', blurb: 'Reusable compositions for recurring healthcare patterns.', to: '/blocks/patient-banner' },
-  { name: 'Templates', blurb: 'Five page layouts: dashboard, list, record, settings, auth.', to: '/templates' },
+  { name: 'Foundations', blurb: 'Colour, type, spacing, elevation, motion, icons.', to: '/design/foundations/overview' },
+  { name: 'Components', blurb: 'Thirty-six generic primitives — buttons to the ⌘K menu.', to: '/design/components/button' },
+  { name: 'Blocks', blurb: 'Reusable compositions for recurring healthcare patterns.', to: '/design/blocks/patient-banner' },
+  { name: 'Templates', blurb: 'Five page layouts: dashboard, list, record, settings, auth.', to: '/design/blocks/template-dashboard' },
   { name: 'Pages', blurb: 'The final screens — the live Rednoxx product demo.', to: '/demo' },
 ]
 
@@ -125,9 +122,28 @@ const OUTCOMES: { icon: LucideIcon; title: string; body: string }[] = [
   },
 ]
 
+/** Where a reader goes next, by what they're about to do. */
+const START_HERE: { title: string; body: string; to: string }[] = [
+  {
+    title: 'Designing a screen',
+    body: 'Read the Patterns group that matches the workflow, then shop in Blocks.',
+    to: '/design/patterns/overview',
+  },
+  {
+    title: 'Implementing a screen',
+    body: 'Import rules, the hard rules, and the checks that run before a PR.',
+    to: '/design/get-started/developers',
+  },
+  {
+    title: 'Writing anything a user reads',
+    body: 'Copy is a clinical surface — voice, numerals, and the do-not-use list.',
+    to: '/design/content/overview',
+  },
+]
+
 export function Overview() {
   return (
-    <div className="space-y-12">
+    <div className="mx-auto w-full max-w-5xl space-y-12 px-5 py-8 sm:px-8 sm:py-10">
       {/* Hero */}
       <header className="animate-rise">
         <Tag className="bg-azure-50 text-azure-600">Design system · v1.0</Tag>
@@ -144,7 +160,7 @@ export function Overview() {
           </p>
         </div>
         <div className="mt-6 flex flex-wrap items-center gap-3">
-          <ButtonLink to="/components/button" rightIcon={<ArrowRight size={15} />}>
+          <ButtonLink to="/design/components/$slug" params={{ slug: 'button' }} rightIcon={<ArrowRight size={15} />}>
             Browse components
           </ButtonLink>
           <ButtonLink to="/demo" variant="secondary">
@@ -197,7 +213,7 @@ export function Overview() {
           {LAYERS.map((layer) => (
             <li key={layer.name}>
               <Link
-                to={layer.to}
+                to={layer.to as LinkProps['to']}
                 className="group flex h-full flex-col rounded-4xl border border-hair bg-white p-5 transition-[border-color,box-shadow] duration-150 hover:border-navy-200 hover:shadow-card-hover"
               >
                 <span className="flex items-center justify-between text-[15px] font-medium tracking-[-0.01em] text-forest">
@@ -217,79 +233,43 @@ export function Overview() {
         </ol>
       </section>
 
-      {/* Component index */}
+      {/* Getting started — the landing is also the Get started overview, so the
+          rule and the routes in live here rather than on a second page. */}
       <section className="animate-rise" style={{ animationDelay: '160ms' }}>
         <h2 className="text-sm font-medium uppercase tracking-[0.06em] text-forest-400">
-          The component library
+          Getting started
         </h2>
-        <div className="mt-4 space-y-8">
-          {GROUP_ORDER.map((group) => (
-            <div key={group}>
-              <p className="text-[13px] font-medium text-forest-500">{group}</p>
-              <div className="mt-2.5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                {docsInGroup(group).map((doc) => (
-                  <Link
-                    key={doc.slug}
-                    to={`/components/${doc.slug}`}
-                    className="group flex flex-col rounded-4xl border border-hair bg-white p-4 transition-[border-color,box-shadow] duration-150 hover:border-navy-200 hover:shadow-card-hover"
-                  >
-                    <p className="flex items-center justify-between text-sm font-medium text-forest">
-                      {doc.name}
-                      <ArrowRight
-                        size={14}
-                        className="text-forest-200 transition-[transform,color] duration-150 group-hover:translate-x-0.5 group-hover:text-forest-400"
-                      />
-                    </p>
-                    <div className="flex min-h-[116px] flex-1 items-center justify-center overflow-hidden py-4">
-                      {COMPONENT_PREVIEWS[doc.slug] ?? <PreviewFallback label={doc.name} />}
-                    </div>
-                    <p className="text-[12px] leading-relaxed text-forest-400">{doc.summary}</p>
-                  </Link>
-                ))}
-              </div>
-            </div>
+
+        <div className="mt-4 border border-azure-200 bg-azure-50 p-5">
+          <p className="text-sm font-medium text-azure-600">The system is the single source of truth</p>
+          <p className="mt-1.5 max-w-2xl text-[13px] leading-relaxed text-forest-500">
+            Build pages only from <code className="bg-white/70 px-1.5 py-0.5 font-mono text-[12px]">components/ui</code>{' '}
+            and <code className="bg-white/70 px-1.5 py-0.5 font-mono text-[12px]">components/blocks</code>. If a
+            component is missing, add it to the system first, then build the page — never fork a
+            primitive into a feature folder.
+          </p>
+        </div>
+
+        <div className="mt-4 grid gap-px border border-hair bg-hair sm:grid-cols-3">
+          {START_HERE.map((route) => (
+            <Link
+              key={route.to}
+              to={route.to as LinkProps['to']}
+              className="group bg-white p-5 transition-colors hover:bg-panel"
+            >
+              <p className="flex items-center justify-between text-sm font-medium text-forest">
+                {route.title}
+                <ArrowRight
+                  size={14}
+                  className="text-forest-200 transition-[transform,color] duration-150 group-hover:translate-x-0.5 group-hover:text-forest-400"
+                />
+              </p>
+              <p className="mt-1.5 text-[13px] leading-relaxed text-forest-400">{route.body}</p>
+            </Link>
           ))}
         </div>
       </section>
 
-      {/* Block index */}
-      <section className="animate-rise" style={{ animationDelay: '200ms' }}>
-        <h2 className="text-sm font-medium uppercase tracking-[0.06em] text-forest-400">
-          The block library
-        </h2>
-        <p className="mt-2 max-w-2xl text-[13px] leading-relaxed text-forest-400">
-          Reusable compositions built from the components above — the patterns clinical and admin
-          screens repeat, documented once.
-        </p>
-        <div className="mt-4 space-y-8">
-          {BLOCK_GROUP_ORDER.map((group) => (
-            <div key={group}>
-              <p className="text-[13px] font-medium text-forest-500">{group}</p>
-              <div className="mt-2.5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                {blocksInGroup(group).map((block) => (
-                  <Link
-                    key={block.slug}
-                    to={`/blocks/${block.slug}`}
-                    className="group flex flex-col rounded-4xl border border-hair bg-white p-4 transition-[border-color,box-shadow] duration-150 hover:border-navy-200 hover:shadow-card-hover"
-                  >
-                    <p className="flex items-center justify-between text-sm font-medium text-forest">
-                      {block.name}
-                      <ArrowRight
-                        size={14}
-                        className="text-forest-200 transition-[transform,color] duration-150 group-hover:translate-x-0.5 group-hover:text-forest-400"
-                      />
-                    </p>
-                    <div className="flex min-h-[116px] flex-1 items-center justify-center overflow-hidden py-4">
-                      {BLOCK_PREVIEWS[block.slug] ?? <PreviewFallback label={block.name} />}
-                    </div>
-                    <p className="text-[12px] leading-relaxed text-forest-400">{block.summary}</p>
-                  </Link>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
     </div>
   )
 }

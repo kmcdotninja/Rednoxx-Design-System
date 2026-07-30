@@ -1,42 +1,116 @@
-import { useEffect, useMemo, useState } from 'react'
-import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
+import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import {
+  Link,
+  Outlet,
+  useLocation,
+  useNavigate,
+  type LinkProps,
+  type NavigateOptions,
+} from '@tanstack/react-router'
+import {
+  ArrowLeft,
+  ArrowRight,
   Blocks,
-  BookOpen,
   Component,
-  LayoutTemplate,
   Menu,
   MonitorPlay,
+  PanelLeft,
+  PanelRight,
   Search,
-  SwatchBook,
   X,
 } from 'lucide-react'
 import { cn } from '@/lib/cn'
 import { Logo } from '@/components/Logo'
 import { CommandMenu, Kbd, Tag, useCommandMenu, type Command } from '@/components/ui'
-import { GROUP_ORDER, REGISTRY, docsInGroup } from './registry'
-import { BLOCK_GROUP_ORDER, BLOCKS_META, blocksInGroup } from './blocks-meta'
+import { ShellSlotProvider, useSlotTarget } from './controls-slot'
+import { ALL_ITEMS, SECTIONS, itemForPath, neighbours, sectionForPath } from './nav'
 
-/** Demo screens, listed as literals — importing DEMO_NAV would pull the lazy demo chunk into the shell. */
-const DEMO_SCREENS: { slug: string; label: string }[] = [
-  { slug: 'overview', label: 'Overview' },
-  { slug: 'analytics', label: 'Analytics' },
-  { slug: 'reports', label: 'Reports' },
-  { slug: 'patients', label: 'Patients' },
-  { slug: 'appointments', label: 'Appointments' },
-  { slug: 'consultations', label: 'Consultations' },
-  { slug: 'prescriptions', label: 'Prescriptions' },
-  { slug: 'lab-orders', label: 'Lab orders' },
-  { slug: 'surgical-orders', label: 'Surgical orders' },
-  { slug: 'payments', label: 'Payments' },
-  { slug: 'insurance-claims', label: 'Insurance claims' },
-  { slug: 'staff', label: 'Staff' },
-  { slug: 'settings', label: 'Settings' },
-]
+/** Site paths are plain strings; TanStack wants its generated union. */
+const to = (path: string) => path as LinkProps['to']
+
+/* --------------------------------- Top nav -------------------------------- */
+
+function TopNav({ onOpenSearch, onOpenMenu }: { onOpenSearch: () => void; onOpenMenu: () => void }) {
+  const { pathname } = useLocation()
+  const active = sectionForPath(pathname)
+
+  return (
+    <header className="flex h-14 shrink-0 items-center gap-4 border-b border-hair bg-white px-4 sm:px-5">
+      <button
+        type="button"
+        onClick={onOpenMenu}
+        aria-label="Open navigation"
+        className="flex h-10 w-10 items-center justify-center text-forest-500 transition-colors hover:bg-panel lg:hidden"
+      >
+        <Menu size={18} />
+      </button>
+
+      <Link
+        to="/design"
+        className="shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-azure/50"
+      >
+        <Logo className="h-6" />
+      </Link>
+
+      <nav
+        aria-label="Sections"
+        className="no-scrollbar hidden min-w-0 flex-1 items-center gap-0.5 overflow-x-auto lg:flex"
+      >
+        {SECTIONS.map((section) => {
+          const isActive = active?.id === section.id
+          return (
+            <Link
+              key={section.id}
+              to={to(section.path)}
+              aria-current={isActive ? 'page' : undefined}
+              className={cn(
+                'flex h-9 shrink-0 items-center px-3 text-[13px] transition-colors',
+                isActive
+                  ? 'bg-panel font-medium text-forest'
+                  : 'text-forest-400 hover:bg-panel/60 hover:text-forest',
+              )}
+            >
+              {section.label}
+            </Link>
+          )
+        })}
+      </nav>
+
+      <div className="ml-auto flex items-center gap-2">
+        <button
+          type="button"
+          onClick={onOpenSearch}
+          className="hidden h-9 w-56 items-center gap-2 border border-hair bg-white px-3 text-[13px] text-forest-300 transition-colors hover:border-navy-200 hover:text-forest-400 md:flex"
+        >
+          <Search size={14} />
+          <span className="flex-1 text-left">Search…</span>
+          <Kbd>⌘K</Kbd>
+        </button>
+        <button
+          type="button"
+          onClick={onOpenSearch}
+          aria-label="Search"
+          className="flex h-10 w-10 items-center justify-center text-forest-500 transition-colors hover:bg-panel md:hidden"
+        >
+          <Search size={17} />
+        </button>
+        <Link
+          to="/demo"
+          className="hidden h-9 items-center gap-2 border border-hair px-3 text-[13px] text-forest-400 transition-colors hover:border-navy-200 hover:text-forest sm:flex"
+        >
+          <MonitorPlay size={14} />
+          Product demo
+        </Link>
+      </div>
+    </header>
+  )
+}
+
+/* -------------------------------- Sidebar --------------------------------- */
 
 function navClass(isActive: boolean) {
   return cn(
-    'flex h-8 items-center gap-2.5 rounded-xl px-2.5 text-[13px] transition-colors',
+    'flex min-h-10 items-center px-2.5 py-2 text-[13px] transition-colors',
     isActive
       ? 'bg-panel font-medium text-forest'
       : 'text-forest-400 hover:bg-panel/60 hover:text-forest',
@@ -44,87 +118,167 @@ function navClass(isActive: boolean) {
 }
 
 function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
+  const { pathname } = useLocation()
+  const section = sectionForPath(pathname) ?? SECTIONS[0]
+
   return (
-    <>
-      <div className="flex items-center justify-between px-5 pb-3 pt-5">
-        <NavLink to="/" onClick={onNavigate} className="rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-azure/50">
-          <Logo className="h-6" />
-        </NavLink>
-      </div>
-
-      <nav aria-label="Documentation" className="no-scrollbar flex-1 overflow-y-auto px-3 pb-4">
-        <p className="px-2.5 pb-1 pt-3 text-[11px] font-medium uppercase tracking-[0.08em] text-forest-300">
-          Getting started
-        </p>
-        <NavLink to="/" end onClick={onNavigate} className={({ isActive }) => navClass(isActive)}>
-          <BookOpen size={15} className="text-forest-300" />
-          Overview
-        </NavLink>
-        <NavLink to="/foundations" onClick={onNavigate} className={({ isActive }) => navClass(isActive)}>
-          <SwatchBook size={15} className="text-forest-300" />
-          Foundations
-        </NavLink>
-        <NavLink to="/templates" onClick={onNavigate} className={({ isActive }) => navClass(isActive)}>
-          <LayoutTemplate size={15} className="text-forest-300" />
-          Templates
-        </NavLink>
-        <NavLink to="/demo" onClick={onNavigate} className={({ isActive }) => navClass(isActive)}>
-          <MonitorPlay size={15} className="text-forest-300" />
-          Product demo
-        </NavLink>
-
-        {GROUP_ORDER.map((group) => (
-          <div key={group}>
+    <nav
+      aria-label={`${section.label} pages`}
+      className="no-scrollbar flex-1 overflow-y-auto overscroll-contain px-3 pb-6"
+    >
+      {section.groups.map((group, index) => (
+        <div key={group.label ?? `lead-${index}`}>
+          {group.label && (
             <p className="px-2.5 pb-1 pt-5 text-[11px] font-medium uppercase tracking-[0.08em] text-forest-300">
-              {group}
+              {group.label}
             </p>
-            {docsInGroup(group).map((doc) => (
-              <NavLink
-                key={doc.slug}
-                to={`/components/${doc.slug}`}
-                onClick={onNavigate}
-                className={({ isActive }) => navClass(isActive)}
-              >
-                {doc.name}
-              </NavLink>
-            ))}
-          </div>
-        ))}
-
-        <p className="mt-6 border-t border-hair px-2.5 pb-1 pt-5 text-[11px] font-medium uppercase tracking-[0.08em] text-azure-600">
-          Blocks
-        </p>
-        {BLOCK_GROUP_ORDER.map((group) => (
-          <div key={group}>
-            <p className="px-2.5 pb-1 pt-3 text-[11px] font-medium uppercase tracking-[0.08em] text-forest-300">
-              {group}
-            </p>
-            {blocksInGroup(group).map((block) => (
-              <NavLink
-                key={block.slug}
-                to={`/blocks/${block.slug}`}
-                onClick={onNavigate}
-                className={({ isActive }) => navClass(isActive)}
-              >
-                {block.name}
-              </NavLink>
-            ))}
-          </div>
-        ))}
-      </nav>
-
-      <div className="flex items-center gap-2 border-t border-hair px-5 py-4">
-        <Tag>v1.0</Tag>
-        <Tag>WCAG 2.2 AA</Tag>
-      </div>
-    </>
+          )}
+          {group.items.map((item) => (
+            <Link
+              key={item.path}
+              to={to(item.path)}
+              onClick={onNavigate}
+              className={navClass(pathname === item.path)}
+              aria-current={pathname === item.path ? 'page' : undefined}
+            >
+              {item.label}
+            </Link>
+          ))}
+        </div>
+      ))}
+    </nav>
   )
 }
 
-/** The documentation shell — fixed sidebar on desktop, overlay menu on mobile. */
+function SidebarHeader({ onCollapse, onClose }: { onCollapse?: () => void; onClose?: () => void }) {
+  const { pathname } = useLocation()
+  const section = sectionForPath(pathname) ?? SECTIONS[0]
+
+  return (
+    <div className="flex h-14 shrink-0 items-center justify-between gap-2 border-b border-hair px-5">
+      <p className="truncate text-[13px] font-medium text-forest">{section.label}</p>
+      {onCollapse && (
+        <button
+          type="button"
+          onClick={onCollapse}
+          aria-label="Collapse navigation"
+          className="flex h-8 w-8 items-center justify-center text-forest-300 transition-colors hover:bg-panel hover:text-forest"
+        >
+          <PanelLeft size={16} />
+        </button>
+      )}
+      {onClose && (
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label="Close navigation"
+          className="flex h-10 w-10 items-center justify-center text-forest-400 transition-colors hover:bg-panel"
+        >
+          <X size={18} />
+        </button>
+      )}
+    </div>
+  )
+}
+
+/* ----------------------------- Page header -------------------------------- */
+
+function PageHeader({
+  railOpen,
+  showRailToggle,
+  onOpenRail,
+  onOpenSidebar,
+  headerSlotRef,
+}: {
+  railOpen: boolean
+  showRailToggle: boolean
+  onOpenRail: () => void
+  onOpenSidebar?: () => void
+  headerSlotRef: (el: HTMLDivElement | null) => void
+}) {
+  const { pathname } = useLocation()
+  const entry = itemForPath(pathname)
+  const { prev, next } = neighbours(pathname)
+  const title = entry?.item.label ?? 'Overview'
+
+  return (
+    <div className="flex h-14 shrink-0 items-center gap-3 border-b border-hair bg-white px-5 sm:px-6">
+      {onOpenSidebar && (
+        <button
+          type="button"
+          onClick={onOpenSidebar}
+          aria-label="Expand navigation"
+          className="flex h-10 w-10 shrink-0 items-center justify-center text-forest-300 transition-colors hover:bg-panel hover:text-forest"
+        >
+          <PanelLeft size={16} />
+        </button>
+      )}
+      <h1 className="shrink-0 truncate text-[15px] font-medium text-forest">{title}</h1>
+
+      {/* Page tabs — "When to use", "Props" and friends portal in here. */}
+      <div ref={headerSlotRef} className="no-scrollbar min-w-0 flex-1 overflow-x-auto" />
+
+      <div className="ml-auto flex shrink-0 items-center gap-0.5">
+        {prev ? (
+          <Link
+            to={to(prev.path)}
+            aria-label={`Previous: ${prev.label}`}
+            title={prev.label}
+            className="flex h-10 w-10 items-center justify-center text-forest-400 transition-colors hover:bg-panel hover:text-forest"
+          >
+            <ArrowLeft size={16} />
+          </Link>
+        ) : (
+          <span className="flex h-10 w-10 items-center justify-center text-navy-200" aria-hidden>
+            <ArrowLeft size={16} />
+          </span>
+        )}
+        {next ? (
+          <Link
+            to={to(next.path)}
+            aria-label={`Next: ${next.label}`}
+            title={next.label}
+            className="flex h-10 w-10 items-center justify-center text-forest-400 transition-colors hover:bg-panel hover:text-forest"
+          >
+            <ArrowRight size={16} />
+          </Link>
+        ) : (
+          <span className="flex h-10 w-10 items-center justify-center text-navy-200" aria-hidden>
+            <ArrowRight size={16} />
+          </span>
+        )}
+        {showRailToggle && !railOpen && (
+          <button
+            type="button"
+            onClick={onOpenRail}
+            aria-label="Show controls"
+            className="ml-1 flex h-10 w-10 items-center justify-center text-forest-300 transition-colors hover:bg-panel hover:text-forest"
+          >
+            <PanelRight size={16} />
+          </button>
+        )}
+      </div>
+    </div>
+  )
+}
+
+/* ---------------------------------- Shell --------------------------------- */
+
+/**
+ * The documentation frame — a fixed three-pane app layout: a section top nav,
+ * the section's sidebar, a scrolling content column with its own header, and a
+ * Controls rail that component and block pages portal into. Panes scroll
+ * independently and both sides collapse; below `lg` the sidebar becomes an
+ * overlay and the rail folds away.
+ */
 export function Shell() {
   const [menuOpen, setMenuOpen] = useState(false)
+  const [sidebarOpen, setSidebarOpen] = useState(true)
+  const [railOpen, setRailOpen] = useState(true)
   const [searchOpen, setSearchOpen] = useCommandMenu()
+  const [railEl, setRailEl] = useSlotTarget()
+  const [headerEl, setHeaderEl] = useSlotTarget()
+  const [railActive, setRailActive] = useState(false)
   const { pathname } = useLocation()
   const navigate = useNavigate()
 
@@ -132,47 +286,34 @@ export function Shell() {
     setMenuOpen(false)
   }, [pathname])
 
+  const slots = useMemo(
+    () => ({ rail: railEl, header: headerEl, setRailActive }),
+    [railEl, headerEl],
+  )
+
   const commands: Command[] = useMemo(
-    () => [
-      { id: 'page-overview', label: 'Overview', group: 'Pages', icon: BookOpen, keywords: 'home start engagement layers index', onSelect: () => navigate('/') },
-      { id: 'page-foundations', label: 'Foundations', group: 'Pages', icon: SwatchBook, keywords: 'tokens colour color type typography spacing radius elevation shadow motion icons brand', onSelect: () => navigate('/foundations') },
-      { id: 'page-templates', label: 'Templates', group: 'Pages', icon: LayoutTemplate, keywords: 'layouts dashboard list record settings auth pages', onSelect: () => navigate('/templates') },
-      { id: 'page-demo', label: 'Product demo', group: 'Pages', icon: MonitorPlay, keywords: 'live app screens', onSelect: () => navigate('/demo') },
-      ...REGISTRY.map((doc) => ({
-        id: `component-${doc.slug}`,
-        label: doc.name,
-        group: 'Components',
-        icon: Component,
-        hint: doc.group,
-        keywords: `${doc.slug} ${doc.summary}`,
-        onSelect: () => navigate(`/components/${doc.slug}`),
+    () =>
+      ALL_ITEMS.map(({ item, section }) => ({
+        id: `nav-${item.path}`,
+        label: item.label,
+        group: section.label,
+        icon: section.id === 'blocks' ? Blocks : Component,
+        hint: section.label,
+        keywords: item.path,
+        onSelect: () => navigate({ to: item.path as NavigateOptions['to'] }),
       })),
-      ...BLOCKS_META.map((block) => ({
-        id: `block-${block.slug}`,
-        label: block.name,
-        group: 'Blocks',
-        icon: Blocks,
-        hint: block.group,
-        keywords: `${block.slug} ${block.summary}`,
-        onSelect: () => navigate(`/blocks/${block.slug}`),
-      })),
-      ...DEMO_SCREENS.map((screen) => ({
-        id: `demo-${screen.slug}`,
-        label: screen.label,
-        group: 'Product demo',
-        icon: MonitorPlay,
-        keywords: screen.slug,
-        onSelect: () => navigate(`/demo/${screen.slug}`),
-      })),
-    ],
     [navigate],
   )
 
   return (
-    <div className="min-h-screen bg-canvas">
+    /* `overflow-clip`, not `overflow-hidden`: a hidden box is still
+       programmatically scrollable, so on a very long page (the icon set)
+       scroll chaining or a focus reveal could scroll the whole shell and
+       push the top nav and sidebar off-screen. Clip cannot scroll at all. */
+    <div className="flex h-screen flex-col overflow-clip bg-canvas">
       <a
         href="#main"
-        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-2xl focus:bg-white focus:px-4 focus:py-2.5 focus:text-sm focus:font-medium focus:text-forest focus:shadow-pop focus:outline-none focus:ring-2 focus:ring-azure/50"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:bg-white focus:px-4 focus:py-2.5 focus:text-sm focus:font-medium focus:text-forest focus:shadow-pop focus:outline-none focus:ring-2 focus:ring-azure/50"
       >
         Skip to content
       </a>
@@ -180,75 +321,96 @@ export function Shell() {
         open={searchOpen}
         onClose={() => setSearchOpen(false)}
         commands={commands}
-        placeholder="Search components, blocks, pages…"
+        placeholder="Search the design system…"
       />
 
-      <aside className="fixed inset-y-0 left-0 z-40 hidden w-60 flex-col border-r border-hair bg-white lg:flex">
-        <SidebarContent />
-      </aside>
+      <TopNav onOpenSearch={() => setSearchOpen(true)} onOpenMenu={() => setMenuOpen(true)} />
 
-      {/* Desktop search — fixed top-right, shadcn-style */}
-      <div className="fixed right-6 top-5 z-30 hidden lg:block">
-        <button
-          type="button"
-          onClick={() => setSearchOpen(true)}
-          className="flex h-9 w-60 items-center gap-2 rounded-2xl border border-hair bg-white/90 px-3 text-[13px] text-forest-300 shadow-chip backdrop-blur transition-colors hover:border-navy-200 hover:text-forest-400"
+      <div className="flex min-h-0 flex-1">
+        {/* Section sidebar */}
+        {sidebarOpen && (
+          <aside className="hidden w-60 shrink-0 flex-col border-r border-hair bg-white lg:flex">
+            <SidebarHeader onCollapse={() => setSidebarOpen(false)} />
+            <SidebarContent />
+            <div className="flex shrink-0 items-center gap-2 border-t border-hair px-5 py-3.5">
+              <Tag>v1.0</Tag>
+              <Tag>WCAG 2.2 AA</Tag>
+            </div>
+          </aside>
+        )}
+
+        {/* Content column */}
+        <main id="main" tabIndex={-1} className="flex min-w-0 flex-1 flex-col focus:outline-none">
+          <PageHeader
+            railOpen={railOpen}
+            showRailToggle={railActive}
+            onOpenRail={() => setRailOpen(true)}
+            onOpenSidebar={sidebarOpen ? undefined : () => setSidebarOpen(true)}
+            headerSlotRef={setHeaderEl}
+          />
+          {/* `overscroll-contain` keeps a wheel gesture that reaches the end of
+              this column from chaining out into the shell or the document. */}
+          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
+            <ShellSlotProvider value={slots}>
+              <Outlet />
+            </ShellSlotProvider>
+          </div>
+        </main>
+
+        {/* Controls rail. The element stays mounted so a page can portal into it
+            the moment it renders; it only becomes visible once a page reports
+            controls — so Examples and Props show no empty panel. */}
+        <aside
+          className={cn(
+            'w-80 shrink-0 flex-col border-l border-hair bg-white',
+            railActive && railOpen ? 'hidden xl:flex' : 'hidden',
+          )}
         >
-          <Search size={14} />
-          <span className="flex-1 text-left">Search documentation…</span>
-          <Kbd>⌘K</Kbd>
-        </button>
-      </div>
-
-      {/* Mobile top bar */}
-      <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-hair bg-white/90 px-4 backdrop-blur lg:hidden">
-        <NavLink to="/">
-          <Logo className="h-5" />
-        </NavLink>
-        <div className="flex items-center gap-1">
-          <button
-            type="button"
-            onClick={() => setSearchOpen(true)}
-            aria-label="Search"
-            className="flex h-10 w-10 items-center justify-center rounded-xl text-forest-500 transition-colors hover:bg-panel"
-          >
-            <Search size={17} />
-          </button>
-          <button
-            type="button"
-            onClick={() => setMenuOpen(true)}
-            aria-label="Open navigation"
-            aria-expanded={menuOpen}
-            className="flex h-10 w-10 items-center justify-center rounded-xl text-forest-500 transition-colors hover:bg-panel"
-          >
-            <Menu size={18} />
-          </button>
-        </div>
-      </header>
-
-      {/* Mobile overlay menu */}
-      {menuOpen && (
-        <div className="fixed inset-0 z-50 lg:hidden">
-          <div className="absolute inset-0 animate-fade-in bg-forest-900/25 backdrop-blur-[3px]" onClick={() => setMenuOpen(false)} />
-          <div className="absolute inset-y-0 left-0 flex w-72 animate-pop flex-col bg-white shadow-pop">
+          <div className="flex h-14 shrink-0 items-center justify-between border-b border-hair px-5">
+            <p className="text-[13px] font-medium text-forest">Controls</p>
             <button
               type="button"
-              onClick={() => setMenuOpen(false)}
-              aria-label="Close navigation"
-              className="absolute right-3 top-4 flex h-10 w-10 items-center justify-center rounded-xl text-forest-400 transition-colors hover:bg-panel"
+              onClick={() => setRailOpen(false)}
+              aria-label="Hide controls"
+              className="flex h-10 w-10 items-center justify-center text-forest-300 transition-colors hover:bg-panel hover:text-forest"
             >
-              <X size={18} />
+              <PanelRight size={16} />
             </button>
+          </div>
+          <div ref={setRailEl} className="no-scrollbar min-h-0 flex-1 overflow-y-auto px-5 py-4" />
+        </aside>
+      </div>
+
+      {/* Mobile navigation overlay */}
+      {menuOpen && (
+        <div className="fixed inset-0 z-50 lg:hidden">
+          <div
+            className="absolute inset-0 animate-fade-in bg-forest-900/25 backdrop-blur-[3px]"
+            onClick={() => setMenuOpen(false)}
+          />
+          <div className="absolute inset-y-0 left-0 flex w-72 animate-pop flex-col bg-white shadow-pop">
+            <SidebarHeader onClose={() => setMenuOpen(false)} />
+            <nav aria-label="Sections" className="shrink-0 border-b border-hair px-3 py-2">
+              {SECTIONS.map((section) => (
+                <Link
+                  key={section.id}
+                  to={to(section.path)}
+                  onClick={() => setMenuOpen(false)}
+                  className={navClass(sectionForPath(pathname)?.id === section.id)}
+                >
+                  {section.label}
+                </Link>
+              ))}
+            </nav>
             <SidebarContent onNavigate={() => setMenuOpen(false)} />
           </div>
         </div>
       )}
-
-      <main id="main" tabIndex={-1} className="focus:outline-none lg:pl-60">
-        <div className="mx-auto w-full max-w-4xl px-5 py-8 sm:px-8 lg:py-12">
-          <Outlet />
-        </div>
-      </main>
     </div>
   )
+}
+
+/** Readable measure for article-style pages inside the content column. */
+export function DocContainer({ children }: { children: ReactNode }) {
+  return <div className="mx-auto w-full max-w-3xl px-5 py-8 sm:px-8">{children}</div>
 }

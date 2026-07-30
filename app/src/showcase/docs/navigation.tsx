@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Banknote, Bell, CalendarClock, FlaskConical, Pill, ShieldCheck, Stethoscope, User } from 'lucide-react'
+import { Banknote, Bell, CalendarClock, ShieldCheck, Stethoscope, User } from 'lucide-react'
 import {
   Accordion,
   Breadcrumb,
@@ -13,7 +13,6 @@ import {
   VerticalTabs,
   type TabItem,
 } from '@/components/ui'
-import { DemoNavbar, DemoSidebar } from '../demo/DemoShell'
 import type { ComponentDoc } from '../types'
 
 type TabValue = 'upcoming' | 'past' | 'cancelled'
@@ -175,14 +174,6 @@ function PaginationExample() {
   )
 }
 
-function SidebarExample() {
-  const [active, setActive] = useState('analytics')
-  return (
-    <div className="h-[440px] w-full max-w-[248px] overflow-hidden rounded-3xl border border-hair bg-white shadow-card">
-      <DemoSidebar active={active} onSelect={setActive} className="w-full border-r-0" />
-    </div>
-  )
-}
 
 export const NAVIGATION_DOCS: ComponentDoc[] = [
   {
@@ -205,7 +196,11 @@ export const NAVIGATION_DOCS: ComponentDoc[] = [
     description:
       'Tabs switch between views of the same thing — never between unrelated pages. The active tab gets ink text and a 2px underline; count pills carry the size of each bucket.',
     code: `<Tabs
-  items={[{ value: 'upcoming', label: 'Upcoming', count: 18 }, …]}
+  items={[
+    { value: 'upcoming', label: 'Upcoming', count: 18 },
+    { value: 'past', label: 'Past', count: 214 },
+    { value: 'cancelled', label: 'Cancelled', count: 3 },
+  ]}
   value={tab}
   onChange={setTab}
 />`,
@@ -289,7 +284,16 @@ export const NAVIGATION_DOCS: ComponentDoc[] = [
     description:
       'For content users consult selectively. Clinical information that must be read stays expanded on the page; accordions are for reference material.',
     code: `<Accordion
-  items={[{ title: 'What does the plan cover?', content: '…' }, …]}
+  items={[
+    {
+      title: 'What does the plan cover?',
+      content: 'Consultations, generic drugs and basic laboratory tests.',
+    },
+    {
+      title: 'How do I add a dependant?',
+      content: 'Open the member record and choose Add dependant.',
+    },
+  ]}
 />`,
     examples: [
       {
@@ -363,7 +367,14 @@ export const NAVIGATION_DOCS: ComponentDoc[] = [
     description:
       'Horizontal for short wizards that fit one row; vertical when steps carry titles and context (enrolment, onboarding); dots when position is all that matters.',
     code: `<HorizontalStepper steps={['Account', 'Verify', 'Workspace']} current={1} />
-<Stepper steps={[{ title: 'Step 1', label: 'Patient details' }, …]} current={2} />
+<Stepper
+  steps={[
+    { title: 'Step 1', label: 'Patient details' },
+    { title: 'Step 2', label: 'Insurance & plan' },
+    { title: 'Step 3', label: 'Consent & documents' },
+  ]}
+  current={2}
+/>
 <DotStepper count={4} current={1} />`,
     examples: [
       { title: 'Horizontal & dots', note: 'Both track the same state here.', wide: true, body: <SteppersExample /> },
@@ -458,79 +469,6 @@ export const NAVIGATION_DOCS: ComponentDoc[] = [
       '<nav aria-label="Breadcrumb"> with an ordered list — assistive tech announces position and count.',
       'The current page has aria-current="page" and is intentionally not a link.',
       'Chevron separators are aria-hidden; the structure carries the meaning.',
-    ],
-  },
-  {
-    slug: 'sidebar',
-    whenToUse: [
-      'Primary navigation for the whole product — role-scoped modules, constant across pages (240px).',
-      'Never reorder items by context or usage; predictable placement is an accessibility feature (WCAG consistent navigation).',
-    ],
-    name: 'Sidebar',
-    group: 'Navigation',
-    summary: 'Primary navigation rail with grouped sections and an account footer.',
-    props: [
-      { name: 'active', type: 'string', default: "'analytics'", description: 'Slug of the active nav item.' },
-      { name: 'onSelect', type: '(slug: string) => void', description: 'Fired when an item is chosen.' },
-      { name: 'onSignOut', type: '() => void', description: 'Renders the sign-out control on the account card.' },
-      { name: 'framed', type: 'boolean', default: 'false', description: 'Standalone-example mode (no fixed positioning).' },
-    ],
-    description:
-      'One rail, grouped the way staff work: Analyze, Clinical, Orders, Finance, Manage. The active item gets a quiet panel and a brand-violet icon; groups are labelled in small caps. See it live in the product demo.',
-    code: `<DemoSidebar active="Analytics" onSelect={navigate} />`,
-    examples: [
-      {
-        title: 'Interactive',
-        note: 'Click around — active state is panel + violet icon, not colour alone.',
-        wide: true,
-        body: <SidebarExample />,
-      },
-    ],
-    a11y: [
-      '<nav aria-label="Primary"> landmark; the active item carries aria-current="page".',
-      'Rows are 36px tall with full-width hit areas.',
-      'Group labels are visible text, not title attributes — they read in scan order.',
-      'On small screens the rail collapses behind a labelled menu button (see the docs shell).',
-    ],
-  },
-  {
-    slug: 'navbar',
-    whenToUse: [
-      'The page-level top bar — breadcrumbs, global search, notifications, account. Complements the sidebar, never duplicates it.',
-    ],
-    name: 'Navbar',
-    group: 'Navigation',
-    summary: 'Top bar with the location trail, support and account actions.',
-    props: [
-      { name: 'crumbs', type: 'Crumb[]', description: 'The location trail rendered on the left.' },
-      { name: 'actions', type: 'ReactNode', description: 'Extra controls before the built-in support/notifications/account cluster.' },
-    ],
-    description:
-      'The navbar carries context (breadcrumb) on the left and global actions on the right — support, notifications, account. Page-level actions belong in the page header below it, not here.',
-    code: `<DemoNavbar crumbs={[{ label: 'Analytics', to: '/analytics' }, { label: 'Overview' }]} />`,
-    examples: [
-      {
-        title: 'Default',
-        wide: true,
-        body: (
-          <div className="w-full overflow-hidden rounded-3xl border border-hair shadow-card">
-            <DemoNavbar
-              crumbs={[
-                { label: 'Lab orders', to: '#' },
-                { label: 'FBC-20841' },
-              ]}
-            />
-            <div className="flex h-16 items-center gap-2 bg-canvas px-6 text-[13px] text-forest-300">
-              <Pill size={14} /> <FlaskConical size={14} /> page content
-            </div>
-          </div>
-        ),
-      },
-    ],
-    a11y: [
-      'A <header> landmark holding the breadcrumb <nav> — two landmarks, cleanly nested.',
-      'Icon-only controls (notifications) carry aria-labels; the unread dot is decorative.',
-      'All controls are 36px+ and keyboard reachable in visual order.',
     ],
   },
 ]

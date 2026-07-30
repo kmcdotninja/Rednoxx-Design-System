@@ -1,21 +1,23 @@
-import { Navigate, useParams } from 'react-router-dom'
-import { docBySlug, REGISTRY } from '../registry'
+import { Navigate, useParams } from '@tanstack/react-router'
+import { docBySlug } from '../registry'
+import { Playground } from '../playground/Playground'
+import { PLAYGROUNDS } from '../playground/specs'
 import { DocArticle } from './DocArticle'
 
-/** One documented component — summary, usage, live examples, accessibility. */
+/** One documented component — an interactive explorer plus its written docs. */
 export function ComponentPage() {
-  const { slug } = useParams()
+  const { slug } = useParams({ strict: false })
   const doc = docBySlug(slug)
-  if (!doc) return <Navigate to="/" replace />
+  if (!doc) return <Navigate to="/design" replace />
 
-  const index = REGISTRY.indexOf(doc)
+  const spec = slug ? PLAYGROUNDS[slug] : undefined
+
   return (
     <DocArticle
       doc={doc}
-      prev={REGISTRY[index - 1]}
-      next={REGISTRY[index + 1]}
-      basePath="/components"
-      rootLabel="Components"
+      playground={
+        spec ? <Playground spec={spec} summary={doc.summary} usageCode={doc.code} /> : undefined
+      }
     />
   )
 }

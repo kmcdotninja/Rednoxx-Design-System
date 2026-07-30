@@ -43,6 +43,7 @@ export function Accordion({
           <div key={i}>
             <button
               type="button"
+              id={`${baseId}-trigger-${i}`}
               aria-expanded={isOpen}
               aria-controls={`${baseId}-panel-${i}`}
               onClick={() => toggle(i)}
@@ -57,6 +58,7 @@ export function Accordion({
             <div
               id={`${baseId}-panel-${i}`}
               role="region"
+              aria-labelledby={`${baseId}-trigger-${i}`}
               className={cn(
                 'grid transition-[grid-template-rows] duration-200 ease-out',
                 isOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]',

@@ -311,8 +311,9 @@ success('Prescription issued', 'Sent to the patient’s preferred pharmacy.')`,
   {
     slug: 'dialog',
     whenToUse: [
-      'Blocking decisions and high-risk confirmations — sign-off, void, merge — where nothing else may proceed.',
-      'Reviewing or editing detail while keeping the page visible → Drawer. Content people should browse or link to → its own page.',
+      'DECISIONS ONLY. The user must decide before anything continues: destructive/high-risk confirms (merge, void, mark deceased, break-glass), identity verification (check-in, bind to patient), reason-gated governance actions.',
+      'Filling in a record — anything with multiple fields, and every "New…" / "Create…" action → Drawer. Litmus test: answering a question → dialog; filling something in → drawer.',
+      'A dialog may carry ONE justification field and still be a dialog — the job is to decide, not to fill in a record.',
       'In destructive confirms, Escape and Enter map to the safe option; the confirm names the verb (\'Void order\').',
     ],
     name: 'Dialog',
@@ -327,9 +328,27 @@ success('Prescription issued', 'Sent to the patient’s preferred pharmacy.')`,
       { name: 'size', type: "'md' | 'lg'", default: "'md'", description: 'max-w-lg or max-w-2xl.' },
     ],
     description:
-      'Dialogs interrupt — reserve them for decisions that must happen now, like destructive confirmation. Longer detail and multi-field editing belong in a Drawer.',
-    code: `<Modal open={open} onClose={close} title="Void this prescription?" footer={<Actions />}>
-  …
+      'Dialogs interrupt — reserve them for decisions that must happen now, like destructive confirmation. Data entry never belongs here: multi-field forms and every create action belong in a Drawer. Drawer = forms, dialog = decisions; they share an API, so converting is a one-word change.',
+    code: `<Modal
+  open={open}
+  onClose={() => setOpen(false)}
+  title="Void this prescription?"
+  subtitle="Amoxicillin 500mg · Ngozi Eze"
+  footer={
+    <>
+      <Button variant="secondary" onClick={() => setOpen(false)}>
+        Keep prescription
+      </Button>
+      <Button variant="danger" onClick={voidPrescription}>
+        Void prescription
+      </Button>
+    </>
+  }
+>
+  <p className="text-[13px] leading-relaxed text-forest-500">
+    Voiding removes this from the patient's active medication list. The record is kept and the
+    action is written to the audit log.
+  </p>
 </Modal>`,
     examples: [
       {
@@ -353,8 +372,9 @@ success('Prescription issued', 'Sent to the patient’s preferred pharmacy.')`,
   {
     slug: 'drawer',
     whenToUse: [
-      'Supplementary detail or a short edit beside the page — order detail, filters, patient summary expand.',
-      'If the user must decide before continuing, that\'s a Modal; if the content deserves a URL, it\'s a page.',
+      'FORMS. Creating or editing a record — register, schedule, invite, upload, edit, filter. EVERY "New…" / "Create…" action opens a drawer, so the list you are adding to stays visible behind it.',
+      'Supplementary detail beside the page — order detail, patient summary expand.',
+      'If the user must DECIDE before continuing (confirm, verify, approve), that\'s a Dialog; if the content deserves a URL, it\'s a page.',
     ],
     name: 'Drawer',
     group: 'Feedback',
@@ -368,9 +388,30 @@ success('Prescription issued', 'Sent to the patient’s preferred pharmacy.')`,
       { name: 'size', type: "'md' | 'lg' | 'xl' | '2xl'", default: "'md'", description: '440px up to a near-full workspace.' },
     ],
     description:
-      'The drawer floats off the right edge with a margin on all sides, in four widths up to a near-full workspace. It shares the Modal API, so promoting a dialog to a drawer is a one-word change.',
-    code: `<Drawer open={open} onClose={close} title="Ngozi Eze" size="lg" footer={<Actions />}>
-  …
+      'The default surface for data entry: every create/edit form in the product opens here, so the list behind stays visible and the panel scales to the form. It floats off the right edge with a margin on all sides, in four widths up to a near-full workspace. It shares the Modal API, so promoting a dialog to a drawer is a one-word change — which means there is no excuse for an inconsistent one.',
+    code: `<Drawer
+  open={open}
+  onClose={() => setOpen(false)}
+  title="Ngozi Eze"
+  subtitle="MRN 004-2213 · 32y · Female"
+  size="lg"
+  footer={
+    <>
+      <Button variant="secondary" onClick={() => setOpen(false)}>
+        Cancel
+      </Button>
+      <Button onClick={save}>Save changes</Button>
+    </>
+  }
+>
+  <div className="grid gap-4">
+    <Field label="Phone" required>
+      <Input value={phone} onChange={(e) => setPhone(e.target.value)} />
+    </Field>
+    <Field label="Address">
+      <Textarea rows={2} value={address} onChange={(e) => setAddress(e.target.value)} />
+    </Field>
+  </div>
 </Drawer>`,
     examples: [
       {
@@ -413,7 +454,9 @@ success('Prescription issued', 'Sent to the patient’s preferred pharmacy.')`,
   <span>eGFR</span>
 </Tooltip>
 
-<Field label={<>Facility code <InfoTip content="Assigned by the regulator." /></>}>…</Field>`,
+<Field label={<>Facility code <InfoTip content="Assigned by the regulator." /></>}>
+  <Input value={code} onChange={(e) => setCode(e.target.value)} />
+</Field>`,
     examples: [
       {
         title: 'Positions — all four',

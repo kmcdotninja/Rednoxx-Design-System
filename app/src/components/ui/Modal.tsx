@@ -16,6 +16,7 @@ export function Modal({
   children,
   footer,
   size = 'md',
+  bodyClassName,
 }: {
   open: boolean
   onClose: () => void
@@ -24,10 +25,23 @@ export function Modal({
   children: ReactNode
   footer?: ReactNode
   size?: 'md' | 'lg'
+  /** Extra classes on the scrollable body — e.g. a min-height to give a short
+      dialog more presence. Width stays governed by `size`. */
+  bodyClassName?: string
 }) {
   const layerId = useRef(Symbol('modal'))
   const panelRef = useRef<HTMLDivElement>(null)
+  const onCloseRef = useRef(onClose)
   const titleId = useId()
+
+  // Latest onClose in a ref so the open/close effect depends only on `open` —
+  // an inline onClose changing each render would re-run it and steal focus
+  // back to the panel on every keystroke (e.g. typing in a Textarea).
+  useEffect(() => {
+    onCloseRef.current = onClose
+  }, [onClose])
+
+
   useEffect(() => {
     if (!open) return
     const id = layerId.current
@@ -35,7 +49,7 @@ export function Modal({
     pushLayer(id)
     panelRef.current?.focus()
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isTopLayer(id)) onClose()
+      if (e.key === 'Escape' && isTopLayer(id)) onCloseRef.current()
       // Focus trap: keep Tab cycling inside the panel.
       if (e.key === 'Tab' && isTopLayer(id) && panelRef.current) {
         const nodes = panelRef.current.querySelectorAll<HTMLElement>(FOCUSABLE)
@@ -60,15 +74,17 @@ export function Modal({
       document.body.style.overflow = ''
       opener?.focus()
     }
-  }, [open, onClose])
+  }, [open])
 
   if (!open) return null
 
   return createPortal(
-    <div className="fixed inset-0 z-[60] flex items-end justify-center sm:items-center sm:p-6">
+    // z-[70]: one layer above Drawer (z-[60]) so a confirm modal opened from
+    // inside a drawer sits on top; poppers (Dropdown/Select, z-[80]) stay above.
+    <div className="fixed inset-0 z-[70] flex items-end justify-center sm:items-center sm:p-6">
       <div
         className="absolute inset-0 bg-forest-900/25 backdrop-blur-[3px]"
-        onClick={onClose}
+        onClick={() => onCloseRef.current()}
       />
       <div
         ref={panelRef}
@@ -91,16 +107,17 @@ export function Modal({
             {subtitle && <p className="mt-1 text-sm text-forest-400">{subtitle}</p>}
           </div>
           <button
-            onClick={onClose}
+            type="button"
+            onClick={() => onCloseRef.current()}
             aria-label="Close dialog"
             className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-forest-400 transition-colors hover:bg-panel"
           >
             <X size={18} />
           </button>
         </div>
-        <div className="overflow-y-auto px-6 py-5">{children}</div>
+        <div className={cn('overflow-y-auto px-6 py-5', bodyClassName)}>{children}</div>
         {footer && (
-          <div className="border-t border-hair px-6 py-4">{footer}</div>
+          <div className="flex items-center justify-end gap-2 border-t border-hair px-6 py-4">{footer}</div>
         )}
       </div>
     </div>,

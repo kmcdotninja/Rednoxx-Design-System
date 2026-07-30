@@ -7,6 +7,7 @@ import {
   Card,
   CardHeader,
   Button,
+  CodeBlock,
   DataTable,
   Divider,
   Kbd,
@@ -18,7 +19,7 @@ import {
   faceUrl,
   type Column,
 } from '@/components/ui'
-import { FACILITIES, type Facility } from '../health'
+import { FACILITIES, type Facility } from '@/demo/health'
 import type { ComponentDoc } from '../types'
 
 const CARE_TEAM = ['Amina Bello', 'Dr. Sani Ahmed', 'Dr. Bisi Adeyemi', 'Dr. Kemi Balogun', 'Dr. Femi Alade', 'Dr. Obi Nnamdi', 'Dr. Ada Okeke']
@@ -37,6 +38,7 @@ const tableColumns: Column<Facility>[] = [
   {
     key: 'name',
     header: 'Facility',
+    sortable: true,
     cell: (f) => (
       <span className="flex items-center gap-3">
         <Avatar name={f.name} size="sm" />
@@ -47,9 +49,9 @@ const tableColumns: Column<Facility>[] = [
       </span>
     ),
   },
-  { key: 'patients', header: 'Patients', align: 'right', cell: (f) => <span className="tnum">{f.patients.toLocaleString()}</span> },
-  { key: 'wait', header: 'Avg wait', align: 'right', cell: (f) => <span className="tnum">{f.waitMins}m</span> },
-  { key: 'status', header: 'Status', cell: (f) => <StatusPill status={f.status} /> },
+  { key: 'patients', header: 'Patients', align: 'right', sortable: true, sortValue: (f) => f.patients, cell: (f) => <span className="tnum">{f.patients.toLocaleString()}</span> },
+  { key: 'wait', header: 'Avg wait', align: 'right', sortable: true, sortValue: (f) => f.waitMins, cell: (f) => <span className="tnum">{f.waitMins}m</span> },
+  { key: 'status', header: 'Status', sortable: true, cell: (f) => <StatusPill status={f.status} /> },
 ]
 
 export const DISPLAY_DOCS: ComponentDoc[] = [
@@ -205,8 +207,23 @@ export const DISPLAY_DOCS: ComponentDoc[] = [
     description:
       'Cards are the unit of layout: white with a hairline border by default, `inset` for nested quiet panels, `dark` for the occasional ink surface. CardHeader standardises the title / subtitle / action row.',
     code: `<Card>
-  <CardHeader title="Today's clinic" subtitle="18 appointments" action={<Button size="sm" variant="secondary">View</Button>} />
-  …
+  <CardHeader
+    title="Today's clinic"
+    subtitle="18 appointments"
+    action={
+      <Button size="sm" variant="secondary">
+        View
+      </Button>
+    }
+  />
+  <ul className="mt-4 divide-y divide-hair">
+    {appointments.map((a) => (
+      <li key={a.id} className="flex items-center justify-between py-3">
+        <span className="text-sm font-medium text-forest">{a.patient}</span>
+        <span className="tnum text-[13px] text-forest-400">{a.time}</span>
+      </li>
+    ))}
+  </ul>
 </Card>`,
     examples: [
       {
@@ -268,43 +285,132 @@ export const DISPLAY_DOCS: ComponentDoc[] = [
     group: 'Data display',
     summary: 'Data table with pagination, empty state and clickable rows.',
     props: [
-      { name: 'columns', type: 'Column<Row>[]', required: true, description: '{ key, header, cell(row), align?, headClassName?, cellClassName? } per column.' },
-      { name: 'rows', type: 'Row[]', required: true, description: 'The data; the component paginates it.' },
-      { name: 'rowKey', type: '(row, index) => string', required: true, description: 'Stable key per row.' },
-      { name: 'pageSize', type: 'number', default: '8', description: 'Rows per page; the pager appears only on overflow.' },
-      { name: 'onRowClick', type: '(row) => void', description: 'Makes rows clickable with hover feedback.' },
+      { name: 'columns', type: 'Column<Row>[]', required: true, description: '{ key, header, cell(row), align?, width?, sortable?, sortValue?, headClassName?, cellClassName? } per column.' },
+      { name: 'rows', type: 'Row[]', required: true, description: 'The data; the component sorts and paginates it.' },
+      { name: 'rowKey', type: '(row, index) => string', required: true, description: 'Stable key per row — also the selection key.' },
+      { name: 'container', type: 'boolean', default: 'false', description: 'Wraps table and footer in a bordered surface so it reads as one object. Skip it when the table already sits in a Card.' },
+      { name: 'density', type: "'compact' | 'default' | 'relaxed'", default: "'default'", description: 'Row height. compact for worklists, relaxed for short summary tables.' },
+      { name: 'headTone', type: "'plain' | 'panel'", default: "'plain'", description: 'Fills the header row, separating it from the body on long scrolls.' },
+      { name: 'pagination', type: "'auto' | 'always' | 'none'", default: "'auto'", description: 'auto pages only on overflow, always keeps the footer visible, none renders every row.' },
+      { name: 'pageSize', type: 'number', default: '8', description: 'Rows per page.' },
+      { name: 'pageSizeOptions', type: 'number[]', description: 'Adds a rows-per-page picker to the footer, e.g. [10, 25, 50].' },
+      { name: 'showRange', type: 'boolean', default: 'true', description: 'The “Showing 1–10 of 42” summary beside the pager.' },
+      { name: 'defaultSort / onSortChange', type: "{ key, dir } / (sort) => void", description: 'Initial sort for sortable columns, and a hook for server-side sorting.' },
+      { name: 'stickyHeader / maxHeight', type: 'boolean / number | string', description: 'Pins the header while the body scrolls inside a capped height.' },
+      { name: 'selectable', type: 'boolean', description: 'Leading checkbox column with select-all. Uncontrolled unless you pass selectedKeys / onSelectionChange.' },
+      { name: 'zebra / hoverable', type: 'boolean', default: 'false / true', description: 'Alternating row fill; row hover tint (turn off for read-only tables).' },
+      { name: 'loading / loadingRows', type: 'boolean / number', description: 'Skeleton rows in place of data — header and chrome stay put.' },
+      { name: 'onRowClick', type: '(row) => void', description: 'Makes rows clickable with pointer and hover feedback.' },
       { name: 'empty', type: 'ReactNode', description: 'Custom empty state; defaults to the illustrated EmptyState.' },
+      { name: 'caption', type: 'string', description: 'Screen-reader name for the table, announced before the first cell.' },
+      { name: 'minWidth', type: 'number', default: '640', description: 'Width below which the table scrolls sideways instead of squashing.' },
       { name: 'rowClassName / rowId', type: '(row, index) => string', description: 'Per-row class or DOM id hooks.' },
     ],
     description:
-      'Columns are declared as data — key, header, alignment and a cell renderer — so tables stay consistent without hand-rolled markup. Numbers align right in tabular figures; the pager appears only when rows overflow a page.',
+      'Columns are declared as data — key, header, alignment, width and a cell renderer — so tables stay consistent without hand-rolled markup. Sorting, selection, paging and the loading state all live in the component: mark a column sortable and the header becomes a sort control with aria-sort. Numbers align right in tabular figures. Give a standalone table `container` so it reads as one object; leave it off when the table already sits inside a Card.',
     code: `<DataTable
   columns={columns}
   rows={facilities}
   rowKey={(f) => f.id}
+  container
+  density="compact"
+  headTone="panel"
   pageSize={6}
+  pageSizeOptions={[6, 12, 24]}
+  defaultSort={{ key: 'patients', dir: 'desc' }}
   onRowClick={(f) => open(f)}
 />`,
     examples: [
       {
-        title: 'With pagination',
-        note: 'Nine rows, six per page — the pager renders itself.',
+        title: 'Contained, sortable, paged',
+        note: 'Own surface, filled header, compact rows — click a header to sort, pick rows per page in the footer.',
         wide: true,
         body: (
-          <DataTable columns={tableColumns} rows={FACILITIES} rowKey={(f) => f.id} pageSize={6} />
+          <DataTable
+            columns={tableColumns}
+            rows={FACILITIES}
+            rowKey={(f) => f.id}
+            caption="Facilities"
+            container
+            density="compact"
+            headTone="panel"
+            pageSize={6}
+            pageSizeOptions={[6, 12, 24]}
+            defaultSort={{ key: 'patients', dir: 'desc' }}
+          />
         ),
       },
       {
-        title: 'Empty state',
+        title: 'Selectable rows',
+        note: 'Checkbox column with select-all; the table owns the selection until you pass selectedKeys.',
         wide: true,
-        body: <DataTable columns={tableColumns} rows={[]} rowKey={(f: Facility) => f.id} />,
+        body: (
+          <DataTable
+            columns={tableColumns}
+            rows={FACILITIES.slice(0, 5)}
+            rowKey={(f) => f.id}
+            caption="Facilities to export"
+            container
+            selectable
+            pagination="none"
+          />
+        ),
+      },
+      {
+        title: 'Sticky header, scrolling body',
+        note: 'Every row on one scroll instead of a pager — the header stays put.',
+        wide: true,
+        body: (
+          <DataTable
+            columns={tableColumns}
+            rows={FACILITIES}
+            rowKey={(f) => f.id}
+            caption="All facilities"
+            container
+            density="compact"
+            headTone="panel"
+            zebra
+            stickyHeader
+            maxHeight={260}
+            pagination="none"
+          />
+        ),
+      },
+      {
+        title: 'Loading and empty',
+        note: 'Skeleton rows keep the header and column widths; the empty state says what would be here.',
+        wide: true,
+        body: (
+          <div className="space-y-4">
+            <DataTable
+              columns={tableColumns}
+              rows={FACILITIES}
+              rowKey={(f) => f.id}
+              container
+              density="compact"
+              headTone="panel"
+              loading
+              loadingRows={3}
+            />
+            <DataTable
+              columns={tableColumns}
+              rows={[]}
+              rowKey={(f: Facility) => f.id}
+              container
+              density="compact"
+              headTone="panel"
+            />
+          </div>
+        ),
       },
     ],
     a11y: [
       'Real <table> semantics with <th> headers — screen readers announce column context per cell.',
+      'Sortable headers are buttons inside the <th>, and the <th> carries aria-sort so the current order is announced.',
       'Numeric cells use tabular figures, so values align and comparisons scan.',
       'Clickable rows show a pointer and hover tint; keep a real link or button in the row for keyboard users.',
-      'The empty state explains what the table would contain, not just “no data”.',
+      'Selection checkboxes are individually labelled, and the header checkbox reports the indeterminate state.',
+      'Loading sets aria-busy on the table; the empty state explains what the table would contain, not just “no data”.',
     ],
   },
   {
@@ -477,6 +583,68 @@ export const DISPLAY_DOCS: ComponentDoc[] = [
       'Uses the semantic <kbd> element, so assistive tech knows it is keyboard input.',
       'Chips sit beside their action’s name — never a bare shortcut with no label.',
       'Contrast on the panel background meets AA at the 11px size.',
+    ],
+  },
+  {
+    slug: 'code-block',
+    name: 'Code block',
+    group: 'Data display',
+    summary: 'Syntax-highlighted code with copy-to-clipboard — how every snippet is shown.',
+    whenToUse: [
+      'Showing code an engineer is meant to read or reuse — the usage snippet on every component and block page.',
+      'Snippets are real, complete code: no “…” elisions, no pseudo-props. If it cannot be pasted into a screen and compile, it is not ready to publish.',
+      'A short inline token (a prop name, a key) → Kbd or plain <code> in prose, not this block.',
+    ],
+    description:
+      'Dark surface, JSX/TS highlighting and a copy button. The highlighter is a small dependency-free tokeniser (comments, strings, tags, attributes, keywords, numbers) so the docs bundle stays lean; unknown text simply renders unstyled. Long lines scroll horizontally rather than wrapping, so pasted code keeps its formatting.',
+    props: [
+      { name: 'code', type: 'string', required: true, description: 'Source to render and copy, verbatim.' },
+      { name: 'label', type: 'string', description: 'Caption above the block — a file name or “Usage”.' },
+      { name: 'className', type: 'string', description: 'Extra classes on the wrapper (e.g. spacing).' },
+    ],
+    code: `<CodeBlock
+  label="Usage"
+  code={\`<Button size="sm" variant="secondary" onClick={save}>
+  Save changes
+</Button>\`}
+/>`,
+    examples: [
+      {
+        title: 'Usage snippet',
+        note: 'Hit Copy — the button confirms, then resets.',
+        wide: true,
+        body: (
+          <CodeBlock
+            label="Usage"
+            code={`import { Button, Field, Input } from '@/components/ui'
+
+export function InviteForm({ onSend }: { onSend: (email: string) => void }) {
+  const [email, setEmail] = useState('')
+  return (
+    <form
+      onSubmit={(e) => {
+        e.preventDefault()
+        onSend(email)
+      }}
+    >
+      {/* Every input sits in a Field — label, hint and error live there. */}
+      <Field label="Work email" required hint="They'll get a link to set up their account.">
+        <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+      </Field>
+      <Button type="submit" className="mt-4">
+        Send invite
+      </Button>
+    </form>
+  )
+}`}
+          />
+        ),
+      },
+    ],
+    a11y: [
+      'The copy button is a real button with an accessible name that flips to “Copied to clipboard”.',
+      'The result is announced through a polite live region, so the confirmation is not colour- or icon-only.',
+      'Highlight colours are tokens on the dark surface; meaning never depends on colour alone — the code reads the same uncoloured.',
     ],
   },
 ]

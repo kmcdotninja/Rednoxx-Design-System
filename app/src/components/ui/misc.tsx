@@ -112,7 +112,7 @@ export function EmptyState({
         draggable={false}
         className={cn('select-none', compact ? 'h-28 w-28' : 'h-44 w-44')}
       />
-      <p className={cn('font-medium tracking-[-0.01em] text-forest', compact ? 'mt-2 text-[15px]' : 'mt-3 text-[16px]')}>{title}</p>
+      <p className={cn('font-medium tracking-[-0.01em] text-forest', compact ? 'mt-2 text-[15px]' : 'mt-3 text-[17px]')}>{title}</p>
       {description && (
         <p className="mt-1.5 max-w-sm text-sm leading-relaxed text-forest-400">{description}</p>
       )}

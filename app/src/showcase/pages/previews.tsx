@@ -734,3 +734,127 @@ export const BLOCK_PREVIEWS: Record<string, ReactNode> = {
     </div>
   ),
 }
+
+/* -------------------------------------------------------------- templates */
+
+/**
+ * Page-scale schematics for the Templates group on the Blocks index — the same
+ * anatomy as each template's full wireframe, drawn small enough to read as a
+ * card preview.
+ */
+export const TEMPLATE_PREVIEWS: Record<string, ReactNode> = {
+  'template-dashboard': (
+    <div className="w-[190px] space-y-1.5 border border-hair bg-white p-2.5">
+      <div className="flex items-center justify-between">
+        <Sk w="w-14" h="h-2" c="bg-navy-100" />
+        <span className="h-3.5 w-10 bg-azure" />
+      </div>
+      <div className="grid grid-cols-4 gap-1.5">
+        {[0, 1, 2, 3].map((i) => (
+          <span key={i} className="h-6 bg-panel" />
+        ))}
+      </div>
+      <div className="grid grid-cols-2 gap-1.5">
+        <span className="h-9 bg-panel" />
+        <span className="h-9 bg-panel" />
+      </div>
+    </div>
+  ),
+  'template-list': (
+    <div className="w-[190px] space-y-1.5 border border-hair bg-white p-2.5">
+      <div className="flex items-center justify-between">
+        <Sk w="w-12" h="h-2" c="bg-navy-100" />
+        <span className="h-3.5 w-10 bg-azure" />
+      </div>
+      <div className="flex gap-1.5">
+        <span className="h-4 flex-1 bg-panel" />
+        <span className="h-4 w-8 bg-panel" />
+      </div>
+      <div className="space-y-1.5 border border-hair p-1.5">
+        <div className="flex gap-2 border-b border-hair pb-1.5">
+          <span className="h-1.5 w-8 bg-azure" />
+          <span className="h-1.5 w-8 bg-navy-100" />
+          <span className="h-1.5 w-8 bg-navy-100" />
+        </div>
+        {[0, 1, 2].map((i) => (
+          <div key={i} className="flex items-center gap-1.5">
+            <span className="h-2.5 w-2.5 rounded-full bg-panel" />
+            <Sk h="h-1.5" />
+            <span className="h-2 w-7 rounded-full bg-panel" />
+          </div>
+        ))}
+      </div>
+    </div>
+  ),
+  'template-record': (
+    <div className="w-[190px] space-y-1.5 border border-hair bg-white p-2.5">
+      <div className="flex items-center gap-1.5 border border-hair p-1.5">
+        <span className="h-5 w-5 rounded-full bg-panel" />
+        <div className="flex-1 space-y-1">
+          <Sk w="w-16" h="h-2" c="bg-navy-100" />
+          <Sk w="w-20" h="h-1.5" />
+        </div>
+        <span className="h-3.5 w-8 bg-azure" />
+      </div>
+      <div className="grid grid-cols-[1fr_2fr] gap-1.5">
+        <div className="space-y-1.5">
+          <span className="block h-8 bg-panel" />
+          <span className="block h-8 bg-panel" />
+        </div>
+        <div className="space-y-1.5 border border-hair p-1.5">
+          <div className="flex gap-1.5 border-b border-hair pb-1.5">
+            <span className="h-1.5 w-6 bg-azure" />
+            <span className="h-1.5 w-6 bg-navy-100" />
+          </div>
+          <Sk h="h-1.5" />
+          <Sk w="w-4/5" h="h-1.5" />
+          <Sk w="w-2/3" h="h-1.5" />
+        </div>
+      </div>
+    </div>
+  ),
+  'template-settings': (
+    <div className="w-[190px] space-y-1.5 border border-hair bg-white p-2.5">
+      <div className="flex items-center justify-between">
+        <Sk w="w-12" h="h-2" c="bg-navy-100" />
+        <span className="h-3.5 w-10 bg-azure" />
+      </div>
+      {[0, 1].map((i) => (
+        <div key={i} className="space-y-1.5 border border-hair p-1.5">
+          <Sk w="w-10" h="h-1.5" c="bg-navy-100" />
+          <div className="grid grid-cols-2 gap-1.5">
+            <span className="h-4 bg-panel" />
+            <span className="h-4 bg-panel" />
+          </div>
+        </div>
+      ))}
+    </div>
+  ),
+  'template-auth': (
+    <div className="flex h-[110px] w-[190px] overflow-hidden border border-hair">
+      <div className="flex w-2/5 flex-col justify-between bg-forest p-2.5">
+        <span className="h-3 w-3 rounded-full bg-azure" />
+        <div className="space-y-1">
+          <span className="block h-1.5 w-12 rounded-full bg-white/30" />
+          <span className="block h-1.5 w-9 rounded-full bg-white/15" />
+        </div>
+      </div>
+      <div className="flex flex-1 items-center justify-center bg-white p-2.5">
+        <div className="w-full space-y-1.5 border border-hair p-2">
+          <Sk w="w-10" h="h-2" c="bg-navy-100" />
+          <span className="block h-4 border border-hair" />
+          <span className="block h-4 bg-azure" />
+        </div>
+      </div>
+    </div>
+  ),
+}
+
+/** One-line summary per template, for the same cards. */
+export const TEMPLATE_SUMMARIES: Record<string, string> = {
+  'template-dashboard': 'A KPI row over two list columns — “how are we doing right now?”.',
+  'template-list': 'Page header, filter bar, status tabs and a table of records.',
+  'template-record': 'One entity in full: identity banner, summary rail, tabbed record sets.',
+  'template-settings': 'Stacked form cards, one per concern, with Save in the header.',
+  'template-auth': 'A dark brand panel beside the single card each auth step swaps into.',
+}

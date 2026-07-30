@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from '@tanstack/react-router'
 import {
   Bell,
   CalendarClock,
@@ -26,7 +26,7 @@ import {
   useToast,
   type Command,
 } from '@/components/ui'
-import { PATIENTS } from '../health'
+import { PATIENTS } from '@/demo/health'
 import type { ComponentDoc } from '../types'
 
 function DropdownExample() {
@@ -136,9 +136,9 @@ function CommandMenuExample() {
   const [open, setOpen] = useCommandMenu()
 
   const commands: Command[] = [
-    { id: 'go-overview', group: 'Go to', label: 'Overview', icon: Home, onSelect: () => navigate('/demo/overview') },
-    { id: 'go-analytics', group: 'Go to', label: 'Analytics', icon: ChartLine, onSelect: () => navigate('/demo/analytics') },
-    { id: 'go-patients', group: 'Go to', label: 'Patients', icon: Users, onSelect: () => navigate('/demo/patients') },
+    { id: 'go-overview', group: 'Go to', label: 'Overview', icon: Home, onSelect: () => navigate({ to: '/demo/overview' }) },
+    { id: 'go-analytics', group: 'Go to', label: 'Analytics', icon: ChartLine, onSelect: () => navigate({ to: '/demo/analytics' }) },
+    { id: 'go-patients', group: 'Go to', label: 'Patients', icon: Users, onSelect: () => navigate({ to: '/demo/patients' }) },
     ...PATIENTS.slice(0, 5).map((p) => ({
       id: p.id,
       group: 'Patients',
@@ -146,7 +146,7 @@ function CommandMenuExample() {
       icon: Stethoscope,
       hint: `MRN ${p.mrn}`,
       keywords: p.mrn,
-      onSelect: () => navigate(`/demo/patients/${p.id}`),
+      onSelect: () => navigate({ to: '/demo/patients/$id', params: { id: p.id } }),
     })),
     { id: 'new-patient', group: 'Actions', label: 'New patient…', icon: UserPlus, onSelect: () => success('New patient', 'Opened the enrolment form.') },
     { id: 'new-rx', group: 'Actions', label: 'New prescription…', icon: Pill, onSelect: () => success('New prescription', 'Opened in the consultation workspace.') },
@@ -154,12 +154,18 @@ function CommandMenuExample() {
 
   return (
     <>
-      <Button variant="secondary" leftIcon={<Search size={15} />} onClick={() => setOpen(true)}>
+      <Button
+        variant="secondary"
+        leftIcon={<Search size={15} />}
+        rightIcon={
+          <span className="flex items-center gap-1">
+            <Kbd>⌘</Kbd>
+            <Kbd>K</Kbd>
+          </span>
+        }
+        onClick={() => setOpen(true)}
+      >
         Quick search
-        <span className="ml-2 flex items-center gap-1">
-          <Kbd>⌘</Kbd>
-          <Kbd>K</Kbd>
-        </span>
       </Button>
       <CommandMenu open={open} onClose={() => setOpen(false)} commands={commands} />
     </>
@@ -180,6 +186,8 @@ export const OVERLAY_DOCS: ComponentDoc[] = [
       { name: 'trigger', type: 'ReactNode | (open) => ReactNode', required: true, description: 'The always-visible control; wrapped in the toggling button.' },
       { name: 'items', type: 'DropdownItem[]', required: true, description: '{ label, icon?, hint?, danger?, disabled?, separator?, onSelect? } per row.' },
       { name: 'align', type: "'left' | 'right'", default: "'left'", description: 'Panel edge relative to the trigger.' },
+      { name: 'side', type: "'bottom' | 'top'", default: "'bottom'", description: 'Open above the trigger when it sits near the bottom of the viewport (e.g. sidebar account card).' },
+      { name: 'block', type: 'boolean', default: 'false', description: 'Fill the container width — the trigger stretches and its content can truncate.' },
     ],
     description:
       'A menu of verbs, not a value picker: choosing runs an action and closes. Destructive items sit last, behind a separator, in the danger tone. For selecting a value, use Select or Combobox.',
@@ -263,7 +271,11 @@ export const OVERLAY_DOCS: ComponentDoc[] = [
 <CommandMenu
   open={open}
   onClose={() => setOpen(false)}
-  commands={[{ id: 'p1', group: 'Patients', label: 'Ngozi Eze', hint: 'MRN 004-2213', onSelect: goTo }, …]}
+  commands={[
+    { id: 'p1', group: 'Patients', label: 'Ngozi Eze', hint: 'MRN 004-2213', onSelect: goToPatient },
+    { id: 'p2', group: 'Patients', label: 'Tunde Bakare', hint: 'MRN 004-8761', onSelect: goToPatient },
+    { id: 'a1', group: 'Actions', label: 'New appointment', hint: 'Shortcut N', onSelect: newAppointment },
+  ]}
 />`,
     examples: [
       {

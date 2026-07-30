@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { Link, Navigate, useParams, type LinkProps } from '@tanstack/react-router'
 import { ArrowUpRight } from 'lucide-react'
 import { Card, Tag } from '@/components/ui'
 import { cn } from '@/lib/cn'
@@ -187,60 +187,54 @@ const TEMPLATES: Template[] = [
     anatomy: ['Brand panel', 'Auth card (login / OTP / MFA / org access)'],
     usedBy: [
       { label: 'Sign-in flow (full page)', to: '/demo/sign-in' },
-      { label: 'Auth layout block', to: '/blocks/auth-layout' },
-      { label: 'Login block', to: '/blocks/login' },
+      { label: 'Auth layout block', to: '/design/blocks/auth-layout' },
+      { label: 'Login block', to: '/design/blocks/login' },
     ],
     wire: <AuthWire />,
   },
 ]
 
-export function Templates() {
-  return (
-    <div className="space-y-10">
-      <header className="animate-rise">
-        <h1 className="text-[26px] font-medium tracking-[-0.02em] text-forest">Templates</h1>
-        <p className="mt-2 max-w-2xl text-[15px] leading-relaxed text-forest-400">
-          The page layouts between blocks and pages: five shapes cover every screen in the
-          product. A new screen starts by picking its template, then filling the slots with
-          blocks — never by arranging components from scratch.
-        </p>
-      </header>
+/** Slug per template, matching the Blocks → Templates sidebar group. */
+export const TEMPLATE_SLUGS = TEMPLATES.map((t) => `template-${t.name.toLowerCase()}`)
 
-      {TEMPLATES.map((t, i) => (
-        <section
-          key={t.name}
-          className="grid gap-5 animate-rise lg:grid-cols-[minmax(0,1fr)_360px]"
-          style={{ animationDelay: `${(i + 1) * 60}ms` }}
-        >
-          <div>
-            <h2 className="text-[17px] font-medium tracking-[-0.01em] text-forest">{t.name}</h2>
-            <p className="mt-2 max-w-xl text-sm leading-relaxed text-forest-500">{t.description}</p>
-            <div className="mt-3 flex flex-wrap items-center gap-1.5">
-              {t.anatomy.map((part) => (
-                <Tag key={part}>{part}</Tag>
-              ))}
-            </div>
-            <p className="mt-4 text-[11px] font-medium uppercase tracking-[0.08em] text-forest-300">
-              See it live
-            </p>
-            <div className="mt-1.5 flex flex-wrap gap-2">
-              {t.usedBy.map((u) => (
-                <Link
-                  key={u.to}
-                  to={u.to}
-                  className="group inline-flex items-center gap-1 rounded-xl border border-hair bg-white px-2.5 py-1.5 text-[13px] font-medium text-forest-500 transition-[border-color,color] hover:border-navy-200 hover:text-forest"
-                >
-                  {u.label}
-                  <ArrowUpRight size={13} className="text-forest-300 transition-transform duration-150 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-                </Link>
-              ))}
-            </div>
-          </div>
-          <Card pad={false} className="h-56 overflow-hidden bg-panel/60">
-            {t.wire}
-          </Card>
-        </section>
-      ))}
+function templateForSlug(slug: string | undefined) {
+  return TEMPLATES.find((t) => `template-${t.name.toLowerCase()}` === slug)
+}
+
+/** One page template. Reached from Blocks → Templates. */
+export function Templates() {
+  const { slug } = useParams({ strict: false })
+  const t = templateForSlug(slug)
+  if (!t) return <Navigate to="/design/blocks" replace />
+
+  return (
+    <div className="mx-auto w-full max-w-5xl px-5 py-8 sm:px-8 sm:py-10">
+      <p className="max-w-2xl text-[15px] leading-relaxed text-forest-400">{t.description}</p>
+
+      <Card pad={false} className="mt-6 h-64 overflow-hidden bg-panel/60">
+        {t.wire}
+      </Card>
+
+      <h2 className="mt-8 text-sm font-medium text-forest">Anatomy</h2>
+      <div className="mt-2 flex flex-wrap items-center gap-1.5">
+        {t.anatomy.map((part) => (
+          <Tag key={part}>{part}</Tag>
+        ))}
+      </div>
+
+      <h2 className="mt-8 text-sm font-medium text-forest">See it live</h2>
+      <div className="mt-2 flex flex-wrap gap-2">
+        {t.usedBy.map((u) => (
+          <Link
+            key={u.to}
+            to={u.to as LinkProps['to']}
+            className="group inline-flex items-center gap-1 border border-hair bg-white px-2.5 py-1.5 text-[13px] font-medium text-forest-500 transition-[border-color,color] hover:border-navy-200 hover:text-forest"
+          >
+            {u.label}
+            <ArrowUpRight size={13} className="text-forest-300 transition-transform duration-150 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+          </Link>
+        ))}
+      </div>
     </div>
   )
 }

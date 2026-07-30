@@ -20,8 +20,8 @@ import {
   TimePicker,
   useToast,
 } from '@/components/ui'
-import { Timeline, type TimelineEvent } from '@/components/blocks'
-import { PATIENTS } from '../health'
+import { ErrorPage, Timeline, type TimelineEvent } from '@/components/blocks'
+import { PATIENTS } from '@/demo/health'
 import type { ComponentDoc } from '../types'
 
 const MEDICAL_EVENTS: TimelineEvent[] = [
@@ -266,10 +266,13 @@ export const PATTERN_BLOCK_DOCS: Omit<ComponentDoc, 'name' | 'group' | 'summary'
     slug: 'timeline',
     description:
       'One rail, newest first. Tones highlight the events that matter (brand for encounters, success for completions, danger for incidents); everything else stays neutral. The same block renders medical histories and audit trails.',
-    code: `<Timeline events={[
-  { meta: '06 Jul · 09:42', title: 'Cardiology consultation', icon: Stethoscope, tone: 'brand' },
-  …
-]} />`,
+    code: `<Timeline
+  events={[
+    { meta: '06 Jul · 09:42', title: 'Cardiology consultation', icon: Stethoscope, tone: 'brand' },
+    { meta: '02 Jul · 14:10', title: 'Lab results released', icon: FlaskConical, tone: 'success' },
+    { meta: '28 Jun · 08:05', title: 'Prescription issued', icon: Pill },
+  ]}
+/>`,
     examples: [
       {
         title: 'Medical timeline',
@@ -298,14 +301,56 @@ export const PATTERN_BLOCK_DOCS: Omit<ComponentDoc, 'name' | 'group' | 'summary'
     ],
   },
   {
+    slug: 'error-pages',
+    description:
+      'Route-level failure states share one layout: a status overline, the situation-specific illustration, plain-language copy that says what happened and what was NOT lost, and always a way forward — an error page is never a dead end. 404 replaces silent redirects so mistyped URLs are diagnosable.',
+    code: `<ErrorPage
+  kind="not-found"
+  action={<ButtonLink to="/">Go to the workspace</ButtonLink>}
+/>`,
+    examples: [
+      {
+        title: 'Not found (404)',
+        wide: true,
+        body: <ErrorPage framed kind="not-found" action={<Button variant="secondary">Go to the workspace</Button>} />,
+      },
+      {
+        title: 'Access denied (403)',
+        note: 'RBAC denials name the role model and note that attempts are logged.',
+        wide: true,
+        body: <ErrorPage framed kind="no-access" action={<Button variant="secondary">Back to my landing page</Button>} />,
+      },
+      {
+        title: 'Something went wrong (500)',
+        wide: true,
+        body: <ErrorPage framed kind="server-error" action={<Button variant="secondary">Try again</Button>} />,
+      },
+    ],
+    a11y: [
+      'The status code is supplementary — the title carries the meaning in text.',
+      'Every variant offers a focusable action; keyboard users are never stranded on a dead page.',
+      'Copy states what was preserved ("nothing you entered was lost") — anxiety reduction is an accessibility concern.',
+    ],
+  },
+  {
     slug: 'empty-states',
     description:
       'An empty screen should say what would be here, why it’s empty, and what to do next. Scale follows scope: a screen with nothing gets the full-width empty with the large illustration; panels inside a dashboard use the compact form so the emptiness stays proportional.',
     code: `// Page level — fills the content area
-<EmptyState variant="calendar" title="No appointments today" … />
+<EmptyState
+  variant="calendar"
+  title="No appointments today"
+  description="Booked appointments appear here. The next clinic starts on Monday."
+  action={<Button size="sm">Book appointment</Button>}
+/>
 
 // Panel level — inside a dashboard card
-<EmptyState compact variant="chart" title="No data for this period" … />`,
+<EmptyState
+  compact
+  variant="chart"
+  title="No data for this period"
+  description="Try a wider date range."
+/>`,
     examples: [
       {
         title: 'Page level — full width',
@@ -458,7 +503,12 @@ export const PATTERN_BLOCK_DOCS: Omit<ComponentDoc, 'name' | 'group' | 'summary'
     description:
       'Forms are assembled from Field controls on a 2-column grid that collapses on small screens. Booking and registration are the two shapes almost every flow reduces to.',
     code: `<Field label="Patient" required>
-  <Combobox options={patients} … />
+  <Combobox
+    options={patients}
+    value={patientId}
+    onChange={setPatientId}
+    placeholder="Search by name or MRN…"
+  />
 </Field>
 <div className="grid grid-cols-2 gap-3">
   <Field label="Date" required><DatePicker /></Field>
@@ -547,7 +597,26 @@ export const PATTERN_BLOCK_DOCS: Omit<ComponentDoc, 'name' | 'group' | 'summary'
     slug: 'overlay-patterns',
     description:
       'Two overlay conventions cover the product: a confirmation dialog whose danger button restates the verb, and a filter drawer with Reset/Apply pinned in the footer. Both close on Escape and never blank mid-animation.',
-    code: `<Modal title="Cancel this appointment?" footer={<><Button variant="secondary">Keep appointment</Button><Button variant="danger">Cancel appointment</Button></>}>…</Modal>`,
+    code: `<Modal
+  open={open}
+  onClose={() => setOpen(false)}
+  title="Cancel this appointment?"
+  subtitle="Ngozi Eze · 06 Jul, 09:40"
+  footer={
+    <>
+      <Button variant="secondary" onClick={() => setOpen(false)}>
+        Keep appointment
+      </Button>
+      <Button variant="danger" onClick={cancelAppointment}>
+        Cancel appointment
+      </Button>
+    </>
+  }
+>
+  <p className="text-[13px] leading-relaxed text-forest-500">
+    The slot is released and the patient is notified by SMS. This cannot be undone.
+  </p>
+</Modal>`,
     examples: [
       {
         title: 'Confirmation dialog',

@@ -9,6 +9,7 @@ import { useDismiss } from '@/lib/useDismiss'
  */
 export function Popover({
   trigger,
+  triggerLabel,
   children,
   align = 'left',
   panelClassName,
@@ -16,6 +17,8 @@ export function Popover({
 }: {
   /** The always-visible element; the whole thing toggles the panel. */
   trigger: ReactNode | ((open: boolean) => ReactNode)
+  /** Accessible name for the trigger — REQUIRED when the trigger is icon-only. */
+  triggerLabel?: string
   children: ReactNode
   align?: 'left' | 'right'
   panelClassName?: string
@@ -31,6 +34,7 @@ export function Popover({
         type="button"
         aria-expanded={open}
         aria-haspopup="dialog"
+        aria-label={triggerLabel}
         onClick={() => setOpen((o) => !o)}
         className="inline-flex rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-azure/50"
       >

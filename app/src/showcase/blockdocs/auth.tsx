@@ -77,7 +77,7 @@ function SplitLayoutExample() {
   return (
     <div className="grid w-full overflow-hidden rounded-4xl border border-hair shadow-card lg:grid-cols-[5fr_7fr]">
       <div className="flex flex-col justify-between bg-navy p-7 text-white">
-        <Logo className="h-6 brightness-0 invert" />
+        <Logo tone="white" className="h-6" />
         <div className="py-10">
           <p className="max-w-[26ch] text-[19px] font-medium leading-snug tracking-[-0.01em] text-balance">
             One record. Every facility. The whole care journey.
@@ -607,10 +607,10 @@ export const AUTH_BLOCK_DOCS: Omit<ComponentDoc, 'name' | 'group' | 'summary'>[]
     slug: 'auth-layout',
     description:
       'Every auth screen shares one shell: a dark brand panel that carries the product story, and a canvas column holding a single centered card. Swap the card — login, OTP, reset — and the shell never changes. On small screens the brand panel drops away and the card centers alone.',
-    code: `<AuthSplitLayout
-  brand={<BrandPanel />}
->
-  <AuthCard title="Welcome back">…</AuthCard>
+    code: `<AuthSplitLayout brand={<BrandPanel />}>
+  <AuthCard title="Welcome back" subtitle="Sign in to continue">
+    <LoginForm onSubmit={signIn} />
+  </AuthCard>
 </AuthSplitLayout>`,
     examples: [
       {
@@ -719,7 +719,7 @@ export const AUTH_BLOCK_DOCS: Omit<ComponentDoc, 'name' | 'group' | 'summary'>[]
     description:
       'Create, reset and change flows share one card: a four-segment strength meter driven by explicit requirements, each requirement visible and ticking as it passes. The submit gates on all requirements plus a matching confirmation.',
     code: `<Field label="New password">
-  <PasswordInput value={password} onChange={…} />
+  <PasswordInput value={password} onChange={(e) => setPassword(e.target.value)} />
 </Field>
 <StrengthMeter value={password} requirements={REQUIREMENTS} />`,
     examples: [
@@ -766,7 +766,7 @@ export const AUTH_BLOCK_DOCS: Omit<ComponentDoc, 'name' | 'group' | 'summary'>[]
   tone="danger"
   icon={Lock}
   title="Account locked"
-  body="Five failed attempts…"
+  body="Five failed sign-in attempts locked this account. It unlocks automatically in 15 minutes."
   action="Reset password"
 />`,
     examples: [

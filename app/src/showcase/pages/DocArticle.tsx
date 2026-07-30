@@ -1,25 +1,66 @@
-import { useEffect } from 'react'
-import { ArrowLeft, ArrowRight, Check } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { useEffect, useMemo, useState, type ReactNode } from 'react'
+import { Check } from 'lucide-react'
 import { cn } from '@/lib/cn'
-import { Breadcrumb, Tag } from '@/components/ui'
+import { CodeBlock } from '@/components/ui'
+import { HeaderSlot } from '../controls-slot'
 import type { ComponentDoc } from '../types'
 
-/** Shared renderer for a documented component or block. */
+type TabId = 'preview' | 'guidance' | 'examples' | 'props' | 'a11y'
+
+/** Readable measure for the scrolling (non-preview) tabs. */
+function Sheet({ children }: { children: ReactNode }) {
+  return <div className="mx-auto w-full max-w-3xl px-5 py-8 sm:px-8">{children}</div>
+}
+
+function TabStrip({
+  tabs,
+  value,
+  onChange,
+}: {
+  tabs: { id: TabId; label: string }[]
+  value: TabId
+  onChange: (id: TabId) => void
+}) {
+  return (
+    <div role="tablist" aria-label="Documentation sections" className="flex items-center gap-0.5">
+      {tabs.map((tab) => (
+        <button
+          key={tab.id}
+          type="button"
+          role="tab"
+          aria-selected={value === tab.id}
+          onClick={() => onChange(tab.id)}
+          className={cn(
+            'flex h-10 shrink-0 items-center px-3 text-[13px] transition-colors',
+            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-azure/50',
+            value === tab.id
+              ? 'bg-panel font-medium text-forest'
+              : 'text-forest-400 hover:bg-panel/60 hover:text-forest',
+          )}
+        >
+          {tab.label}
+        </button>
+      ))}
+    </div>
+  )
+}
+
+/**
+ * Shared renderer for a documented component or block.
+ *
+ * The Shell owns the title, the prev/next pager and the Controls rail, so this
+ * renders only the body — split across tabs that portal into the page header.
+ * Preview fills the frame (canvas over code, controls in the rail); everything
+ * written about the component sits behind the other tabs rather than pushing
+ * the component itself down the page.
+ */
 export function DocArticle({
   doc,
-  prev,
-  next,
-  basePath,
-  rootLabel,
+  playground,
 }: {
   doc: ComponentDoc
-  prev?: ComponentDoc
-  next?: ComponentDoc
-  /** e.g. "/components" or "/blocks" */
-  basePath: string
-  /** e.g. "Components" or "Blocks" */
-  rootLabel: string
+  /** Interactive explorer; when present it becomes the default tab. */
+  playground?: ReactNode
 }) {
   useEffect(() => {
     document.title = `${doc.name} — Rednoxx Design System`
@@ -28,61 +69,88 @@ export function DocArticle({
     }
   }, [doc.name])
 
+  const tabs = useMemo(() => {
+    const list: { id: TabId; label: string }[] = []
+    if (playground) list.push({ id: 'preview', label: 'Preview' })
+    if (doc.whenToUse?.length || doc.description) list.push({ id: 'guidance', label: 'When to use' })
+    // Examples are not a tab — they are presets inside Preview, so a scenario
+    // stays interactive instead of becoming a static screenshot. Components
+    // with no playground yet still need somewhere to show them.
+    if (!playground && doc.examples.length) list.push({ id: 'examples', label: 'Examples' })
+    if (doc.props?.length) list.push({ id: 'props', label: 'Props' })
+    if (doc.a11y.length) list.push({ id: 'a11y', label: 'Accessibility' })
+    return list
+  }, [doc, playground])
+
+  const [tab, setTab] = useState<TabId>(tabs[0]?.id ?? 'examples')
+
+  // Tab sets differ per component; reset when the doc changes so a tab that
+  // doesn't exist on the next page can't leave the body blank.
+  useEffect(() => {
+    setTab(tabs[0]?.id ?? 'examples')
+  }, [doc.slug, tabs])
+
   return (
-    <article className="animate-rise" key={doc.slug}>
-      <Breadcrumb items={[{ label: rootLabel, to: '/' }, { label: doc.name }]} className="-ml-1.5" />
+    <div className="h-full" key={doc.slug}>
+      <HeaderSlot>
+        <TabStrip tabs={tabs} value={tab} onChange={setTab} />
+      </HeaderSlot>
 
-      <div className="mt-4 flex flex-wrap items-center gap-3">
-        <h1 className="text-[26px] font-medium tracking-[-0.02em] text-forest">{doc.name}</h1>
-        <Tag>{doc.group}</Tag>
-      </div>
-      <p className="mt-2 max-w-2xl text-[15px] leading-relaxed text-forest-400">{doc.summary}</p>
-      {doc.description && (
-        <p className="mt-3 max-w-2xl text-sm leading-relaxed text-forest-500">{doc.description}</p>
+      {tab === 'preview' && playground}
+
+      {tab === 'guidance' && (
+        <Sheet>
+          <p className="text-[15px] leading-relaxed text-forest-400">{doc.summary}</p>
+          {doc.description && (
+            <p className="mt-4 text-sm leading-relaxed text-forest-500">{doc.description}</p>
+          )}
+          {doc.whenToUse && doc.whenToUse.length > 0 && (
+            <section className="mt-6 border border-hair bg-white p-5">
+              <h2 className="text-[11px] font-medium uppercase tracking-[0.08em] text-forest-300">
+                When to use
+              </h2>
+              <ul className="mt-2.5 space-y-1.5">
+                {doc.whenToUse.map((line) => (
+                  <li
+                    key={line}
+                    className="flex gap-2.5 text-[13px] leading-relaxed text-forest-500"
+                  >
+                    <span className="mt-[7px] h-1 w-1 shrink-0 rounded-full bg-azure" aria-hidden />
+                    <span>{line}</span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+          {doc.code && <CodeBlock code={doc.code} label="Usage" className="mt-6" />}
+        </Sheet>
       )}
 
-      {doc.whenToUse && doc.whenToUse.length > 0 && (
-        <div className="mt-5 max-w-2xl rounded-3xl border border-hair bg-white p-5">
-          <p className="text-[11px] font-medium uppercase tracking-[0.08em] text-forest-300">
-            When to use
-          </p>
-          <ul className="mt-2.5 space-y-1.5">
-            {doc.whenToUse.map((line) => (
-              <li key={line} className="flex gap-2.5 text-[13px] leading-relaxed text-forest-500">
-                <span className="mt-[7px] h-1 w-1 shrink-0 rounded-full bg-azure" aria-hidden />
-                <span>{line}</span>
-              </li>
+      {tab === 'examples' && (
+        <Sheet>
+          <div className="space-y-8">
+            {doc.examples.map((example) => (
+              <section key={example.title}>
+                <h2 className="text-sm font-medium text-forest">{example.title}</h2>
+                {example.note && (
+                  <p className="mt-0.5 text-[13px] leading-relaxed text-forest-400">
+                    {example.note}
+                  </p>
+                )}
+                <div className="mt-3 border border-hair bg-white p-5 sm:p-7">
+                  <div className={cn(!example.wide && 'flex flex-wrap items-center gap-3')}>
+                    {example.body}
+                  </div>
+                </div>
+              </section>
             ))}
-          </ul>
-        </div>
+          </div>
+        </Sheet>
       )}
 
-      {doc.code && (
-        <div className="mt-6 overflow-x-auto rounded-3xl bg-navy p-5">
-          <pre className="font-mono text-[13px] leading-relaxed text-navy-100">
-            <code>{doc.code}</code>
-          </pre>
-        </div>
-      )}
-
-      <div className="mt-8 space-y-8">
-        {doc.examples.map((example) => (
-          <section key={example.title}>
-            <h2 className="text-sm font-medium text-forest">{example.title}</h2>
-            {example.note && <p className="mt-0.5 text-[13px] text-forest-400">{example.note}</p>}
-            <div className="mt-3 rounded-4xl border border-hair bg-white p-5 sm:p-7">
-              <div className={cn(!example.wide && 'flex flex-wrap items-center gap-3')}>
-                {example.body}
-              </div>
-            </div>
-          </section>
-        ))}
-      </div>
-
-      {doc.props && doc.props.length > 0 && (
-        <section className="mt-10">
-          <h2 className="text-sm font-medium text-forest">Props</h2>
-          <div className="mt-3 overflow-x-auto rounded-4xl border border-hair bg-white">
+      {tab === 'props' && doc.props && (
+        <Sheet>
+          <div className="overflow-x-auto border border-hair bg-white">
             <table className="w-full min-w-[560px] border-collapse text-left">
               <thead>
                 <tr className="border-b border-hair">
@@ -94,7 +162,7 @@ export function DocArticle({
               </thead>
               <tbody>
                 {doc.props.map((prop) => (
-                  <tr key={prop.name} className="border-b border-hair/60 last:border-0 align-top">
+                  <tr key={prop.name} className="border-b border-hair/60 align-top last:border-0">
                     <td className="px-5 py-3.5">
                       <span className="font-mono text-[13px] font-medium text-forest">
                         {prop.name}
@@ -106,7 +174,7 @@ export function DocArticle({
                         {prop.type.split(' | ').map((t, i) => (
                           <span key={t + i} className="flex items-center gap-1">
                             {i > 0 && <span className="text-navy-200">|</span>}
-                            <code className="rounded-lg bg-panel px-1.5 py-0.5 font-mono text-[12px] text-forest-500">
+                            <code className="bg-panel px-1.5 py-0.5 font-mono text-[12px] text-forest-500">
                               {t}
                             </code>
                           </span>
@@ -115,7 +183,7 @@ export function DocArticle({
                     </td>
                     <td className="px-5 py-3.5">
                       {prop.default ? (
-                        <code className="rounded-lg bg-panel px-1.5 py-0.5 font-mono text-[12px] text-forest-500">
+                        <code className="bg-panel px-1.5 py-0.5 font-mono text-[12px] text-forest-500">
                           {prop.default}
                         </code>
                       ) : (
@@ -130,45 +198,21 @@ export function DocArticle({
               </tbody>
             </table>
           </div>
-        </section>
+        </Sheet>
       )}
 
-      <section className="mt-10 rounded-4xl bg-panel p-5 sm:p-6">
-        <h2 className="text-sm font-medium uppercase tracking-[0.06em] text-forest-400">
-          Accessibility
-        </h2>
-        <ul className="mt-3 space-y-2.5">
-          {doc.a11y.map((note) => (
-            <li key={note} className="flex gap-2.5 text-sm leading-relaxed text-forest-500">
-              <Check size={15} className="mt-0.5 shrink-0 text-mint" aria-hidden />
-              {note}
-            </li>
-          ))}
-        </ul>
-      </section>
-
-      <nav aria-label="Document pagination" className="mt-10 flex items-center justify-between gap-3 border-t border-hair pt-5">
-        {prev ? (
-          <Link
-            to={`${basePath}/${prev.slug}`}
-            className="group flex items-center gap-2 rounded-xl px-2 py-1.5 text-sm text-forest-400 transition-colors hover:bg-panel hover:text-forest"
-          >
-            <ArrowLeft size={15} className="transition-transform duration-150 group-hover:-translate-x-0.5" />
-            {prev.name}
-          </Link>
-        ) : (
-          <span />
-        )}
-        {next && (
-          <Link
-            to={`${basePath}/${next.slug}`}
-            className="group flex items-center gap-2 rounded-xl px-2 py-1.5 text-sm text-forest-400 transition-colors hover:bg-panel hover:text-forest"
-          >
-            {next.name}
-            <ArrowRight size={15} className="transition-transform duration-150 group-hover:translate-x-0.5" />
-          </Link>
-        )}
-      </nav>
-    </article>
+      {tab === 'a11y' && (
+        <Sheet>
+          <ul className="space-y-2.5">
+            {doc.a11y.map((note) => (
+              <li key={note} className="flex gap-2.5 text-sm leading-relaxed text-forest-500">
+                <Check size={15} className="mt-0.5 shrink-0 text-mint" aria-hidden />
+                {note}
+              </li>
+            ))}
+          </ul>
+        </Sheet>
+      )}
+    </div>
   )
 }

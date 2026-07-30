@@ -13,7 +13,8 @@ export function Card({ inset, dark, pad = true, className, children, ...props }:
   return (
     <div
       className={cn(
-        'rounded-4xl',
+        // design-tokens.md §6 — all structural radius tokens resolve to 0px (Carbon-style square corners)
+        'rounded-none',
         dark
           ? 'bg-forest text-white'
           : inset

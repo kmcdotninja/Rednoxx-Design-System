@@ -4,8 +4,15 @@ import { AUTH_BLOCK_DOCS } from './auth'
 import { PATIENT_BLOCK_DOCS } from './patient'
 import { DASHBOARD_BLOCK_DOCS } from './dashboard'
 import { PATTERN_BLOCK_DOCS } from './patterns'
+import { NAVIGATION_BLOCK_DOCS } from './navigation'
 
-const bodies = [...AUTH_BLOCK_DOCS, ...PATIENT_BLOCK_DOCS, ...DASHBOARD_BLOCK_DOCS, ...PATTERN_BLOCK_DOCS]
+const bodies = [
+  ...AUTH_BLOCK_DOCS,
+  ...PATIENT_BLOCK_DOCS,
+  ...DASHBOARD_BLOCK_DOCS,
+  ...PATTERN_BLOCK_DOCS,
+  ...NAVIGATION_BLOCK_DOCS,
+]
 
 /** Full block docs — meta (shared with the shell) merged with the lazy example bodies. */
 export const BLOCK_DOCS: ComponentDoc[] = BLOCKS_META.map((meta) => {

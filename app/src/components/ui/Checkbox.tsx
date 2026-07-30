@@ -7,6 +7,7 @@ export function Checkbox({
   checked,
   onChange,
   label,
+  ariaLabel,
   description,
   disabled,
   indeterminate,
@@ -14,7 +15,10 @@ export function Checkbox({
 }: {
   checked: boolean
   onChange: (checked: boolean) => void
-  label: React.ReactNode
+  /** Visible label. Omit for a bare box (tables, toolbars) and pass `ariaLabel`. */
+  label?: React.ReactNode
+  /** Accessible name when there is no visible label. */
+  ariaLabel?: string
   description?: React.ReactNode
   disabled?: boolean
   /** Mixed state for "select all" over a partial selection. */
@@ -28,17 +32,19 @@ export function Checkbox({
   return (
     <label
       className={cn(
-        'flex cursor-pointer items-start gap-2.5',
+        'flex cursor-pointer items-start',
+        label != null && 'gap-2.5',
         disabled && 'cursor-not-allowed opacity-50',
         className,
       )}
     >
-      <span className="relative mt-0.5 inline-flex shrink-0">
+      <span className={cn('relative inline-flex shrink-0', label != null && 'mt-0.5')}>
         <input
           ref={ref}
           type="checkbox"
           checked={checked}
           disabled={disabled}
+          aria-label={label == null ? ariaLabel : undefined}
           onChange={(e) => onChange(e.target.checked)}
           className="peer h-[18px] w-[18px] appearance-none rounded-lg border border-hair bg-white transition-colors duration-150 checked:border-azure checked:bg-azure indeterminate:border-azure indeterminate:bg-azure focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-azure/50 focus-visible:ring-offset-1"
         />
@@ -56,12 +62,14 @@ export function Checkbox({
           className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-white opacity-0 transition-opacity duration-150 peer-indeterminate:opacity-100"
         />
       </span>
-      <span className="min-w-0">
-        <span className="block text-sm font-medium text-forest">{label}</span>
-        {description && (
-          <span className="mt-0.5 block text-[13px] leading-relaxed text-forest-400">{description}</span>
-        )}
-      </span>
+      {label != null && (
+        <span className="min-w-0">
+          <span className="block text-sm font-medium text-forest">{label}</span>
+          {description && (
+            <span className="mt-0.5 block text-[13px] leading-relaxed text-forest-400">{description}</span>
+          )}
+        </span>
+      )}
     </label>
   )
 }

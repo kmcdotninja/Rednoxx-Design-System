@@ -11,6 +11,7 @@ export function FilterBar({
   search,
   children,
   className,
+  alignActions = 'right',
 }: {
   search?: {
     value: string
@@ -22,6 +23,7 @@ export function FilterBar({
   /** Right-aligned actions (buttons, selects, date chips). */
   children?: ReactNode
   className?: string
+  alignActions?: 'left' | 'right'
 }) {
   return (
     <div className={cn('flex flex-wrap items-center gap-3', className)}>
@@ -34,7 +36,11 @@ export function FilterBar({
           wrapClassName="w-full max-w-xs"
         />
       )}
-      {children && <div className="ml-auto flex flex-wrap items-center gap-2">{children}</div>}
+      {children && (
+        <div className={cn('flex flex-wrap items-center gap-2', alignActions === 'right' ? 'ml-auto' : '')}>
+          {children}
+        </div>
+      )}
     </div>
   )
 }

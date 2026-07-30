@@ -2,7 +2,7 @@ import { CalendarPlus, Stethoscope } from 'lucide-react'
 import { AreaChart } from '@/components/ui/AreaChart'
 import { Avatar, Badge, Button, Card, CardHeader, KeyValue, StatusPill, Tag } from '@/components/ui'
 import { PatientBanner, VitalsRow } from '@/components/blocks'
-import { PATIENTS, PATIENT_BIO, PRESCRIPTIONS } from '../health'
+import { PATIENTS, PATIENT_BIO, PRESCRIPTIONS } from '@/demo/health'
 import type { ComponentDoc } from '../types'
 
 const patient = PATIENTS[4] // Tunde Bakare

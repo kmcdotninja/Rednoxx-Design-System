@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 
-export type DocGroup = 'Forms' | 'Data display' | 'Feedback' | 'Navigation' | 'Overlays'
+export type { DocGroup } from './components-meta'
 
 export interface DocExample {
   title: string

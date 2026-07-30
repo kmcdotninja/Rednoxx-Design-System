@@ -35,6 +35,7 @@ export function Stepper({
             <button
               type="button"
               onClick={() => onSelect?.(i)}
+              aria-current={active ? 'step' : undefined}
               className={cn(
                 'relative z-10 mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[13px] font-medium transition-all duration-200',
                 done && 'bg-forest text-white',

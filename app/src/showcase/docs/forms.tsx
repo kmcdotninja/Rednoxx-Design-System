@@ -16,14 +16,31 @@ import {
   RadioGroup,
   SearchInput,
   Select,
+  SelectMenu,
   Slider,
   Tag,
   Textarea,
   TimePicker,
   Toggle,
 } from '@/components/ui'
-import { FACILITIES } from '../health'
+import { FACILITIES } from '@/demo/health'
 import type { ComponentDoc } from '../types'
+
+function SelectMenuExample() {
+  const [patient, setPatient] = useState('p2')
+  return (
+    <SelectMenu
+      value={patient}
+      onChange={setPatient}
+      options={[
+        { value: 'p1', label: 'Ngozi Amara Eze', hint: 'GGH-004213' },
+        { value: 'p2', label: 'Tunde Olusegun Bakare', hint: 'GGH-004876' },
+        { value: 'p3', label: 'Hassan Danladi', hint: 'GGH-003448', disabled: true },
+        { value: 'p4', label: 'Ada Chiamaka Okafor', hint: 'GGH-002731' },
+      ]}
+    />
+  )
+}
 
 function ComboboxExample() {
   const [value, setValue] = useState<string | undefined>('f2')
@@ -487,6 +504,52 @@ export const FORM_DOCS: ComponentDoc[] = [
     ],
   },
   {
+    slug: 'select-menu',
+    whenToUse: [
+      'The same single-choice cases as Select, when options need to look the same on every OS — entity lists with meta (patient + MRN), or anywhere the native picker breaks the visual language.',
+      'Options need hints, disabled rows or custom rendering the native <option> cannot do.',
+      'Long lists users can name → Combobox (adds type-to-filter). Menus of actions → Dropdown.',
+    ],
+    name: 'Select menu',
+    group: 'Forms',
+    summary: 'Single choice with a custom-rendered option panel — consistent on every platform.',
+    props: [
+      { name: 'options', type: 'SelectMenuOption[]', required: true, description: '{ value, label, hint?, disabled? } per option — hint renders right-aligned in mono.' },
+      { name: 'value / onChange', type: 'T / (value: T) => void', description: 'Controlled selection.' },
+      { name: 'placeholder', type: 'string', default: "'Select…'", description: 'Shown until a value is chosen.' },
+      { name: 'size', type: "'sm' | 'md'", default: "'md'", description: 'sm matches toolbar-height controls.' },
+      { name: 'side', type: "'auto' | 'bottom' | 'top'", default: "'auto'", description: 'auto flips upward when viewport room below runs out; the panel portals to <body>, so it never clips inside modals or drawers.' },
+      { name: 'invalid / disabled', type: 'boolean', description: 'Field-error and disabled states, matching Input.' },
+    ],
+    description:
+      'Trades the free native picker for full control of the option rows — worth it when options carry identity (name + MRN) or the platform popup clashes with the product. Full listbox semantics are preserved: arrows move, Enter/Space choose, Escape closes, Home/End jump.',
+    code: `<Field label="Destination patient">
+  <SelectMenu
+    value={patientId}
+    onChange={setPatientId}
+    options={patients.map((p) => ({ value: p.id, label: p.name, hint: p.mrn }))}
+  />
+</Field>`,
+    examples: [
+      {
+        title: 'Entity options with hints',
+        wide: true,
+        body: (
+          <div className="max-w-xs">
+            <Field label="Destination patient">
+              <SelectMenuExample />
+            </Field>
+          </div>
+        ),
+      },
+    ],
+    a11y: [
+      'The trigger is a combobox button exposing aria-expanded and aria-controls; the panel is a real listbox with aria-activedescendant.',
+      'Arrow keys move the active option, Enter/Space choose, Escape closes, Home/End jump — disabled options are skipped.',
+      'The selected option is marked with aria-selected and a check icon — never colour alone.',
+    ],
+  },
+  {
     slug: 'combobox',
     whenToUse: [
       'Long or searchable lists — diagnoses, drugs, facilities — where typing beats scrolling.',
@@ -677,7 +740,11 @@ export const FORM_DOCS: ComponentDoc[] = [
   label="Order priority"
   value={priority}
   onChange={setPriority}
-  options={[{ value: 'stat', label: 'STAT', description: 'Immediate.' }, …]}
+  options={[
+    { value: 'routine', label: 'Routine', description: 'Next available slot.' },
+    { value: 'urgent', label: 'Urgent', description: 'Seen within 24 hours.' },
+    { value: 'stat', label: 'STAT', description: 'Immediate.' },
+  ]}
 />`,
     examples: [
       { title: 'With descriptions', wide: true, body: <RadioExample /> },

@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 import { ChevronRight } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { Link, type LinkProps } from '@tanstack/react-router'
 import { cn } from '@/lib/cn'
 
 export interface Crumb {
@@ -21,7 +21,8 @@ export function Breadcrumb({ items, className }: { items: Crumb[]; className?: s
               {i > 0 && <ChevronRight size={14} aria-hidden className="shrink-0 text-forest-300" />}
               {item.to && !last ? (
                 <Link
-                  to={item.to}
+                  // Crumbs carry free-form paths; the trail is caller-assembled.
+                  to={item.to as LinkProps['to']}
                   className="truncate rounded-lg px-1.5 py-1 text-forest-400 transition-colors hover:bg-panel hover:text-forest"
                 >
                   {item.label}

@@ -1,5 +1,5 @@
 import type { ButtonHTMLAttributes, ReactNode } from 'react'
-import { Link, type LinkProps } from 'react-router-dom'
+import { Link, type LinkProps } from '@tanstack/react-router'
 import { Loader2 } from 'lucide-react'
 import { cn } from '@/lib/cn'
 
@@ -18,8 +18,10 @@ const variants: Record<Variant, string> = {
 }
 
 const sizes: Record<Size, string> = {
+  // sm (32px) is only for controls inside an already-clickable row; md/lg are
+  // the standard control heights and stay ≥40px (design-tokens §9a).
   sm: 'h-8 px-3 text-[13px] rounded-xl gap-1.5',
-  md: 'h-9 px-3.5 text-sm rounded-2xl gap-2',
+  md: 'h-10 px-3.5 text-sm rounded-2xl gap-2',
   lg: 'h-11 px-4.5 text-[15px] rounded-2xl gap-2.5',
 }
 
@@ -73,15 +75,18 @@ export function Button({
       aria-busy={loading || undefined}
       {...props}
     >
-      {loading ? <Loader2 size={15} className="animate-spin" aria-hidden /> : leftIcon}
-      <span aria-live="polite">{children}</span>
+      {loading ? <Loader2 size={15} className="animate-spin shrink-0" aria-hidden /> : leftIcon}
+      <span aria-live="polite" className="inline-flex items-center gap-2">
+        {children}
+      </span>
       {rightIcon}
     </button>
   )
 }
 
-interface ButtonLinkProps extends CommonProps, Omit<LinkProps, 'className'> {
+interface ButtonLinkProps extends CommonProps, Omit<LinkProps, 'className' | 'children'> {
   className?: string
+  children?: ReactNode
 }
 
 export function ButtonLink({
