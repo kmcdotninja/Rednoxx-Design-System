@@ -57,10 +57,17 @@ function TabStrip({
 export function DocArticle({
   doc,
   playground,
+  examplesFirst,
 }: {
   doc: ComponentDoc
   /** Interactive explorer; when present it becomes the default tab. */
   playground?: ReactNode
+  /**
+   * Lead with Examples instead of "When to use". Blocks set this: a block is
+   * understood by seeing the composition, where a component is understood by
+   * first reading what it is for.
+   */
+  examplesFirst?: boolean
 }) {
   useEffect(() => {
     document.title = `${doc.name} — Rednoxx Design System`
@@ -72,15 +79,28 @@ export function DocArticle({
   const tabs = useMemo(() => {
     const list: { id: TabId; label: string }[] = []
     if (playground) list.push({ id: 'preview', label: 'Preview' })
-    if (doc.whenToUse?.length || doc.description) list.push({ id: 'guidance', label: 'When to use' })
-    // Examples are not a tab — they are presets inside Preview, so a scenario
-    // stays interactive instead of becoming a static screenshot. Components
-    // with no playground yet still need somewhere to show them.
-    if (!playground && doc.examples.length) list.push({ id: 'examples', label: 'Examples' })
+
+    const guidance =
+      doc.whenToUse?.length || doc.description
+        ? ({ id: 'guidance', label: 'When to use' } as const)
+        : undefined
+    // Examples are not a tab when a playground exists — they are presets inside
+    // Preview, so a scenario stays interactive instead of becoming a static
+    // screenshot. Docs with no playground still need somewhere to show them.
+    const examples =
+      !playground && doc.examples.length
+        ? ({ id: 'examples', label: 'Examples' } as const)
+        : undefined
+
+    // Whichever lands first also becomes the default tab (see `tabs[0]` below).
+    for (const entry of examplesFirst ? [examples, guidance] : [guidance, examples]) {
+      if (entry) list.push(entry)
+    }
+
     if (doc.props?.length) list.push({ id: 'props', label: 'Props' })
     if (doc.a11y.length) list.push({ id: 'a11y', label: 'Accessibility' })
     return list
-  }, [doc, playground])
+  }, [doc, playground, examplesFirst])
 
   const [tab, setTab] = useState<TabId>(tabs[0]?.id ?? 'examples')
 

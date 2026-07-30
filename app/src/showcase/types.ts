@@ -33,7 +33,7 @@ export interface ComponentDoc {
   /** Optional longer guidance paragraph. */
   description?: string
   /** Usage guidance: when to reach for this component, and when a sibling
-      component is the better tool — comparative, NHS/Carbon-style. */
+      component is the better tool — comparative, in the NHS house style. */
   whenToUse?: string[]
   /** Primary usage snippet. */
   code?: string

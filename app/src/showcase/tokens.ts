@@ -16,33 +16,42 @@ export interface Token {
   resolved?: string
 }
 
+/**
+ * Collect `:root` / `:host` custom properties from a rule list, recursing into
+ * grouping rules.
+ *
+ * The recursion is the whole point: Tailwind v4 emits the compiled theme as
+ * `@layer theme { :root, :host { --color-azure: …; } }`. A layer block is a
+ * CSSLayerBlockRule, not a CSSStyleRule, so a flat scan of the top-level rules
+ * walks straight past every token and reports an empty set. Media, supports and
+ * container blocks nest the same way, and a style rule can itself hold nested
+ * rules, so each rule is inspected *and* descended into.
+ */
+function collectRootProps(rules: CSSRuleList, into: Map<string, string>): void {
+  for (const rule of Array.from(rules)) {
+    if (rule instanceof CSSStyleRule && /:root|:host/.test(rule.selectorText)) {
+      for (const prop of Array.from(rule.style)) {
+        if (prop.startsWith('--')) into.set(prop, rule.style.getPropertyValue(prop).trim())
+      }
+    }
+    // CSSGroupingRule (layer/media/supports/container) — and nested style rules.
+    const nested = (rule as CSSGroupingRule).cssRules
+    if (nested) collectRootProps(nested, into)
+  }
+}
+
 /** Read every custom property declared on `:root` / `:host`. */
 export function readCssTokens(): Token[] {
   if (typeof document === 'undefined') return []
 
   const seen = new Map<string, string>()
   for (const sheet of Array.from(document.styleSheets)) {
-    let rules: CSSRuleList
     try {
-      rules = sheet.cssRules
+      collectRootProps(sheet.cssRules, seen)
     } catch {
       // Cross-origin sheet — not ours, and not readable. Skip it.
       continue
     }
-    // Tailwind v4 nests the @theme output inside @layer blocks, so walk
-    // grouping rules (layers, media, supports) recursively.
-    const walk = (list: CSSRuleList) => {
-      for (const rule of Array.from(list)) {
-        if (rule instanceof CSSStyleRule && /:root|:host/.test(rule.selectorText)) {
-          for (const prop of Array.from(rule.style)) {
-            if (prop.startsWith('--')) seen.set(prop, rule.style.getPropertyValue(prop).trim())
-          }
-        }
-        const nested = (rule as CSSGroupingRule).cssRules
-        if (nested?.length) walk(nested)
-      }
-    }
-    walk(rules)
   }
 
   const computed = getComputedStyle(document.documentElement)
@@ -52,30 +61,120 @@ export function readCssTokens(): Token[] {
   }).sort((a, b) => a.name.localeCompare(b.name))
 }
 
-/** Tokens whose name starts with any of `prefixes`. */
-export function tokensMatching(tokens: Token[], prefixes: string[]): Token[] {
-  return tokens.filter((t) => prefixes.some((p) => t.name.startsWith(p)))
+/** Live value of one custom property, or null when it isn't declared. */
+export function cssVarValue(name: string): string | null {
+  if (typeof document === 'undefined') return null
+  const value = getComputedStyle(document.documentElement).getPropertyValue(name).trim()
+  return value || null
 }
 
 /**
- * Which token families belong to which Foundations page.
- *
- * Only four foundations are token-backed: colour, type, spacing and shape.
- * The rest — brand, layout, elevation, motion, focus, iconography — are rules
- * about how those four are applied, so they carry no Tokens view at all rather
- * than a thin or borrowed one.
+ * A CSS length in px, resolving `rem` against the document's root font size —
+ * so the spacing specimen quotes real pixels instead of assuming a 16px root.
  */
-export const TOKEN_PREFIXES: Record<string, string[]> = {
-  colour: ['--color-'],
-  typography: ['--font-', '--text-', '--leading-', '--tracking-'],
+export function lengthToPx(value: string | null): number | null {
+  if (!value) return null
+  const n = parseFloat(value)
+  if (Number.isNaN(n)) return null
+  if (value.endsWith('rem') || value.endsWith('em')) {
+    if (typeof document === 'undefined') return null
+    const root = parseFloat(getComputedStyle(document.documentElement).fontSize)
+    return Number.isNaN(root) ? null : n * root
+  }
+  return n
+}
+
+/**
+ * Tokens matching any of `patterns` — a prefix, or an exact name when the
+ * pattern ends in `$`.
+ *
+ * The exact form exists because three legacy alias names (`lime`, `teal`,
+ * `orange`) are also Tailwind default ramps: `--color-teal` as a prefix would
+ * drag in `--color-teal-100` from Tailwind's palette wherever app code still
+ * references it, and list it as though it were part of this design system.
+ */
+export function tokensMatching(tokens: Token[], patterns: string[]): Token[] {
+  return tokens.filter((t) =>
+    patterns.some((p) => (p.endsWith('$') ? t.name === p.slice(0, -1) : t.name.startsWith(p))),
+  )
+}
+
+/** Mark lens entries as exact names rather than prefixes. */
+function exact(...names: string[]): string[] {
+  return names.map((name) => `${name}$`)
+}
+
+/**
+ * Which token families belong to which Foundations page — and so which pages
+ * carry the Styles/Tokens tabs at all.
+ *
+ * Six foundations own a scale: colour, type, spacing, shape, elevation and
+ * icon sizing. Brand, layout, motion and focus are rules about how those
+ * scales are applied — they read tokens (the layout measures and motion curves
+ * are in the theme, listed on their own pages) but own no family of their own,
+ * so they show the specimen alone rather than a borrowed token table.
+ */
+export const TOKEN_LENSES: Record<string, string[]> = {
+  /* Named ramp by ramp, not a bare `--color-` sweep: Tailwind's own default
+     palette is in `:root` too wherever app code still references it, and a
+     table that listed `--color-amber-300` beside the ink ramp would read as a
+     licence to use amber. Same reasoning for type — the scale is closed at ten
+     roles, so Tailwind's `--text-xs … --text-9xl` are deliberately not shown.
+     The cost is that a NEW ramp or role must be added here as well as to
+     `@theme`; the Styles specimen needs the same edit, so they move together. */
+  colour: [
+    '--color-navy',
+    '--color-azure',
+    '--color-mint',
+    '--color-gold',
+    '--color-rose-soft',
+    '--color-rose-ink',
+    '--color-canvas',
+    '--color-panel',
+    '--color-hair',
+    // Legacy aliases — still resolved by older primitives. lime/teal/orange are
+    // Tailwind ramp names too, so they are matched exactly, step by step.
+    '--color-forest',
+    ...exact(
+      '--color-lime',
+      '--color-lime-50',
+      '--color-lime-100',
+      '--color-lime-200',
+      '--color-lime-300',
+      '--color-lime-500',
+      '--color-lime-600',
+      '--color-teal',
+      '--color-teal-soft',
+      '--color-orange',
+      '--color-orange-soft',
+      '--color-orange-600',
+    ),
+  ],
+  typography: [
+    '--font-sans',
+    '--font-mono',
+    '--text-display',
+    '--text-page-title',
+    '--text-title',
+    '--text-section',
+    '--text-heading',
+    '--text-body',
+    '--text-secondary',
+    '--text-caption',
+    '--text-overline',
+    '--text-micro',
+  ],
   space: ['--spacing'],
-  shape: ['--radius-'],
+  // `--radius` first (the one real decision), then the size aliases that
+  // resolve to it — the table shows the indirection rather than eight zeroes.
+  shape: [...exact('--radius'), '--radius-'],
   elevation: ['--shadow-'],
+  iconography: ['--spacing-icon-'],
 }
 
 /** Whether a Foundations page has a Tokens view. */
 export function hasTokens(slug: string): boolean {
-  return Boolean(TOKEN_PREFIXES[slug]?.length)
+  return Boolean(TOKEN_LENSES[slug]?.length)
 }
 
 /* --------------------------------------------------------------------------

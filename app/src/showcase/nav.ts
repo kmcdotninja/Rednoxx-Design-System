@@ -100,11 +100,8 @@ export const SECTIONS: NavSection[] = [
           { label: 'Elevation', path: '/design/foundations/elevation' },
           { label: 'Motion', path: '/design/foundations/motion' },
           { label: 'Iconography', path: '/design/foundations/iconography' },
+          { label: 'Focus & interaction', path: '/design/foundations/focus' },
         ],
-      },
-      {
-        label: 'Global patterns',
-        items: [{ label: 'Focus & interaction', path: '/design/foundations/focus' }],
       },
     ],
   },

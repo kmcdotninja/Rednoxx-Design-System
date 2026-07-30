@@ -77,7 +77,7 @@ function SplitLayoutExample() {
   return (
     <div className="grid w-full overflow-hidden rounded-4xl border border-hair shadow-card lg:grid-cols-[5fr_7fr]">
       <div className="flex flex-col justify-between bg-navy p-7 text-white">
-        <Logo tone="white" className="h-6" />
+        <Logo tone="white" className="h-6 self-start" />
         <div className="py-10">
           <p className="max-w-[26ch] text-[19px] font-medium leading-snug tracking-[-0.01em] text-balance">
             One record. Every facility. The whole care journey.

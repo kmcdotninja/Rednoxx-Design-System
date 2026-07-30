@@ -8,5 +8,6 @@ export function BlockPage() {
   const doc = blockBySlug(slug)
   if (!doc) return <Navigate to="/design" replace />
 
-  return <DocArticle doc={doc} />
+  // Blocks lead with Examples — the composition is the explanation.
+  return <DocArticle doc={doc} examplesFirst />
 }

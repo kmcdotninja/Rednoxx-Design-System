@@ -1,9 +1,17 @@
 # Design tokens — complete reference
 
-Tokens are CSS custom properties in the `@theme` block of `app/src/index.css`
-(Tailwind v4, CSS-first — there is no `tailwind.config.js`). Components MUST
+Tokens are CSS custom properties in the `@theme static` block of
+`app/src/index.css` (Tailwind v4, CSS-first — there is no
+`tailwind.config.js`). `static` matters: without it Tailwind emits only the
+variables a utility happens to reference, and the design system's own Tokens
+tables — which read the live stylesheet — under-report the scale. Components MUST
 reference tokens through Tailwind utilities; raw hex in component code is a
-defect. **If a value is missing from the scale, add it to the theme file
+defect.
+
+Six families own a scale and are browsable at
+`/design/foundations/<slug>` → Tokens: colour, type, spacing, shape, elevation
+and icon sizing. Brand, layout, motion and focus are rules for applying those
+scales — they carry no Tokens table. **If a value is missing from the scale, add it to the theme file
 first (and document it here), then use it — never invent it inline.** Legacy
 aliases (`forest`→`navy`, `lime`→`azure`, `teal`→`mint`, `orange`→`gold`)
 exist so older primitives keep working — new code may use either name; values
@@ -76,13 +84,22 @@ Elevation model: level 0 = hairline border, no shadow (the default). `chip` →
 small controls; `card` → resting cards; `card-hover` → lifted; `soft` → quiet
 chrome; `pop` → popovers/modals. Pure black, low alpha; shadows never tint.
 
-## 6. Shape
+## 6. Shape — one token
 
-All structural radius tokens (`--radius-sm` … `--radius-5xl`) are **0px**
-(Carbon-style). Buttons, inputs, cards, popovers, modals, drawers: square.
-`rounded-full` is the only exception — pills, dots, toggles, avatars — so
-status/identity read from silhouette. Restyle globally by changing tokens;
-never hard-code a radius.
+There is ONE structural radius: `--radius`, **0px**. Buttons, inputs, cards,
+tiles, popovers, modals, drawers: square. `rounded-full` is the only exception —
+pills, dots, toggles, avatars — so status/identity read from silhouette.
+
+`--radius-sm` … `--radius-5xl` are **aliases** of `--radius` (`var(--radius)`),
+not eight separate decisions: components wore the t-shirt sizes before the
+square-corner reskin, and aliasing flipped ~870 usages across 157 files at once.
+Consequences:
+
+- Never hard-code a radius, and never pick a size for meaning — `rounded-2xl`
+  and `rounded-4xl` are the same shape. New code MAY use any of them; prefer
+  `rounded-none` when writing fresh markup, since it states the intent.
+- Going rounded later is a one-line change to `--radius`; do not "fix" a corner
+  on one component.
 
 ## 7. Type scale — closed set of 10 styles
 
@@ -90,24 +107,43 @@ Geist everywhere; Geist Mono for code/tokens/MRNs/identifiers. Global font
 features: `cv11`, `ss01`. Updating numbers (vitals, money, timers, tables)
 wear `.tnum`.
 
-| Style | Size | Line | Weight | Tracking | Tailwind classes | Use |
-|---|---|---|---|---|---|---|
-| Display | 32 | 1.15 | 500 | −0.02em | `text-[32px] font-medium leading-[1.15] tracking-[-0.02em]` | hero — one per flow |
-| Page title | 26 | 1.2 | 500 | −0.02em | `text-[26px] font-medium leading-[1.2] tracking-[-0.02em]` | the h1 — one per page |
-| Title | 19 | 1.35 | 500 | −0.01em | `text-[19px] font-medium leading-[1.35] tracking-[-0.01em]` | card/dialog/auth headings |
-| Section | 17 | 1.4 | 500 | −0.01em | `text-[17px] font-medium leading-[1.4] tracking-[-0.01em]` | grouped content |
-| Heading | 15 | 1.45 | 500 | −0.01em | `text-[15px] font-medium leading-[1.45] tracking-[-0.01em]` | list titles, panel headers |
-| Body | 14 | 1.6 | 400 | 0 | `text-sm leading-relaxed` | default reading |
-| Secondary | 13 | 1.55 | 400 | 0 | `text-[13px] leading-relaxed` | dense-UI workhorse |
-| Caption | 12 | 1.5 | 400 | 0 | `text-[12px]` | supporting labels |
-| Overline | 11 | 1.4 | 500 | +0.08em | `text-[11px] font-medium uppercase tracking-[0.08em]` | eyebrows, table headers |
-| Micro | 10 | 1.3 | 500 | +0.02em | `text-[10px] font-medium` | chips, ticks — never prose |
+Each role is ONE token carrying size, line-height, weight and tracking, so one
+utility is the whole style — `text-secondary`, not
+`text-[13px] leading-relaxed`. Use the utility in new code.
+
+| Style | Utility | Token | Size | Line | Weight | Tracking | Use |
+|---|---|---|---|---|---|---|---|
+| Display | `text-display` | `--text-display` | 32 | 1.15 | 500 | −0.02em | hero — one per flow |
+| Page title | `text-page-title` | `--text-page-title` | 26 | 1.2 | 500 | −0.02em | the h1 — one per page |
+| Title | `text-title` | `--text-title` | 19 | 1.35 | 500 | −0.01em | card/dialog/auth headings |
+| Section | `text-section` | `--text-section` | 17 | 1.4 | 500 | −0.01em | grouped content |
+| Heading | `text-heading` | `--text-heading` | 15 | 1.45 | 500 | −0.01em | list titles, panel headers |
+| Body | `text-body` | `--text-body` | 14 | 1.6 | 400 | 0 | default reading |
+| Secondary | `text-secondary` | `--text-secondary` | 13 | 1.55 | 400 | 0 | dense-UI workhorse |
+| Caption | `text-caption` | `--text-caption` | 12 | 1.5 | 400 | 0 | supporting labels |
+| Overline | `text-overline uppercase` | `--text-overline` | 11 | 1.4 | 500 | +0.08em | eyebrows, table headers |
+| Micro | `text-micro` | `--text-micro` | 10 | 1.3 | 500 | +0.02em | chips, ticks — never prose |
+
+Overline is the one role needing a second class: `uppercase` is a
+text-transform, which a font-size token cannot carry. Sizes are declared in rem
+(13px = 0.8125rem) so the scale still answers the browser's font-size setting.
+Any part of a role may still be overridden per instance — `font-medium`,
+`leading-tight` and `tracking-normal` all win over the token, because Tailwind
+compiles the modifiers behind `--tw-font-weight` / `--tw-leading` /
+`--tw-tracking`.
 
 Rules: negative tracking only ≥15px; uppercase+wide tracking only ≤12px;
 headings `text-wrap: balance`, paragraphs `text-wrap: pretty` (global). Body
 colour `navy`; secondary `navy-400`; muted `navy-300`.
 
+**Migration status:** ~1,340 arbitrary type values (`text-[13px]` &c.) predate
+these tokens and still compile to identical CSS, so they are not defects to fix
+on sight — but do not add more. New and rewritten code uses the utilities.
+
 ## 8. Spacing — 4px grid
+
+`--spacing: 0.25rem` is the base every numeric step derives from, so `p-3` is
+`calc(4px × 3)`. Change the base and the whole product re-spaces.
 
 | Step | px | Use |
 |---|---|---|
@@ -125,14 +161,30 @@ colour `navy`; secondary `navy-400`; muted `navy-300`.
 
 If a layout needs 14px, the layout is wrong.
 
+The measures that recur on every page are named, so they are stated rather than
+remembered. Existing screens still spell them as raw steps (`px-5`, `gap-4`) and
+compile identically — prefer the named form in new code:
+
+| Token | Utility | px | Use |
+|---|---|---|---|
+| `--spacing-page` | `px-page` | 20 | page inset, mobile |
+| `--spacing-page-lg` | `sm:px-page-lg` | 32 | page inset, tablet up |
+| `--spacing-section` | `space-y-section` | 48 | rhythm between page sections |
+| `--spacing-card` | `p-card` | 24 | card padding, default |
+| `--spacing-card-sm` | `p-card-sm` | 20 | card padding, compact |
+| `--spacing-gutter` | `gap-gutter` | 16 | standard grid and form gap |
+| `--spacing-gutter-dense` | `gap-gutter-dense` | 12 | dense index grids, toolbars |
+
 ## 9. Layout measurements
 
-| Measure | Value |
-|---|---|
-| Sidebar | 240px (`w-60`), fixed; overlay menu below `lg` |
-| Content max-width | 896px (`max-w-4xl`) reading; data tables may go full-width |
-| Page padding | `px-5` mobile → `sm:px-8` |
-| Section rhythm | `space-y-12` (48px) |
+| Measure | Token | Value |
+|---|---|---|
+| Sidebar | `--spacing-sidebar` | 240px (`w-sidebar`), fixed; overlay menu below `lg` |
+| Content max-width | `--container-measure` | 896px (`max-w-measure`) reading; data tables may go full-width |
+| Control height | `--spacing-control` | 40px (`h-control`) — also the hit-target floor |
+| Clinical touch target | `--spacing-touch` | 44px (`h-touch`) on tablet-facing screens |
+| Page padding | `--spacing-page` / `-lg` | `px-page` → `sm:px-page-lg` |
+| Section rhythm | `--spacing-section` | `space-y-section` (48px) |
 
 ## 9a. Touch targets
 
@@ -157,24 +209,38 @@ Clinical tables (vitals, medication rows, order baskets, results) support a
 
 ## 10. Motion tokens
 
-| Name | Duration | Easing | Use |
+Durations and curves are tokens (`--duration-*`, `--ease-*`); the `.animate-*`
+classes read them, so a curve is retuned in one place. `--ease-*` also gives
+`ease-rise`-style utilities for CSS transitions.
+
+| Name | Duration token | Ease token | Use |
 |---|---|---|---|
-| `animate-rise` | 400ms | `cubic-bezier(0.22,1,0.36,1)` | page/card entrances — `backwards` fill (never `both`: it traps popovers in stacking contexts) |
-| `animate-pop` | 160ms | `cubic-bezier(0.22,1,0.36,1)` | dialogs, menus, ⌘K |
-| `animate-drawer-in` | 360ms | `cubic-bezier(0.32,0.72,0,1)` | drawers in |
-| `animate-drawer-out` | 260ms | `cubic-bezier(0.36,0,0.66,-0.06)` | drawers out — exits faster than entrances |
-| `animate-fade-in/out` | 320/260ms | ease | backdrops |
-| hover/press | 150–200ms | ease | colors/transform |
+| `animate-rise` | `--duration-rise` 400ms | `--ease-rise` | page/card entrances — `backwards` fill (never `both`: it traps popovers in stacking contexts) |
+| `animate-pop` | `--duration-pop` 160ms | `--ease-pop` | dialogs, menus, ⌘K |
+| `animate-drawer-in` | `--duration-drawer-in` 360ms | `--ease-drawer-in` | drawers in |
+| `animate-drawer-out` | `--duration-drawer-out` 260ms | `--ease-drawer-out` | drawers out — exits faster than entrances |
+| `animate-fade-in/out` | `--duration-fade-in` 320ms / `--duration-fade-out` 260ms | ease | backdrops |
+| `gx-icon-pop` | `--duration-icon-pop` 450ms | `--ease-icon-pop` | nav-icon tap feedback — the only overshoot |
+| hover/press | `--duration-hover` 150ms | ease | colors/transform |
 
 Every animation is disabled under `prefers-reduced-motion: reduce` — new
 keyframes MUST be added to the global reduced-motion block in `index.css`.
 
 ## 11. Iconography
 
-Lucide only, 2px stroke. Sizes: 13px inline meta/dense rows · 14px meta rows,
-small buttons · 15px navigation, standard buttons · 17px page-level actions ·
-18px feature tiles, empty states. Icons never carry meaning alone — visible
-label or `aria-label` on the control, `aria-hidden` on the icon.
+Lucide only, 2px stroke, sized to the text beside it. Icons never carry meaning
+alone — visible label or `aria-label` on the control, `aria-hidden` on the icon.
+
+| Token | Utility | px | Use |
+|---|---|---|---|
+| `--spacing-icon-xs` | `size-icon-xs` | 13 | inline meta, dense rows |
+| `--spacing-icon-sm` | `size-icon-sm` | 14 | meta rows, small buttons |
+| `--spacing-icon-md` | `size-icon-md` | 15 | navigation, standard buttons |
+| `--spacing-icon-lg` | `size-icon-lg` | 17 | page-level actions |
+| `--spacing-icon-xl` | `size-icon-xl` | 18 | feature tiles, empty states |
+
+Lucide's `size` prop takes the px number (`size={15}`) — that stays the norm in
+component code; `size-icon-*` is for icons styled from CSS.
 
 ## 12. Do not
 
@@ -186,4 +252,8 @@ label or `aria-label` on the control, `aria-hidden` on the icon.
 - Do not put any animation longer than ~200ms in front of a blocking clinical
   task (an error message never waits behind a slide-in).
 - Do not add new arbitrary values (`text-[Npx]`, `bg-[#hex]`) outside the
-  documented scales in this file.
+  documented scales in this file — the type roles, spacing steps, named
+  measures and icon sizes all have utilities now.
+- Do not reach for a Tailwind default ramp (`text-gray-700`, `bg-blue-50`,
+  `border-red-200`). They compile, but they are not this palette: gray is
+  `navy`/`forest`, blue is `azure`, red is the `rose` pair.

@@ -17,7 +17,7 @@ import { Logo, Mark, type LogoTone } from '@/components/Logo'
 import { cn } from '@/lib/cn'
 import { ColorRamp, toStops } from './ColorRamp'
 import { TokenTable } from './TokenTable'
-import { TOKEN_PREFIXES } from '../tokens'
+import { TOKEN_LENSES, cssVarValue, hasTokens, lengthToPx } from '../tokens'
 
 /** The whole icon set is ~1,745 components, so it loads in its own chunk —
     only the Iconography page pays for it. */
@@ -114,73 +114,171 @@ const COLOR_ROLES: { token: string; hex: string; role: string; usage: string }[]
 
 /* ------------------------------------------------------------ typography */
 
-const TYPE_SCALE: {
-  name: string
-  px: number
-  lh: string
-  weight: string
-  tracking: string
-  usage: string
-  cls: string
-  sample: string
-}[] = [
-  { name: 'Display', px: 32, lh: '1.15', weight: '500', tracking: '−0.02em', usage: 'Hero statements — one per flow', cls: 'text-display', sample: 'One design language' },
-  { name: 'Page title', px: 26, lh: '1.2', weight: '500', tracking: '−0.02em', usage: 'The h1 — exactly one per page', cls: 'text-page-title', sample: 'Facility performance' },
-  { name: 'Title', px: 19, lh: '1.35', weight: '500', tracking: '−0.01em', usage: 'Card, dialog and auth headings', cls: 'text-title', sample: 'Advanced reporting' },
-  { name: 'Section', px: 17, lh: '1.4', weight: '500', tracking: '−0.01em', usage: 'Grouped content inside a page', cls: 'text-section', sample: 'Vitals this visit' },
-  { name: 'Heading', px: 15, lh: '1.45', weight: '500', tracking: '−0.01em', usage: 'List titles, panel headers, lede text', cls: 'text-heading', sample: 'Today’s clinic' },
-  { name: 'Body', px: 14, lh: '1.6', weight: '400', tracking: '0', usage: 'Default reading size — forms, tables, copy', cls: 'text-body', sample: 'Results from the analyser are delayed by roughly 20 minutes.' },
-  { name: 'Secondary', px: 13, lh: '1.55', weight: '400', tracking: '0', usage: 'The dense-UI workhorse: summaries, rows, meta', cls: 'text-secondary text-forest-500', sample: 'Escalated to Dr. Okafor — awaiting counter-signature.' },
-  { name: 'Caption', px: 12, lh: '1.5', weight: '400', tracking: '0', usage: 'Supporting labels, chart annotations', cls: 'text-caption text-forest-400', sample: 'vs 3,554 last period' },
-  { name: 'Overline', px: 11, lh: '1.4', weight: '500', tracking: '+0.08em', usage: 'Eyebrows, group labels, table headers — uppercase', cls: 'text-overline uppercase text-forest-300', sample: 'Clinical' },
-  { name: 'Micro', px: 10, lh: '1.3', weight: '500', tracking: '+0.02em', usage: 'Chips, axis ticks — never for reading', cls: 'text-micro text-forest-400', sample: 'NDPR · encrypted' },
+/**
+ * The ten roles, each named by the single utility that carries it. The size,
+ * line-height, tracking and weight quoted on every row are read back from the
+ * token at render time, so this table cannot drift from `@theme`.
+ * `extra` is presentation for the specimen only — colour, and the `uppercase`
+ * that a font-size token can't carry.
+ */
+const TYPE_SCALE: { name: string; utility: string; usage: string; extra?: string; sample: string }[] = [
+  { name: 'Display', utility: 'text-display', usage: 'Hero statements — one per flow', sample: 'One design language' },
+  { name: 'Page title', utility: 'text-page-title', usage: 'The h1 — exactly one per page', sample: 'Facility performance' },
+  { name: 'Title', utility: 'text-title', usage: 'Card, dialog and auth headings', sample: 'Advanced reporting' },
+  { name: 'Section', utility: 'text-section', usage: 'Grouped content inside a page', sample: 'Vitals this visit' },
+  { name: 'Heading', utility: 'text-heading', usage: 'List titles, panel headers, lede text', sample: 'Today’s clinic' },
+  { name: 'Body', utility: 'text-body', usage: 'Default reading size — forms, tables, copy', sample: 'Results from the analyser are delayed by roughly 20 minutes.' },
+  { name: 'Secondary', utility: 'text-secondary', usage: 'The dense-UI workhorse: summaries, rows, meta', extra: 'text-forest-500', sample: 'Escalated to Dr. Okafor — awaiting counter-signature.' },
+  { name: 'Caption', utility: 'text-caption', usage: 'Supporting labels, chart annotations', extra: 'text-forest-400', sample: 'vs 3,554 last period' },
+  { name: 'Overline', utility: 'text-overline', usage: 'Eyebrows, group labels, table headers', extra: 'uppercase text-forest-300', sample: 'Clinical' },
+  { name: 'Micro', utility: 'text-micro', usage: 'Chips, axis ticks — never for reading', extra: 'text-forest-400', sample: 'NDPR · encrypted' },
 ]
+
+/** Size · line-height · weight · tracking, read off the token behind a role. */
+function typeMetrics(utility: string): string | null {
+  const base = `--${utility}` // text-display → --text-display
+  const raw = cssVarValue(base)
+  if (!raw) return null
+  const px = lengthToPx(raw)
+  const lh = cssVarValue(`${base}--line-height`) ?? '1'
+  const weight = cssVarValue(`${base}--font-weight`) ?? '400'
+  const tracking = cssVarValue(`${base}--letter-spacing`)
+  return [
+    `${px ? `${Math.round(px)}px` : raw}/${lh}`,
+    weight,
+    tracking?.replace('-', '−'),
+  ]
+    .filter(Boolean)
+    .join(' · ')
+}
 
 /* --------------------------------------------------------------- spacing */
 
-const SPACING: { step: string; px: number; usage: string }[] = [
-  { step: '1', px: 4, usage: 'Icon–text gaps, chip padding' },
-  { step: '1.5', px: 6, usage: 'Tight inline gaps' },
-  { step: '2', px: 8, usage: 'Gaps between chips, small controls' },
-  { step: '2.5', px: 10, usage: 'Row padding in dense lists' },
-  { step: '3', px: 12, usage: 'Gaps in card grids, toolbar padding' },
-  { step: '4', px: 16, usage: 'Standard control padding, form gaps' },
-  { step: '5', px: 20, usage: 'Card padding (compact)' },
-  { step: '6', px: 24, usage: 'Card padding (default), section gaps' },
-  { step: '8', px: 32, usage: 'Between content groups' },
-  { step: '10', px: 40, usage: 'Page padding on desktop' },
-  { step: '12', px: 48, usage: 'Between page sections' },
+/** The approved steps of the 4px grid — px are derived from `--spacing`. */
+const SPACING_STEPS: { step: string; usage: string }[] = [
+  { step: '1', usage: 'Icon–text gaps, chip padding' },
+  { step: '1.5', usage: 'Tight inline gaps' },
+  { step: '2', usage: 'Gaps between chips, small controls' },
+  { step: '2.5', usage: 'Row padding in dense lists' },
+  { step: '3', usage: 'Gaps in card grids, toolbar padding' },
+  { step: '4', usage: 'Standard control padding, form gaps' },
+  { step: '5', usage: 'Card padding (compact)' },
+  { step: '6', usage: 'Card padding (default), section gaps' },
+  { step: '8', usage: 'Between content groups' },
+  { step: '10', usage: 'Page padding on desktop' },
+  { step: '12', usage: 'Between page sections' },
 ]
+
+/** The recurring layout measures, named so a page inset isn't a remembered 5. */
+const SPACING_NAMED: { token: string; utility: string; usage: string }[] = [
+  { token: '--spacing-page', utility: 'px-page', usage: 'Page inset on mobile' },
+  { token: '--spacing-page-lg', utility: 'sm:px-page-lg', usage: 'Page inset from tablet up' },
+  { token: '--spacing-section', utility: 'space-y-section', usage: 'Rhythm between page sections' },
+  { token: '--spacing-card', utility: 'p-card', usage: 'Card padding, default' },
+  { token: '--spacing-card-sm', utility: 'p-card-sm', usage: 'Card padding, compact' },
+  { token: '--spacing-gutter', utility: 'gap-gutter', usage: 'Standard grid and form gap' },
+  { token: '--spacing-gutter-dense', utility: 'gap-gutter-dense', usage: 'Dense index grids, toolbars' },
+]
+
+/** The steps, then the named measures — both quoting px read off the tokens. */
+function SpacingSpec() {
+  const base = lengthToPx(cssVarValue('--spacing')) ?? 4
+
+  return (
+    <>
+      <Card pad={false} className="mt-4 divide-y divide-hair/70">
+        {SPACING_STEPS.map((s) => {
+          const px = Math.round(parseFloat(s.step) * base)
+          return (
+            <div
+              key={s.step}
+              className="grid grid-cols-[3.5rem_3rem_1fr] items-center gap-x-4 px-5 py-2 sm:grid-cols-[3.5rem_3rem_10rem_1fr]"
+            >
+              <span className="font-mono text-[12px] text-forest-500">{s.step}</span>
+              <span className="tnum text-[12px] text-forest-400">{px}px</span>
+              <span className="hidden sm:block">
+                <span className="block h-3 bg-azure-200" style={{ width: px * 2 }} />
+              </span>
+              <span className="text-[12px] leading-relaxed text-forest-400">{s.usage}</span>
+            </div>
+          )
+        })}
+      </Card>
+
+      <p className="mb-2.5 mt-8 text-[13px] font-medium text-forest-500">
+        Named measures — the insets and rhythm every page repeats
+      </p>
+      <Card pad={false} className="divide-y divide-hair/70">
+        {SPACING_NAMED.map((s) => {
+          const px = lengthToPx(cssVarValue(s.token))
+          return (
+            <div
+              key={s.token}
+              className="grid grid-cols-[1fr_3rem] items-center gap-x-4 px-5 py-2.5 sm:grid-cols-[11rem_9rem_3rem_1fr]"
+            >
+              <span className="truncate font-mono text-[12px] text-forest-500">{s.token}</span>
+              <span className="hidden truncate font-mono text-[12px] text-forest-400 sm:block">
+                {s.utility}
+              </span>
+              <span className="tnum text-right text-[12px] text-forest-400 sm:text-left">
+                {px ? `${Math.round(px)}px` : '—'}
+              </span>
+              <span className="col-span-2 text-[12px] leading-relaxed text-forest-400 sm:col-span-1">
+                {s.usage}
+              </span>
+            </div>
+          )
+        })}
+      </Card>
+    </>
+  )
+}
 
 /* ---------------------------------------------------------------- radius */
 
-const RADIUS_TOKENS: { token: string; value: string; usage: string }[] = [
-  { token: 'rounded-xl', value: '0px', usage: 'Chips, small icon buttons' },
-  { token: 'rounded-2xl', value: '0px', usage: 'Buttons, inputs, list rows' },
-  { token: 'rounded-3xl', value: '0px', usage: 'Inner tiles, popovers' },
-  { token: 'rounded-4xl', value: '0px', usage: 'Cards, modals, drawers' },
-  { token: 'rounded-full', value: '9999px', usage: 'Pills, dots, toggles, avatars — the only exception' },
+/**
+ * Two rows, because there are two shapes — not eight.
+ *
+ * `--radius` is the single structural decision; the t-shirt sizes are aliases
+ * of it, kept only so pre-reskin `rounded-md`…`rounded-5xl` classes still
+ * resolve. `rounded-full` carries no token — it is Tailwind's built-in — so its
+ * row quotes the literal value.
+ */
+const RADIUS_TOKENS: { utility: string; token?: string; value?: string; usage: string }[] = [
+  {
+    utility: 'rounded-sm … rounded-5xl',
+    token: '--radius',
+    usage: 'All structure: buttons, inputs, cards, tiles, popovers, modals, drawers',
+  },
+  {
+    utility: 'rounded-full',
+    value: '∞',
+    usage: 'Pills, dots, toggles, avatars — the only exception',
+  },
 ]
 
 /* ------------------------------------------------------------- elevation */
 
-const SHADOWS: { name: string; note: string; style: string; value: string }[] = [
-  { name: 'shadow-chip', note: 'chips & small controls', style: 'var(--shadow-chip)', value: '1px ring + 1px 2px' },
-  { name: 'shadow-card', note: 'resting cards', style: 'var(--shadow-card)', value: '6px 16px, ≤5% black' },
-  { name: 'shadow-card-hover', note: 'lifted on hover', style: 'var(--shadow-card-hover)', value: '12px 28px, ≤7% black' },
-  { name: 'shadow-soft', note: 'quiet chrome', style: 'var(--shadow-soft)', value: '4px 16px, ≤7% black' },
-  { name: 'shadow-pop', note: 'popovers & modals', style: 'var(--shadow-pop)', value: '1px ring + 8px 28px, 16% black' },
+const SHADOWS: { name: string; note: string; value: string }[] = [
+  { name: 'shadow-chip', note: 'Chips & small controls', value: '1px ring + 1px 2px' },
+  { name: 'shadow-card', note: 'Resting cards', value: '6px 16px, ≤5% black' },
+  { name: 'shadow-card-hover', note: 'Lifted on hover', value: '12px 28px, ≤7% black' },
+  { name: 'shadow-soft', note: 'Quiet chrome', value: '4px 16px, ≤7% black' },
+  { name: 'shadow-pop', note: 'Popovers & modals', value: '1px ring + 8px 28px, 16% black' },
 ]
 
 /* ---------------------------------------------------------------- motion */
 
-const MOTION_TOKENS: { name: string; duration: string; easing: string; usage: string }[] = [
-  { name: 'rise', duration: '400ms', easing: 'cubic-bezier(0.22, 1, 0.36, 1)', usage: 'Page and card entrances' },
-  { name: 'pop', duration: '160ms', easing: 'cubic-bezier(0.22, 1, 0.36, 1)', usage: 'Overlays: dialogs, menus, the ⌘K palette' },
-  { name: 'drawer-in', duration: '360ms', easing: 'cubic-bezier(0.32, 0.72, 0, 1)', usage: 'Side drawers entering' },
-  { name: 'drawer-out', duration: '260ms', easing: 'cubic-bezier(0.36, 0, 0.66, −0.06)', usage: 'Side drawers leaving — exits are faster' },
-  { name: 'fade-in / out', duration: '320 / 260ms', easing: 'ease', usage: 'Backdrops and scrims' },
-  { name: 'colors / transform', duration: '150–200ms', easing: 'ease (default)', usage: 'Hover, focus and pressed micro-transitions' },
+/** Durations and curves are read from `--duration-*` / `--ease-*` at render. */
+const MOTION_TOKENS: { name: string; duration: string; ease?: string; usage: string }[] = [
+  { name: 'rise', duration: '--duration-rise', ease: '--ease-rise', usage: 'Page and card entrances' },
+  { name: 'pop', duration: '--duration-pop', ease: '--ease-pop', usage: 'Overlays: dialogs, menus, the ⌘K palette' },
+  { name: 'drawer-in', duration: '--duration-drawer-in', ease: '--ease-drawer-in', usage: 'Side drawers entering' },
+  { name: 'drawer-out', duration: '--duration-drawer-out', ease: '--ease-drawer-out', usage: 'Side drawers leaving — exits are faster' },
+  { name: 'fade-in', duration: '--duration-fade-in', usage: 'Backdrops and scrims entering' },
+  { name: 'fade-out', duration: '--duration-fade-out', usage: 'Backdrops and scrims leaving' },
+  { name: 'icon-pop', duration: '--duration-icon-pop', ease: '--ease-icon-pop', usage: 'Tap feedback on nav icons — the one overshoot' },
+  { name: 'hover / press', duration: '--duration-hover', usage: 'Colour, border and transform micro-transitions' },
 ]
 
 function MotionTile({ label, animation }: { label: string; animation: string }) {
@@ -267,12 +365,13 @@ const MARK_SIZES: { px: number; cls: string; usage: string }[] = [
 
 /* ------------------------------------------------------------ iconography */
 
-const ICON_SIZES: { px: number; usage: string }[] = [
-  { px: 13, usage: 'Inline meta, dense rows' },
-  { px: 14, usage: 'Meta rows, small buttons' },
-  { px: 15, usage: 'Nav, standard buttons' },
-  { px: 17, usage: 'Page-level actions' },
-  { px: 18, usage: 'Tiles, empty states' },
+/** Sizes come off `--spacing-icon-*`; Lucide takes them as a `size` number. */
+const ICON_SIZES: { token: string; fallbackPx: number; usage: string }[] = [
+  { token: '--spacing-icon-xs', fallbackPx: 13, usage: 'Inline meta, dense rows' },
+  { token: '--spacing-icon-sm', fallbackPx: 14, usage: 'Meta rows, small buttons' },
+  { token: '--spacing-icon-md', fallbackPx: 15, usage: 'Nav, standard buttons' },
+  { token: '--spacing-icon-lg', fallbackPx: 17, usage: 'Page-level actions' },
+  { token: '--spacing-icon-xl', fallbackPx: 18, usage: 'Tiles, empty states' },
 ]
 
 /* -------------------------------------------------------------- the page */
@@ -432,20 +531,27 @@ const FOUNDATION_SECTIONS: Record<string, ReactNode> = {
                 key={t.name}
                 className="flex flex-col gap-2 px-5 py-4 sm:flex-row sm:items-baseline sm:justify-between sm:gap-8 sm:px-6"
               >
-                <p className={cn(t.cls, 'min-w-0 truncate text-forest')}>{t.sample}</p>
+                <p className={cn(t.utility, t.extra ?? 'text-forest', 'min-w-0 truncate')}>{t.sample}</p>
                 <div className="shrink-0 sm:w-72 sm:text-right">
                   <p className="text-[12px] font-medium text-forest">
                     {t.name}
                     <span className="tnum ml-2 font-mono text-[11px] font-normal text-forest-400">
-                      {t.px}/{t.lh} · {t.weight}
-                      {t.tracking !== '0' && ` · ${t.tracking}`}
+                      {typeMetrics(t.utility)}
                     </span>
                   </p>
+                  <p className="mt-0.5 font-mono text-[11px] text-forest-400">{t.utility}</p>
                   <p className="mt-0.5 text-[11px] leading-relaxed text-forest-300">{t.usage}</p>
                 </div>
               </div>
             ))}
           </Card>
+          <p className="mt-3 text-[12px] leading-relaxed text-forest-300">
+            One utility carries the whole role — size, line-height, weight and tracking all ride on
+            the token, so <code className="bg-panel px-1.5 py-0.5 font-mono text-[11px]">text-secondary</code>{' '}
+            replaces <code className="bg-panel px-1.5 py-0.5 font-mono text-[11px]">text-[13px] leading-relaxed</code>.
+            Overline is the one exception: <span className="font-mono">uppercase</span> is a
+            text-transform, which no font-size token can carry.
+          </p>
         </Section>
   ),
   "space": (
@@ -454,23 +560,14 @@ const FOUNDATION_SECTIONS: Record<string, ReactNode> = {
           delay={160}
           blurb={
             <>
-              A 4px base grid — every gap, inset and offset is a multiple of it. Components use the
-              steps below and nothing in between; if a layout needs 14px, the layout is wrong.
+              A 4px base grid — every gap, inset and offset is a multiple of it. One token,{' '}
+              <span className="font-mono">--spacing</span>, carries the base, so every numeric step
+              is derived from it rather than typed out. Components use the steps below and nothing in
+              between; if a layout needs 14px, the layout is wrong.
             </>
           }
         >
-          <Card pad={false} className="mt-4 divide-y divide-hair/70">
-            {SPACING.map((s) => (
-              <div key={s.step} className="grid grid-cols-[3.5rem_3rem_1fr] items-center gap-x-4 px-5 py-2 sm:grid-cols-[3.5rem_3rem_10rem_1fr]">
-                <span className="font-mono text-[12px] text-forest-500">{s.step}</span>
-                <span className="tnum text-[12px] text-forest-400">{s.px}px</span>
-                <span className="hidden sm:block">
-                  <span className="block h-3 rounded-sm bg-azure-200" style={{ width: s.px * 2 }} />
-                </span>
-                <span className="text-[12px] leading-relaxed text-forest-400">{s.usage}</span>
-              </div>
-            ))}
-          </Card>
+          <SpacingSpec />
         </Section>
   ),
   "layout": (
@@ -489,12 +586,12 @@ const FOUNDATION_SECTIONS: Record<string, ReactNode> = {
           <Card pad={false} className="mt-4">
             <div className="divide-y divide-hair/70">
               {[
-                ['Sidebar', '240px', 'w-60 — docs and demo share it'],
-                ['Content max-width', '896px', 'max-w-4xl, centred in the remaining space'],
-                ['Page padding', '20 → 32px', 'px-5 on mobile, sm:px-8 from tablet'],
-                ['Section rhythm', '48px', 'space-y-12 between page sections'],
-                ['Card grid gaps', '12–16px', 'gap-3 dense indexes, gap-4 standard'],
-                ['Touch target', '≥ 40px', 'h-10 controls; sm only inside clickable rows'],
+                ['Sidebar', '240px', 'w-sidebar — docs and demo share it'],
+                ['Content max-width', '896px', 'max-w-measure, centred in the remaining space'],
+                ['Page padding', '20 → 32px', 'px-page on mobile, sm:px-page-lg from tablet'],
+                ['Section rhythm', '48px', 'space-y-section between page sections'],
+                ['Card grid gaps', '12–16px', 'gap-gutter-dense indexes, gap-gutter standard'],
+                ['Touch target', '≥ 40px', 'h-control; 44px (h-touch) on clinical tablets'],
               ].map(([name, value, note]) => (
                 <div key={name} className="grid grid-cols-[10rem_5rem_1fr] items-baseline gap-x-4 px-5 py-2.5">
                   <span className="text-[13px] font-medium text-forest">{name}</span>
@@ -524,21 +621,31 @@ const FOUNDATION_SECTIONS: Record<string, ReactNode> = {
           delay={240}
           blurb={
             <>
-              Square corners, Carbon-style: every structural radius token resolves to 0px, so buttons,
-              inputs, cards and overlays all sit flush. Only <span className="font-mono">rounded-full</span>{' '}
-              survives — pills, dots, toggles and avatars — which keeps status and identity instantly
-              tellable from structure.
+              One decision, one token: structure is square. Everything structural — buttons, inputs,
+              cards, tiles, popovers, modals, drawers — takes{' '}
+              <span className="font-mono">--radius</span>, and{' '}
+              <span className="font-mono">rounded-full</span> is the only survivor, for pills, dots,
+              toggles and avatars. So a round silhouette always means status or identity, never
+              structure.
             </>
           }
         >
-          {/* One card: the token rows, then the shapes they produce as a
+          {/* One card: the two shapes, then the silhouettes they produce as a
               footer band — the same anatomy as the Iconography card. */}
           <Card pad={false} className="mt-4">
             <div className="divide-y divide-hair/70">
               {RADIUS_TOKENS.map((r) => (
-                <div key={r.token} className="grid grid-cols-[7.5rem_4rem_1fr] items-baseline gap-x-4 px-5 py-2.5">
-                  <span className="font-mono text-[12px] text-forest-500">{r.token}</span>
-                  <span className="tnum text-[12px] text-forest-400">{r.value}</span>
+                <div
+                  key={r.utility}
+                  className="grid grid-cols-[10rem_4rem_1fr] items-baseline gap-x-4 px-5 py-2.5 sm:grid-cols-[10rem_6rem_4rem_1fr]"
+                >
+                  <span className="font-mono text-[12px] text-forest-500">{r.utility}</span>
+                  <span className="hidden truncate font-mono text-[12px] text-forest-300 sm:block">
+                    {r.token ?? '—'}
+                  </span>
+                  <span className="tnum text-[12px] text-forest-400">
+                    {(r.token && cssVarValue(r.token)) ?? r.value}
+                  </span>
                   <span className="text-[12px] leading-relaxed text-forest-400">{r.usage}</span>
                 </div>
               ))}
@@ -550,6 +657,13 @@ const FOUNDATION_SECTIONS: Record<string, ReactNode> = {
               <div className="h-12 w-12 rounded-full border border-navy-200 bg-panel" />
             </div>
           </Card>
+          <p className="mt-3 text-[12px] leading-relaxed text-forest-300">
+            The <span className="font-mono">rounded-sm … rounded-5xl</span> sizes are aliases of{' '}
+            <span className="font-mono">--radius</span>, kept so components written before the
+            square-corner reskin still resolve — roughly 870 usages across 157 files. Set{' '}
+            <span className="font-mono">--radius</span> once and every one of them follows; there is
+            no second radius to keep in step.
+          </p>
         </Section>
   ),
   "elevation": (
@@ -564,10 +678,22 @@ const FOUNDATION_SECTIONS: Record<string, ReactNode> = {
             </>
           }
         >
-          <div className="mt-4 grid gap-4 rounded-4xl bg-panel p-6 sm:grid-cols-2 lg:grid-cols-5">
-            {SHADOWS.map((s, i) => (
-              <div key={s.name} className="rounded-3xl bg-white p-4" style={{ boxShadow: s.style }}>
-                <p className="text-[11px] font-medium uppercase tracking-[0.08em] text-forest-300">Level {i}</p>
+          {/* Level 0 leads the grid: the default is a hairline and no shadow,
+              so it has to be shown rather than implied by the four that lift. */}
+          <div className="mt-4 grid gap-4 rounded-4xl bg-panel p-6 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="rounded-3xl border border-hair bg-white p-4">
+              <p className="text-overline uppercase text-forest-300">Level 0 · default</p>
+              <p className="mt-1 font-mono text-[12px] text-forest-500">border-hair</p>
+              <p className="mt-0.5 text-[11px] text-forest-300">Everything at rest</p>
+              <p className="tnum mt-2 text-[10px] text-forest-300">no shadow</p>
+            </div>
+            {SHADOWS.map((s) => (
+              <div
+                key={s.name}
+                className="rounded-3xl bg-white p-4"
+                style={{ boxShadow: `var(--${s.name})` }}
+              >
+                <p className="text-overline uppercase text-forest-300">Raised</p>
                 <p className="mt-1 font-mono text-[12px] text-forest-500">{s.name}</p>
                 <p className="mt-0.5 text-[11px] text-forest-300">{s.note}</p>
                 <p className="tnum mt-2 text-[10px] text-forest-300">{s.value}</p>
@@ -593,8 +719,12 @@ const FOUNDATION_SECTIONS: Record<string, ReactNode> = {
               {MOTION_TOKENS.map((m) => (
                 <div key={m.name} className="grid grid-cols-[8rem_5.5rem_14rem_1fr] items-baseline gap-x-4 px-5 py-2.5">
                   <span className="font-mono text-[12px] text-forest-500">{m.name}</span>
-                  <span className="tnum text-[12px] text-forest-400">{m.duration}</span>
-                  <span className="tnum truncate font-mono text-[11px] text-forest-300">{m.easing}</span>
+                  <span className="tnum text-[12px] text-forest-400">
+                    {cssVarValue(m.duration) ?? '—'}
+                  </span>
+                  <span className="tnum truncate font-mono text-[11px] text-forest-300">
+                    {(m.ease && cssVarValue(m.ease)?.replace('-0.06', '−0.06')) ?? 'ease'}
+                  </span>
                   <span className="text-[12px] text-forest-400">{m.usage}</span>
                 </div>
               ))}
@@ -622,15 +752,21 @@ const FOUNDATION_SECTIONS: Record<string, ReactNode> = {
         >
           <Card pad={false} className="mt-4">
             <div className="grid grid-cols-2 gap-y-5 py-5 sm:grid-cols-5 sm:gap-y-0 sm:divide-x sm:divide-hair/70">
-              {ICON_SIZES.map((s) => (
-                <div key={s.px} className="flex flex-col items-center gap-1.5 px-3 text-center">
-                  <span className="flex h-9 items-center justify-center text-forest-500">
-                    <Stethoscope size={s.px} aria-hidden />
-                  </span>
-                  <span className="tnum text-[12px] font-medium text-forest">{s.px}px</span>
-                  <span className="text-[11px] leading-relaxed text-forest-300">{s.usage}</span>
-                </div>
-              ))}
+              {ICON_SIZES.map((s) => {
+                const px = Math.round(lengthToPx(cssVarValue(s.token)) ?? s.fallbackPx)
+                return (
+                  <div key={s.token} className="flex flex-col items-center gap-1.5 px-3 text-center">
+                    <span className="flex h-9 items-center justify-center text-forest-500">
+                      <Stethoscope size={px} aria-hidden />
+                    </span>
+                    <span className="tnum text-[12px] font-medium text-forest">{px}px</span>
+                    <span className="font-mono text-[11px] text-forest-400">
+                      {s.token.replace('--spacing-icon-', 'icon-')}
+                    </span>
+                    <span className="text-[11px] leading-relaxed text-forest-300">{s.usage}</span>
+                  </div>
+                )
+              })}
             </div>
           </Card>
 
@@ -864,10 +1000,14 @@ export function Foundations() {
  */
 function StylesOrTokens({ slug, children }: { slug: string; children: ReactNode }) {
   const [view, setView] = useState<'styles' | 'tokens'>('styles')
-  const prefixes = TOKEN_PREFIXES[slug] ?? []
+  const prefixes = TOKEN_LENSES[slug] ?? []
 
   // A slug change remounts nothing, so reset the view explicitly.
   useEffect(() => setView('styles'), [slug])
+
+  // A foundation with no token family behind it shows the specimen alone,
+  // rather than a Tokens tab that opens onto an empty table.
+  if (!hasTokens(slug)) return <>{children}</>
 
   return (
     <>

@@ -121,7 +121,7 @@ export function SignInPage() {
     <div className="grid min-h-screen lg:grid-cols-[5fr_7fr]">
       {/* Brand panel */}
       <div className="hidden flex-col justify-between bg-navy p-10 text-white lg:flex">
-        <Logo tone="white" className="h-6" />
+        <Logo tone="white" className="h-6 self-start" />
         <div className="py-10">
           <p className="max-w-[26ch] text-[26px] font-medium leading-snug tracking-[-0.01em] text-balance">
             One record. Every facility. The whole care journey.

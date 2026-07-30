@@ -191,7 +191,7 @@ export const DISPLAY_DOCS: ComponentDoc[] = [
     slug: 'card',
     whenToUse: [
       'Grouping everything about one subject — a patient, an order, a KPI — on the canvas background.',
-      'Don\'t nest cards or wrap every paragraph; if the whole page is one subject, sections and dividers are quieter (Carbon guidance).',
+      'Don\'t nest cards or wrap every paragraph; if the whole page is one subject, sections and dividers are quieter.',
     ],
     name: 'Card',
     group: 'Data display',

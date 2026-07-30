@@ -89,7 +89,7 @@ govern every screen (each is expanded into concrete rules later in this guide):
 | NHS Digital Service Manual & Design System | Model for form/error/content patterns | High |
 | **WCAG 2.2 AA** (W3C, 2023) | Accessibility gate — every module (§16) | Very high |
 | ISO 9241-210:2019 | Human-centred design governance & traceability | High |
-| OpenMRS 3 / O3 (Carbon-based) | EMR design-system benchmark; Rednoxx shares the square-corner Carbon geometry | Medium-high |
+| OpenMRS 3 / O3 | EMR design-system benchmark | Medium-high |
 | **HL7 FHIR R4** | Every persisted field maps to a FHIR resource (§14) | Very high |
 | Nigeria Core FHIR IG (NDHI, continuous build) | Nigerian profiles, identifiers, value sets, privacy | Very high |
 | NDHI National Enterprise Architecture | Facility integration, registries, HIE readiness, reporting | Very high |
@@ -141,9 +141,17 @@ src/
 
 ## 4. Design tokens
 
-Tokens are CSS custom properties in the `@theme` block of
+Tokens are CSS custom properties in the `@theme static` block of
 [`app/src/index.css`](../app/src/index.css). Components MUST reference tokens
 (via Tailwind utilities) — never raw hex values in component code.
+
+`static` is deliberate: plain `@theme` makes Tailwind emit only the variables
+some utility happens to reference, which silently hides unused tokens from
+`:root` — and the Tokens tables in the design system read the live stylesheet.
+Six families own a scale and are browsable at `/design/foundations/<slug>` →
+Tokens: colour, type, spacing, shape, elevation, icon sizing. Brand, layout,
+motion and focus are rules for applying those scales, so they show a specimen
+only.
 
 ### 4.1 Ink (primary neutral — token family `navy`, legacy alias `forest`)
 
@@ -218,18 +226,27 @@ Geist for everything; Geist Mono for code, tokens, MRNs and identifiers.
 Numbers that update in place (vitals, money, timers, tables) MUST wear `.tnum`.
 Ten styles cover the entire product — do not invent an eleventh:
 
-| Style | Size | Line | Weight | Tracking | Tailwind classes | Use |
+Every role is a single token, so one utility carries size, line-height, weight
+and tracking together:
+
+| Style | Utility | Size | Line | Weight | Tracking | Use |
 |---|---|---|---|---|---|---|
-| Display | 32px | 1.15 | 500 | −0.02em | `text-[32px] font-medium leading-[1.15] tracking-[-0.02em]` | hero statements — one per flow |
-| Page title | 26px | 1.2 | 500 | −0.02em | `text-[26px] font-medium leading-[1.2] tracking-[-0.02em]` | the `h1` — exactly one per page |
-| Title | 19px | 1.35 | 500 | −0.01em | `text-[19px] font-medium leading-[1.35] tracking-[-0.01em]` | card, dialog, auth headings |
-| Section | 17px | 1.4 | 500 | −0.01em | `text-[17px] font-medium leading-[1.4] tracking-[-0.01em]` | grouped content inside a page |
-| Heading | 15px | 1.45 | 500 | −0.01em | `text-[15px] font-medium leading-[1.45] tracking-[-0.01em]` | list titles, panel headers, lede |
-| Body | 14px | 1.6 | 400 | 0 | `text-sm leading-relaxed` | default reading size |
-| Secondary | 13px | 1.55 | 400 | 0 | `text-[13px] leading-relaxed` | the dense-UI workhorse |
-| Caption | 12px | 1.5 | 400 | 0 | `text-[12px]` | supporting labels, annotations |
-| Overline | 11px | 1.4 | 500 | +0.08em | `text-[11px] font-medium uppercase tracking-[0.08em]` | eyebrows, group labels, table headers |
-| Micro | 10px | 1.3 | 500 | +0.02em | `text-[10px] font-medium` | chips, axis ticks — never prose |
+| Display | `text-display` | 32px | 1.15 | 500 | −0.02em | hero statements — one per flow |
+| Page title | `text-page-title` | 26px | 1.2 | 500 | −0.02em | the `h1` — exactly one per page |
+| Title | `text-title` | 19px | 1.35 | 500 | −0.01em | card, dialog, auth headings |
+| Section | `text-section` | 17px | 1.4 | 500 | −0.01em | grouped content inside a page |
+| Heading | `text-heading` | 15px | 1.45 | 500 | −0.01em | list titles, panel headers, lede |
+| Body | `text-body` | 14px | 1.6 | 400 | 0 | default reading size |
+| Secondary | `text-secondary` | 13px | 1.55 | 400 | 0 | the dense-UI workhorse |
+| Caption | `text-caption` | 12px | 1.5 | 400 | 0 | supporting labels, annotations |
+| Overline | `text-overline uppercase` | 11px | 1.4 | 500 | +0.08em | eyebrows, group labels, table headers |
+| Micro | `text-micro` | 10px | 1.3 | 500 | +0.02em | chips, axis ticks — never prose |
+
+`uppercase` is the one thing a font-size token can't carry, so Overline takes it
+as a second class. Per-instance overrides still work — `font-medium`,
+`leading-tight`, `tracking-normal` all beat the token. The ~1,340 existing
+`text-[13px]`-style values compile to the same CSS and are not defects to chase,
+but new code uses the utilities.
 
 Rules: negative tracking only at ≥15px; uppercase+wide tracking only at ≤12px.
 Headings use `text-wrap: balance`, paragraphs `text-wrap: pretty` (set
@@ -238,8 +255,9 @@ globally). Body text colour is `navy`/`forest`; secondary `navy-400`; muted
 
 ## 6. Spacing & layout
 
-**4px base grid.** Every gap, inset and offset is a multiple of 4px. If a
-layout needs 14px, the layout is wrong.
+**4px base grid.** One token — `--spacing: 0.25rem` — is the base every numeric
+step derives from, so `p-3` is `calc(4px × 3)`. Every gap, inset and offset is a
+multiple of 4px. If a layout needs 14px, the layout is wrong.
 
 | Step | px | Use |
 |---|---|---|
@@ -255,39 +273,54 @@ layout needs 14px, the layout is wrong.
 | 10 | 40 | desktop page padding |
 | 12 | 48 | between page sections |
 
+**Named measures.** The values that recur on every page are tokens, so a page
+inset is stated rather than remembered: `--spacing-page` (20px, `px-page`),
+`--spacing-page-lg` (32px), `--spacing-section` (48px, `space-y-section`),
+`--spacing-card` (24px, `p-card`), `--spacing-card-sm` (20px),
+`--spacing-gutter` (16px, `gap-gutter`), `--spacing-gutter-dense` (12px).
+
 **Shell measurements:**
 
-| Measure | Value | Rule |
-|---|---|---|
-| Sidebar | 240px (`w-60`) | fixed, both docs and product |
-| Content max-width | 896px (`max-w-4xl`) for reading; data tables MAY go full-width | |
-| Page padding | `px-5` mobile → `sm:px-8` | |
-| Section rhythm | `space-y-12` (48px) | |
-| Touch target | **≥ 40px** (`h-10`) | `size="sm"` only inside rows that are themselves clickable |
-| Breakpoints | Tailwind defaults; sidebar collapses below `lg` into an overlay menu | |
+| Measure | Token | Value | Rule |
+|---|---|---|---|
+| Sidebar | `--spacing-sidebar` | 240px (`w-sidebar`) | fixed, both docs and product |
+| Content max-width | `--container-measure` | 896px (`max-w-measure`) for reading; data tables MAY go full-width | |
+| Page padding | `--spacing-page` / `-lg` | `px-page` mobile → `sm:px-page-lg` | |
+| Section rhythm | `--spacing-section` | `space-y-section` (48px) | |
+| Touch target | `--spacing-control` | **≥ 40px** (`h-control`) | `size="sm"` only inside rows that are themselves clickable |
+| Clinical touch target | `--spacing-touch` | 44px (`h-touch`) | triage, bedside, pharmacy counter — used standing, often gloved |
+| Breakpoints | — | Tailwind defaults; sidebar collapses below `lg` into an overlay menu | |
 
 ## 7. Shape, elevation & motion
 
-**Shape — Carbon-style square corners.** Every structural radius token
-(`--radius-sm` … `--radius-5xl`) resolves to **0px**. Buttons, inputs, cards,
-popovers, modals, drawers are square. The only rounded exception is
+**Shape — one token, square corners.** There is a single structural radius,
+`--radius`, set to **0px** (the Carbon geometry named in §2). Buttons, inputs,
+cards, tiles, popovers, modals, drawers are square. The only rounded exception is
 `rounded-full` — pills, dots, toggles, avatars — so status and identity are
-tellable from silhouette alone. To restyle globally, change the tokens; never
-hard-code a radius in a component.
+tellable from silhouette alone.
+
+`--radius-sm` … `--radius-5xl` are aliases of `--radius`, kept so components
+written before the square-corner reskin still resolve (~870 usages across 157
+files). They are **not** a scale: `rounded-2xl` and `rounded-4xl` produce the
+same shape, so a size MUST NOT be chosen to carry meaning. To restyle globally,
+change `--radius`; never hard-code a radius in a component.
 
 **Elevation:** §4.5. Default is level 0 (hairline border). Surfaces rise only
 while they demand attention and settle back.
 
-**Motion tokens:**
+**Motion tokens.** Durations live in `--duration-*` and curves in `--ease-*`;
+the `.animate-*` classes read them, so retuning a curve is a one-line edit
+rather than a sweep through the keyframes.
 
 | Name | Duration | Easing | Use |
 |---|---|---|---|
-| `animate-rise` | 400ms | `cubic-bezier(0.22, 1, 0.36, 1)` | page & card entrances (`backwards` fill — never `both`, it traps popovers in stale stacking contexts) |
-| `animate-pop` | 160ms | `cubic-bezier(0.22, 1, 0.36, 1)` | overlays: dialogs, menus, ⌘K |
-| `animate-drawer-in` | 360ms | `cubic-bezier(0.32, 0.72, 0, 1)` | drawers entering |
-| `animate-drawer-out` | 260ms | `cubic-bezier(0.36, 0, 0.66, -0.06)` | drawers leaving — **exits are faster than entrances** |
-| `animate-fade-in/out` | 320/260ms | ease | backdrops |
-| hover/press transitions | 150–200ms | ease | colors, transform |
+| `animate-rise` | `--duration-rise` 400ms | `--ease-rise` | page & card entrances (`backwards` fill — never `both`, it traps popovers in stale stacking contexts) |
+| `animate-pop` | `--duration-pop` 160ms | `--ease-pop` | overlays: dialogs, menus, ⌘K |
+| `animate-drawer-in` | `--duration-drawer-in` 360ms | `--ease-drawer-in` | drawers entering |
+| `animate-drawer-out` | `--duration-drawer-out` 260ms | `--ease-drawer-out` | drawers leaving — **exits are faster than entrances** |
+| `animate-fade-in/out` | `--duration-fade-in` 320ms / `--duration-fade-out` 260ms | ease | backdrops |
+| `gx-icon-pop` | `--duration-icon-pop` 450ms | `--ease-icon-pop` | nav-icon tap feedback — the only overshoot |
+| hover/press transitions | `--duration-hover` 150ms | ease | colors, transform |
 
 Every animation MUST be disabled under `prefers-reduced-motion: reduce` (the
 global block in `index.css` already does this — new keyframes must be added to
@@ -295,15 +328,17 @@ it). Motion explains hierarchy; it never decorates.
 
 ## 8. Iconography
 
-Lucide only, stroke-based, default 2px weight. Sizes are fixed to context:
+Lucide only, stroke-based, default 2px weight. Sizes are tokens, fixed to
+context — Lucide's `size` prop takes the number, `size-icon-*` is the utility
+form for icons styled from CSS:
 
-| Size | Context |
-|---|---|
-| 13px | inline meta, dense rows |
-| 14px | meta rows, small buttons |
-| 15px | navigation, standard buttons |
-| 17px | page-level actions |
-| 18px | feature tiles, empty states |
+| Token | Utility | Size | Context |
+|---|---|---|---|
+| `--spacing-icon-xs` | `size-icon-xs` | 13px | inline meta, dense rows |
+| `--spacing-icon-sm` | `size-icon-sm` | 14px | meta rows, small buttons |
+| `--spacing-icon-md` | `size-icon-md` | 15px | navigation, standard buttons |
+| `--spacing-icon-lg` | `size-icon-lg` | 17px | page-level actions |
+| `--spacing-icon-xl` | `size-icon-xl` | 18px | feature tiles, empty states |
 
 Icons NEVER carry meaning alone: pair with a visible label, or `aria-label` on
 the interactive element with `aria-hidden` on the icon itself.
