@@ -1,11 +1,4 @@
-import {
-  ArrowRight,
-  BookOpen,
-  FolderSearch,
-  MonitorPlay,
-  SwatchBook,
-  type LucideIcon,
-} from 'lucide-react'
+import { ArrowRight, FolderSearch, MonitorPlay, SwatchBook, type LucideIcon } from 'lucide-react'
 import { Link, type LinkProps } from '@tanstack/react-router'
 import { Logo } from '@/components/Logo'
 
@@ -33,12 +26,8 @@ const DESTINATIONS: {
     title: 'HIM module',
     blurb: 'Health Information Management — master patient index, registration, duplicates & merge, releases and audit.',
   },
-  {
-    to: '/case-study',
-    icon: BookOpen,
-    title: 'Case study',
-    blurb: 'The written argument — the problem clinical software poses, the four layers, and the decisions behind them.',
-  },
+  // The case study is written and lives in showcase/pages/CaseStudy.tsx, but is
+  // hidden for now — restore this entry and its route in app/router.ts together.
 ]
 
 /** Entry hall for the Rednoxx workspace — one card per destination. */
@@ -52,9 +41,7 @@ export function Landing() {
         </p>
       </div>
 
-      {/* Wider than the 896px reading measure: this is a card grid, and a
-          fourth destination at max-w-4xl squeezed each blurb to five lines. */}
-      <ul className="grid w-full max-w-6xl gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <ul className="grid w-full max-w-4xl gap-4 sm:grid-cols-3">
         {DESTINATIONS.map(({ to, icon: Icon, title, blurb }) => (
           <li key={title}>
             <Link
