@@ -10,16 +10,12 @@
     />
     <meta name="theme-color" content="#171723" />
 
-    <!-- Theme, before first paint: an explicit localStorage choice wins, else
-         the OS preference. Mirrors src/lib/theme.ts — a dark session must
-         never flash light. -->
+    <!-- Theme, before first paint: light leads — dark only when explicitly
+         chosen. Mirrors src/lib/theme.ts — a chosen dark session must never
+         flash light. -->
     <script>
       try {
-        var t = localStorage.getItem('theme')
-        if (
-          t === 'dark' ||
-          (t !== 'light' && matchMedia('(prefers-color-scheme: dark)').matches)
-        ) {
+        if (localStorage.getItem('theme') === 'dark') {
           document.documentElement.classList.add('dark')
         }
       } catch (e) {}

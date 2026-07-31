@@ -6,10 +6,10 @@ import { useCallback, useSyncExternalStore } from 'react'
  * The source of truth is the `dark` class on <html>: `index.css` overrides the
  * design-token custom properties under `:root.dark`, so every component that
  * reads tokens (all of them) re-skins automatically. This module owns the
- * class: it reads localStorage('theme'), falls back to the OS preference, and
- * follows OS changes while the user hasn't chosen explicitly. A tiny inline
- * script in `index.html` applies the same logic before first paint so a dark
- * session never flashes light.
+ * class: it reads localStorage('theme') and defaults to LIGHT — the light theme
+ * leads; dark is an explicit opt-in via the toggle, never inferred from the
+ * OS. A tiny inline script in `index.html` applies the same logic before
+ * first paint so a chosen dark session never flashes light.
  */
 
 export type Theme = 'light' | 'dark'
@@ -17,11 +17,6 @@ export type Theme = 'light' | 'dark'
 const STORAGE_KEY = 'theme'
 
 const listeners = new Set<() => void>()
-
-const media =
-  typeof window !== 'undefined' && 'matchMedia' in window
-    ? window.matchMedia('(prefers-color-scheme: dark)')
-    : null
 
 /** The user's explicit choice, or null when they follow the system. */
 export function storedTheme(): Theme | null {
@@ -33,9 +28,9 @@ export function storedTheme(): Theme | null {
   }
 }
 
-/** The theme in effect right now (explicit choice, else OS preference). */
+/** The theme in effect right now — explicit choice, else light (light leads). */
 export function resolvedTheme(): Theme {
-  return storedTheme() ?? (media?.matches ? 'dark' : 'light')
+  return storedTheme() ?? 'light'
 }
 
 function apply() {
@@ -43,12 +38,7 @@ function apply() {
   listeners.forEach((notify) => notify())
 }
 
-// While no explicit choice is stored, follow the OS setting live.
-media?.addEventListener('change', () => {
-  if (!storedTheme()) apply()
-})
-
-/** Set an explicit theme, or pass null to return to following the system. */
+/** Set an explicit theme, or pass null to return to the light default. */
 export function setTheme(theme: Theme | null) {
   try {
     if (theme) localStorage.setItem(STORAGE_KEY, theme)
