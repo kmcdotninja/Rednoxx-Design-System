@@ -12,6 +12,7 @@ import {
 import { ButtonLink, Card, CodeBlock, Divider, StatCard, StatusPill, Tag } from '@/components/ui'
 import { Logo } from '@/components/Logo'
 import { cn } from '@/lib/cn'
+import { HimSnippetGallery } from './HimSnippets'
 
 /* ─────────────────────────────────────────────────────────────────────────────
    EDIT ME — the only place personal details appear on this page.
@@ -406,6 +407,19 @@ export function CaseStudy() {
               >
                 <CodeBlock code={RADIUS_TOKENS} label="app/src/index.css" />
               </Decision>
+            </div>
+          </Section>
+
+          {/* ── HIM specimens ────────────────────────────────────────────── */}
+          <Section
+            eyebrow="The system in use"
+            title="Fifteen specimens from the product"
+            lede="Records management stresses the system hardest — it is where identity, duplicates and disclosure live — so most of these come from there, with the Care chart and the module switcher alongside. Every tile is live, rendered from the same components the product runs on."
+          >
+            {/* Breaks the 896px reading measure deliberately: these are
+                specimens, not prose, and two columns of them need the width. */}
+            <div className="lg:-mx-24 xl:-mx-32">
+              <HimSnippetGallery />
             </div>
           </Section>
 

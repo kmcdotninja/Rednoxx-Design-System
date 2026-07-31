@@ -156,57 +156,78 @@ export function ModuleSwitcher({
         // which would strand the cards in dead space under the subtitle.
         bodyClassName="pb-7 pt-6"
       >
-        {/* Flex, not a fixed 2-col grid: cards size to their content and wrap,
-            so descriptions read on ~two lines instead of a cramped column. */}
-        <ul className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
-          {modules.map((module) => {
-            const Icon = module.icon
-            const isActive = module.id === active?.id
-            return (
-              <li key={module.id} className="sm:min-w-[15rem] sm:flex-1 sm:basis-0">
-                <button
-                  type="button"
-                  aria-current={isActive ? 'true' : undefined}
-                  onClick={() => choose(module.id)}
-                  className={cn(
-                    'flex h-full w-full items-start gap-3 rounded-2xl border p-4 text-left transition-colors',
-                    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-azure/50',
-                    isActive
-                      ? 'border-azure bg-azure-50'
-                      : 'border-hair bg-white hover:border-navy-200 hover:bg-panel/50',
-                  )}
-                >
-                  <span
-                    className={cn(
-                      'flex h-10 w-10 shrink-0 items-center justify-center rounded-xl',
-                      isActive ? 'bg-azure text-white' : 'bg-panel text-forest-500',
-                    )}
-                  >
-                    <Icon size={18} aria-hidden />
-                  </span>
-                  <span className="min-w-0 flex-1">
-                    <span className="flex items-center gap-1.5">
-                      <span className="text-[15px] font-medium tracking-[-0.01em] text-forest">
-                        {module.name}
-                      </span>
-                      {isActive && <Check size={15} className="text-azure" aria-hidden />}
-                    </span>
-                    {module.description && (
-                      <span className="mt-0.5 block text-pretty text-[13px] leading-relaxed text-forest-400">
-                        {module.description}
-                      </span>
-                    )}
-                    {isActive && <span className="sr-only"> (current module)</span>}
-                  </span>
-                </button>
-              </li>
-            )
-          })}
-        </ul>
+        <ModuleCardList modules={modules} activeId={active?.id} onChoose={choose} />
       </Modal>
 
       {switching && <ModuleSwitchOverlay module={switching} />}
     </>
+  )
+}
+
+/**
+ * The dialog's module cards. Extracted so the switcher's own dialog and a
+ * static specimen (the case-study gallery) render the same markup — a still of
+ * this UI would otherwise drift from it silently.
+ *
+ * Flex, not a fixed 2-col grid: cards size to their content and wrap, so
+ * descriptions read on ~two lines instead of a cramped column.
+ */
+export function ModuleCardList({
+  modules,
+  activeId,
+  onChoose,
+}: {
+  modules: ModuleOption[]
+  activeId?: string
+  /** Omitted in a static specimen — the cards render, they just don't switch. */
+  onChoose?: (id: string) => void
+}) {
+  return (
+    <ul className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+      {modules.map((module) => {
+        const Icon = module.icon
+        const isActive = module.id === activeId
+        return (
+          <li key={module.id} className="sm:min-w-[15rem] sm:flex-1 sm:basis-0">
+            <button
+              type="button"
+              aria-current={isActive ? 'true' : undefined}
+              onClick={onChoose ? () => onChoose(module.id) : undefined}
+              className={cn(
+                'flex h-full w-full items-start gap-3 rounded-2xl border p-4 text-left transition-colors',
+                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-azure/50',
+                isActive
+                  ? 'border-azure bg-azure-50'
+                  : 'border-hair bg-white hover:border-navy-200 hover:bg-panel/50',
+              )}
+            >
+              <span
+                className={cn(
+                  'flex h-10 w-10 shrink-0 items-center justify-center rounded-xl',
+                  isActive ? 'bg-azure text-white' : 'bg-panel text-forest-500',
+                )}
+              >
+                <Icon size={18} aria-hidden />
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="flex items-center gap-1.5">
+                  <span className="text-[15px] font-medium tracking-[-0.01em] text-forest">
+                    {module.name}
+                  </span>
+                  {isActive && <Check size={15} className="text-azure" aria-hidden />}
+                </span>
+                {module.description && (
+                  <span className="mt-0.5 block text-pretty text-[13px] leading-relaxed text-forest-400">
+                    {module.description}
+                  </span>
+                )}
+                {isActive && <span className="sr-only"> (current module)</span>}
+              </span>
+            </button>
+          </li>
+        )
+      })}
+    </ul>
   )
 }
 
@@ -218,9 +239,38 @@ const SNAKE_PATH = 'M20 20H140V60H20V100H140V140H20'
  * A lit segment snakes along a faint grid behind the card and the target
  * module's badge breathes, so the pause reads as deliberate, not a hang.
  * Announced politely for screen readers; the source shell unmounts it on nav.
+ *
+ * `inline` drops the portal, the backdrop and the fixed positioning so the same
+ * card can be shown in a documentation gallery. Exported for that use only —
+ * the switcher itself always renders the full-screen form.
  */
-function ModuleSwitchOverlay({ module }: { module: ModuleOption }) {
+export function ModuleSwitchOverlay({
+  module,
+  inline,
+}: {
+  module: ModuleOption
+  inline?: boolean
+}) {
   const Icon = module.icon
+  const card = (
+    <div className="animate-pop relative flex w-full max-w-xs flex-col items-center gap-4 overflow-hidden rounded-4xl bg-white px-8 py-9 text-center shadow-pop">
+      <SwitchGridSnake />
+      <span className="gx-switch-mark relative flex h-14 w-14 items-center justify-center rounded-2xl bg-azure text-white">
+        <Icon size={26} aria-hidden />
+      </span>
+      <span className="relative flex flex-col gap-1">
+        <span className="text-[11px] font-medium uppercase tracking-[0.08em] text-forest-300">
+          Switching to
+        </span>
+        <span className="text-[17px] font-medium tracking-[-0.01em] text-forest">
+          {module.name}
+        </span>
+      </span>
+    </div>
+  )
+
+  if (inline) return <div className="flex justify-center">{card}</div>
+
   return createPortal(
     <div
       role="status"
@@ -228,20 +278,7 @@ function ModuleSwitchOverlay({ module }: { module: ModuleOption }) {
       className="fixed inset-0 z-[70] flex items-center justify-center p-6"
     >
       <div className="absolute inset-0 bg-forest-900/25 backdrop-blur-[3px]" />
-      <div className="animate-pop relative flex w-full max-w-xs flex-col items-center gap-4 overflow-hidden rounded-4xl bg-white px-8 py-9 text-center shadow-pop">
-        <SwitchGridSnake />
-        <span className="gx-switch-mark relative flex h-14 w-14 items-center justify-center rounded-2xl bg-azure text-white">
-          <Icon size={26} aria-hidden />
-        </span>
-        <span className="relative flex flex-col gap-1">
-          <span className="text-[11px] font-medium uppercase tracking-[0.08em] text-forest-300">
-            Switching to
-          </span>
-          <span className="text-[17px] font-medium tracking-[-0.01em] text-forest">
-            {module.name}
-          </span>
-        </span>
-      </div>
+      {card}
     </div>,
     document.body,
   )

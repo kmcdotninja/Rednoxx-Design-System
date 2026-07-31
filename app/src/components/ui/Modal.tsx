@@ -17,6 +17,7 @@ export function Modal({
   footer,
   size = 'md',
   bodyClassName,
+  inline,
 }: {
   open: boolean
   onClose: () => void
@@ -28,6 +29,14 @@ export function Modal({
   /** Extra classes on the scrollable body — e.g. a min-height to give a short
       dialog more presence. Width stays governed by `size`. */
   bodyClassName?: string
+  /**
+   * Render the panel in normal flow instead of a portalled overlay: no backdrop,
+   * no focus trap, no scroll lock, no close button. For documentation stills
+   * only — a gallery can then show the real dialog chrome at rest rather than a
+   * hand-drawn copy of it. Never use for an actual dialog: without the trap and
+   * the `aria-modal` overlay it is not one.
+   */
+  inline?: boolean
 }) {
   const layerId = useRef(Symbol('modal'))
   const panelRef = useRef<HTMLDivElement>(null)
@@ -43,7 +52,9 @@ export function Modal({
 
 
   useEffect(() => {
-    if (!open) return
+    // An inline still is page content: trapping focus and locking scroll for it
+    // would strand the reader inside a specimen.
+    if (!open || inline) return
     const id = layerId.current
     const opener = document.activeElement as HTMLElement | null
     pushLayer(id)
@@ -74,9 +85,57 @@ export function Modal({
       document.body.style.overflow = ''
       opener?.focus()
     }
-  }, [open])
+  }, [open, inline])
 
   if (!open) return null
+
+  const panel = (
+    <>
+      <div className="flex items-start justify-between gap-4 px-6 pt-6">
+        <div className="min-w-0">
+          {title &&
+            /* An inline still is not a dialog, so its title is not a heading —
+               it would otherwise land at h3 inside whatever documentation page
+               hosts it and compete with that page's own structure. */
+            (inline ? (
+              <p className="text-[15px] font-medium tracking-[-0.01em] text-forest">{title}</p>
+            ) : (
+              <h3 id={titleId} className="text-[15px] font-medium tracking-[-0.01em] text-forest">
+                {title}
+              </h3>
+            ))}
+          {subtitle && <p className="mt-1 text-sm text-forest-400">{subtitle}</p>}
+        </div>
+        {!inline && (
+          <button
+            type="button"
+            onClick={() => onCloseRef.current()}
+            aria-label="Close dialog"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-forest-400 transition-colors hover:bg-panel"
+          >
+            <X size={18} />
+          </button>
+        )}
+      </div>
+      <div className={cn('overflow-y-auto px-6 py-5', bodyClassName)}>{children}</div>
+      {footer && (
+        <div className="flex items-center justify-end gap-2 border-t border-hair px-6 py-4">{footer}</div>
+      )}
+    </>
+  )
+
+  if (inline) {
+    return (
+      <div
+        className={cn(
+          'flex w-full flex-col overflow-hidden rounded-4xl border border-hair bg-white',
+          size === 'lg' ? 'sm:max-w-2xl' : 'sm:max-w-lg',
+        )}
+      >
+        {panel}
+      </div>
+    )
+  }
 
   return createPortal(
     // z-[70]: one layer above Drawer (z-[60]) so a confirm modal opened from
@@ -97,28 +156,7 @@ export function Modal({
           size === 'lg' ? 'sm:max-w-2xl' : 'sm:max-w-lg',
         )}
       >
-        <div className="flex items-start justify-between gap-4 px-6 pt-6">
-          <div className="min-w-0">
-            {title && (
-              <h3 id={titleId} className="text-[15px] font-medium tracking-[-0.01em] text-forest">
-                {title}
-              </h3>
-            )}
-            {subtitle && <p className="mt-1 text-sm text-forest-400">{subtitle}</p>}
-          </div>
-          <button
-            type="button"
-            onClick={() => onCloseRef.current()}
-            aria-label="Close dialog"
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-forest-400 transition-colors hover:bg-panel"
-          >
-            <X size={18} />
-          </button>
-        </div>
-        <div className={cn('overflow-y-auto px-6 py-5', bodyClassName)}>{children}</div>
-        {footer && (
-          <div className="flex items-center justify-end gap-2 border-t border-hair px-6 py-4">{footer}</div>
-        )}
+        {panel}
       </div>
     </div>,
     document.body,

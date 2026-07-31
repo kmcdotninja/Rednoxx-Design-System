@@ -31,10 +31,17 @@ export function PatientBanner({
   patient,
   bio,
   actions,
+  nameAs: Name = 'h1',
 }: {
   patient: Patient
   bio: PatientBio
   actions?: ReactNode
+  /**
+   * Element for the name. `h1` on the chart, where the patient IS the page.
+   * Drop to `p` when the banner is a specimen inside a page that already owns
+   * its heading — a docs example or the case-study gallery.
+   */
+  nameAs?: 'h1' | 'h2' | 'p'
 }) {
   const [revealed, setRevealed] = useState(false)
 
@@ -48,9 +55,9 @@ export function PatientBanner({
           <Avatar name={patient.name} size="lg" />
           <div>
             <div className="flex flex-wrap items-center gap-2.5">
-              <h1 className="text-[22px] font-medium tracking-[-0.02em] text-forest">
+              <Name className="text-[22px] font-medium tracking-[-0.02em] text-forest">
                 {patient.name}
-              </h1>
+              </Name>
               <StatusPill status={patient.status} />
               {/* Allergy flags — always visible; never hidden */}
               {bio.allergies.map((allergy) => (

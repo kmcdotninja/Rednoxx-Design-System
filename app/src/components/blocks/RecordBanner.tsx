@@ -15,6 +15,7 @@ import { Avatar, Card } from '@/components/ui'
  */
 export function RecordBanner({
   name,
+  nameAs: Name = 'h1',
   avatarName,
   status,
   identifiers,
@@ -24,6 +25,12 @@ export function RecordBanner({
 }: {
   /** Full name — the largest element, rendered as the page h1. */
   name: string
+  /**
+   * Element for the name. `h1` on a record screen, where the patient IS the
+   * page. Drop to `p` when the banner is a specimen inside a page that already
+   * owns its heading — a docs example or the case-study gallery.
+   */
+  nameAs?: 'h1' | 'h2' | 'p'
   /** Overrides the avatar's initials source (defaults to `name`). */
   avatarName?: string
   /** Status pill node (e.g. <StatusPill/> or a module's RecordStatusPill). */
@@ -44,9 +51,9 @@ export function RecordBanner({
           <Avatar name={avatarName ?? name} size="lg" />
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2.5">
-              <h1 className="text-[26px] font-medium leading-[1.2] tracking-[-0.02em] text-forest">
+              <Name className="text-[26px] font-medium leading-[1.2] tracking-[-0.02em] text-forest">
                 {name}
-              </h1>
+              </Name>
               {status}
               {/* Allergy flags stay visible at all times — never behind a click. */}
               {allergies?.map((allergy) => (
