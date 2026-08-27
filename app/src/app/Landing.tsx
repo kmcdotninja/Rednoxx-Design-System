@@ -15,6 +15,7 @@ const DESTINATIONS: {
   icon: LucideIcon
   title: string
   blurb: string
+  hidden?: boolean
 }[] = [
   {
     to: '/design',
@@ -39,8 +40,12 @@ const DESTINATIONS: {
     icon: BookOpen,
     title: 'Case study',
     blurb: 'The written argument — the problem clinical software poses, the four layers, and the decisions behind them.',
+    // Hidden from the hall for now; the /case-study route stays reachable.
+    hidden: true,
   },
 ]
+
+const VISIBLE = DESTINATIONS.filter((d) => !d.hidden)
 
 /** Entry hall for the Rednoxx workspace — one card per destination. */
 export function Landing() {
@@ -54,10 +59,9 @@ export function Landing() {
         </p>
       </div>
 
-      {/* Wider than the 896px reading measure: this is a card grid, and a
-          fourth destination at max-w-4xl squeezed each blurb to five lines. */}
-      <ul className="grid w-full max-w-6xl gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {DESTINATIONS.map(({ to, icon: Icon, title, blurb }) => (
+      {/* Wider than the 896px reading measure: this is a card grid. */}
+      <ul className="grid w-full max-w-5xl gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {VISIBLE.map(({ to, icon: Icon, title, blurb }) => (
           <li key={title}>
             <Link
               to={to}
