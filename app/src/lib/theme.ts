@@ -34,7 +34,19 @@ export function resolvedTheme(): Theme {
 }
 
 function apply() {
+  // A theme flip changes color/background/border on nearly every element at
+  // once; 60+ components declare transition-colors, so without suppression
+  // the switch smears instead of snapping. Disable transitions for the flip,
+  // force a reflow, restore on the next frame. [data-theme-transition]
+  // subtrees (the toggle's icon cross-fade) are exempt — that fade IS the
+  // flip's feedback.
+  const style = document.createElement('style')
+  style.textContent =
+    '*:not([data-theme-transition] *),*::before,*::after{transition:none!important}'
+  document.head.appendChild(style)
   document.documentElement.classList.toggle('dark', resolvedTheme() === 'dark')
+  void document.documentElement.offsetHeight
+  requestAnimationFrame(() => style.remove())
   listeners.forEach((notify) => notify())
 }
 

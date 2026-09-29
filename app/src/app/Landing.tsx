@@ -68,12 +68,13 @@ export function Landing() {
               className="group flex h-full flex-col rounded-4xl border border-hair bg-white p-5 transition-[border-color,box-shadow] duration-150 hover:border-navy-200 hover:shadow-card-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-azure/50"
             >
               <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-azure-50 text-azure">
-                <Icon size={17} />
+                <Icon size={17} aria-hidden />
               </span>
               <span className="mt-4 flex items-center justify-between text-[15px] font-medium tracking-[-0.01em] text-forest">
                 {title}
                 <ArrowRight
                   size={15}
+                  aria-hidden
                   className="text-forest-300 transition-transform duration-150 group-hover:translate-x-0.5"
                 />
               </span>
